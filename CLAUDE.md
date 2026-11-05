@@ -95,6 +95,13 @@ apps/mailvigil/       # site do MailVigil
 Uma issue, uma branch, um PR; o PR é mesclado pelo mantenedor depois da revisão. Antes de abrir o PR, rode o
 portão de qualidade e confira se os READMEs (nos dois idiomas) e este arquivo refletem a mudança.
 
+## Specs
+
+Cada funcionalidade nasce como spec em [specs/](specs/README.md), conduzida pela `/spec`: requisitos,
+design e tarefas, cada fase aprovada antes da seguinte. O formato de referência é a
+`specs/001-fundacao/`, que registra o chão atual (workspace, portões de qualidade, CI e `main`
+protegida). Tela nova tem o mockup aprovado no `design.md`.
+
 ## Gestão de dependências
 
 pnpm 12 (campo `packageManager` do `package.json`); `package.json` e `pnpm-lock.yaml` sempre juntos no commit.
