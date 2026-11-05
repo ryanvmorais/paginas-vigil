@@ -31,4 +31,4 @@ catalog:
   # `<6.1`. Sobe para o 7 quando as duas ferramentas passarem a suportá-lo.
   typescript: ^6.0.3
   typescript-eslint: ^8.72.1
-  vitest: ^4.1.12
+  vitest: ^5.0.5
