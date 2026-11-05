@@ -1,0 +1,79 @@
+/**
+ * @file Base do tema: reset, corpo, foco visível e o container `.envoltorio`.
+ *
+ * Vem depois de `tokens.css` e `fontes.css` e antes dos estilos dos componentes. Só regras que valem
+ * para a página inteira; o resto mora no `<style>` de cada componente (RF-01, RNF-02).
+ *
+ * Estrutura do arquivo:
+ *   1. Reset
+ *   2. Corpo
+ *   3. Foco e links
+ *   4. Container
+ */
+
+/* 1. Reset
+ * `border-box` em tudo, para largura e padding somarem de forma previsível. Títulos, parágrafos e
+ * listas perdem a margem e o marcador: o espaçamento é decidido por cada bloco. */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+h1,
+h2,
+h3,
+p,
+ul,
+ol,
+dl,
+figure {
+  margin: 0;
+}
+
+ul,
+ol {
+  padding: 0;
+  list-style: none;
+}
+
+img,
+picture {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* 2. Corpo
+ * `overflow-x: clip` garante que nada empurre a página para os lados (RNF-02): quem for largo,
+ * como o terminal, rola por dentro do próprio bloco. Respeita a área segura de telas com entalhe. */
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.5;
+  overflow-x: clip;
+  padding-left: env(safe-area-inset-left, 0);
+  padding-right: env(safe-area-inset-right, 0);
+}
+
+/* 3. Foco e links
+ * O anel de foco aparece só na navegação por teclado e tem contraste nos dois esquemas (`--focus`). */
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+a {
+  color: var(--link, var(--text));
+}
+
+/* 4. Container
+ * Coluna de leitura única, centralizada, com 20 px de respiro nas bordas. */
+.envoltorio {
+  max-width: 1120px;
+  margin-inline: auto;
+  padding-inline: 20px;
+}

@@ -1,0 +1,63 @@
+/**
+ * @file Fontes locais do tema: Sora 800 (títulos) e JetBrains Mono 400 e 700 (comandos e terminal).
+ *
+ * Os arquivos `woff2` são subconjuntos versionados em `../fontes/` (ADR-3): a política de segurança
+ * de conteúdo do deploy não permite buscar fonte em CDN. O corpo do texto usa `system-ui` e não tem
+ * arquivo. Este CSS é importado pelo `Pagina.astro` (RF-02).
+ *
+ * Estrutura do arquivo:
+ *   1. Fontes de reserva com métrica ajustada (evitam o salto de layout na troca)
+ *   2. Fontes locais (`@font-face`)
+ */
+
+/* 1. Fontes de reserva
+ * Com `font-display: swap` o texto aparece na fonte do sistema e troca quando o `woff2` chega. Cada
+ * reserva abaixo usa uma fonte do sistema com largura e linha ajustadas às da fonte final, para o
+ * título e o terminal não mudarem de tamanho na troca (CLS, RNF-03). Os números vêm da largura média
+ * de um texto de amostra e das métricas verticais de cada fonte. */
+@font-face {
+  font-family: "Sora Reserva";
+  src: local("Arial Bold"), local("Arial-BoldMT"), local("Helvetica Bold");
+  font-weight: 800;
+  size-adjust: 107.6%;
+  ascent-override: 90.1%;
+  descent-override: 26.9%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "JetBrains Mono Reserva";
+  src: local("Courier New"), local("CourierNewPSMT"), local("Courier");
+  font-weight: 400 700;
+  size-adjust: 100%;
+  ascent-override: 102%;
+  descent-override: 30%;
+  line-gap-override: 0%;
+}
+
+/* 2. Fontes locais
+ * `swap` mostra o texto de imediato. O `Pagina.astro` faz `preload` de `sora-800` e de
+ * `jetbrains-mono-400`, as duas que aparecem no topo da página. */
+@font-face {
+  font-family: "Sora";
+  src: url("../fontes/sora-800.woff2") format("woff2");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("../fontes/jetbrains-mono-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("../fontes/jetbrains-mono-700.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
