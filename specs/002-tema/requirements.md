@@ -191,7 +191,7 @@ Nenhuma.
 1. Direção A, "Terminal primeiro", aprovada em mockup; uma só ousadia: o terminal.
 2. Sem redirecionamento automático por idioma; `x-default` aponta para `/en/`.
 3. Cabeçalho sem botão do GitHub (2026-11-05): não é fixo, e o botão repetia o do topo e o da chamada final.
-4. Fontes self-hosted, como no DMARC Fácil.
+4. Fontes self-hosted: sem requisição a outro domínio e com os caracteres de moldura do terminal (RF-02).
 5. O tema entrega a estrutura inteira que é igual nos dois sites (2026-11-05); cada site só passa texto,
    saída do terminal e imagens. A escala de severidade do WebVigil fica no app dele.
 6. Consentimento, GA4 e política de privacidade viram a spec seguinte, `003`, aberta depois do tema.

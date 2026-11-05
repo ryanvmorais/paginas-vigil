@@ -47,6 +47,7 @@ apps/mailvigil/       # site do MailVigil
 .github/workflows/    # ci, codeql, dependency-review, pnpm-audit, lighthouse
 .github/lighthouse/   # limites do Lighthouse CI por site e por formato (celular, desktop)
 .githooks/            # pre-commit: o portão de qualidade em modo verificação
+test/                 # testes do repositório: impessoalidade.test.ts (ver "Convenções")
 .claude/              # hooks do Claude Code (ver "Qualidade e automação")
 ```
 
@@ -71,6 +72,9 @@ apps/mailvigil/       # site do MailVigil
 - **Estilo dos arquivos:** siga o do restante do repositório: cabeçalho `@file` e comentário de documentação
   nas funções exportadas, comentários que explicam o porquê, formatação pelo Prettier (`pnpm format`).
 - **Interface:** mudança de interface parte de um mockup aprovado, não do código.
+- **Quem lê:** tudo o que é versionado é escrito para quem clonou o repositório: sem o nome do
+  mantenedor (só em autoria e licença), com papéis ("o mantenedor") no lugar de pessoas, e sem apontar
+  para comandos que só existem na máquina de quem mantém. `test/impessoalidade.test.ts` guarda isso.
 - **Commits:** Conventional Commits. Os PRs são integrados com squash.
 
 ## Qualidade e automação
@@ -97,8 +101,8 @@ portão de qualidade e confira se os READMEs (nos dois idiomas) e este arquivo r
 
 ## Specs
 
-Cada funcionalidade nasce como spec em [specs/](specs/README.md), conduzida pela `/spec`: requisitos,
-design e tarefas, cada fase aprovada antes da seguinte. O formato de referência é a
+Cada funcionalidade nasce como spec em [specs/](specs/README.md), em três arquivos escritos em ordem:
+`requirements.md`, `design.md` e `tasks.md`, cada fase aprovada antes da seguinte. O formato de referência é a
 `specs/001-fundacao/`, que registra o chão atual (workspace, portões de qualidade, CI e `main`
 protegida). Tela nova tem o mockup aprovado no `design.md`.
 
