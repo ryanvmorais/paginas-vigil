@@ -55,7 +55,7 @@ pnpm test
 pnpm build
 ```
 
-O mapa de cada tecnologia da stack, com o porquê de cada escolha, está em [docs/stack.md](docs/stack.md). Para contribuir, veja o [CONTRIBUTING.md](CONTRIBUTING.md). Para relatar um problema de segurança, veja o [SECURITY.md](SECURITY.md).
+O mapa de cada tecnologia da stack, com o porquê de cada escolha, está em [docs/stack.md](docs/stack.md), e as especificações de cada funcionalidade estão em [specs/](specs/README.md). Para contribuir, veja o [CONTRIBUTING.md](CONTRIBUTING.md). Para relatar um problema de segurança, veja o [SECURITY.md](SECURITY.md).
 
 ## Licença
 

@@ -55,7 +55,7 @@ pnpm test
 pnpm build
 ```
 
-The map of every technology in the stack, with the reason behind each choice, is in [docs/stack.md](docs/stack.md) (in Portuguese). To contribute, see [CONTRIBUTING.md](CONTRIBUTING.md). To report a security problem, see [SECURITY.md](SECURITY.md).
+The map of every technology in the stack, with the reason behind each choice, is in [docs/stack.md](docs/stack.md) (in Portuguese), and the specification of each feature is in [specs/](specs/README.md) (also in Portuguese). To contribute, see [CONTRIBUTING.md](CONTRIBUTING.md). To report a security problem, see [SECURITY.md](SECURITY.md).
 
 ## License
 
