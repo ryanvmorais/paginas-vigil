@@ -56,7 +56,7 @@ vitrine da Etapa 2 em diante é a superfície de verificação.
 
 ## Etapa 4 — Verificação em navegador real e fechamento
 
-- [ ] Conferir a vitrine dos dois sites a 360, 390, 430 e 1280 px, claro e escuro, com o `auditar_proporcoes.py` e o `axe-core`: contraste, alvos de toque, rótulo centralizado, rolagem horizontal, alinhamento da tabela de moldura. — RNF-02, RF-06, RF-08
+- [ ] Conferir a vitrine dos dois sites a 360, 390, 430 e 1280 px, claro e escuro, com o `axe-core` e medindo o desenho: contraste, alvos de toque, proporção dos controles, rótulo centralizado, rolagem horizontal, alinhamento da tabela de moldura. — RNF-02, RF-06, RF-08
 - [ ] Conferir a leitura por leitor de tela com o NVDA: idioma, seletor, botão de copiar, rótulo do terminal. — RNF-02, RF-05, RF-07
 - [ ] Rodar o Lighthouse CI localmente (ou no PR) sobre a vitrine e ajustar até os limites de erro passarem: CLS abaixo de 0,1, sem erro no console, acessibilidade, boas práticas e SEO acima de 0,95. — RNF-03
 - [ ] `CLAUDE.md` (arquitetura do tema e o `verificar-dist`), `docs/stack.md`, `README.md` e `README.en.md` se descreverem a estrutura, e `specs/README.md` (linha da `002-tema` no roadmap e a nota de manutenção "sem inline"). — RNF-01

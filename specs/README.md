@@ -27,13 +27,13 @@ requirements → design → tasks → implementação
 
 Nenhuma fase começa sem a aprovação explícita da anterior.
 
-| Comando             | O que faz                                                        |
-| ------------------- | ---------------------------------------------------------------- |
-| `/spec nova <nome>` | Abre `specs/NNN-nome/` com o `requirements.md` em rascunho       |
-| `/spec design`      | Escreve o `design.md` depois de os requisitos serem aprovados    |
-| `/spec tasks`       | Escreve o `tasks.md` depois de o design ser aprovado             |
-| `/spec implementar` | Executa as tarefas uma a uma e registra cada portão de qualidade |
-| `/spec status`      | Resume o status e a fase de cada spec                            |
+| Fase           | O que acontece                                                                          |
+| -------------- | --------------------------------------------------------------------------------------- |
+| Requisitos     | Abre `specs/NNN-nome/` com o `requirements.md` em `rascunho`                            |
+| Design         | Escreve o `design.md` depois de os requisitos serem aprovados                           |
+| Tarefas        | Escreve o `tasks.md` depois de o design ser aprovado                                    |
+| Implementação  | Executa as tarefas uma a uma e registra o resultado de cada portão de qualidade         |
+| Acompanhamento | O `status` do frontmatter e a tabela do roadmap abaixo dizem em que fase cada spec está |
 
 ## Roadmap
 
