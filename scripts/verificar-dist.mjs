@@ -29,6 +29,9 @@ const COMENTARIO = /<!--[\s\S]*?-->/g;
 const TAG =
   /<([a-z][a-z0-9-]*)((?:\s+[^\s"'<>/=]+(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s"'=<>`]+))?)*)\s*\/?>/gi;
 
+// Comentário ou tag, o que vier primeiro. Os grupos 1 e 2 são os da `TAG` (ficam vazios no comentário).
+const COMENTARIO_OU_TAG = new RegExp(`${COMENTARIO.source}|${TAG.source}`, "gi");
+
 // Um atributo dentro do trecho de atributos de uma tag: nome e valor (aspas duplas, simples ou sem).
 const ATRIBUTO = /([^\s"'<>/=]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+)))?/g;
 
@@ -52,16 +55,22 @@ const lerAtributos = (trecho) => {
 };
 
 /**
- * Lista as tags de abertura de um HTML, sem os comentários.
+ * Lista as tags de abertura de um HTML, ignorando o que está dentro de comentários.
  *
  * @param {string} html - documento HTML
  * @returns {{ nome: string, atributos: Map<string, string> }[]} nome da tag (minúsculo) e atributos
  */
 const lerTags = (html) => {
-  return [...html.replace(COMENTARIO, "").matchAll(TAG)].map(([, nome, atributos]) => ({
-    nome: (nome ?? "").toLowerCase(),
-    atributos: lerAtributos(atributos ?? ""),
-  }));
+  // Uma passada só: o comentário entra na mesma busca da tag e, quando casa, é pulado. Apagar os
+  // comentários antes com `replace` poderia juntar pedaços e formar um `<!--` novo (CodeQL
+  // `js/incomplete-multi-character-sanitization`).
+  const tags = [];
+  for (const [, nome, atributos] of html.matchAll(COMENTARIO_OU_TAG)) {
+    if (nome !== undefined) {
+      tags.push({ nome: nome.toLowerCase(), atributos: lerAtributos(atributos ?? "") });
+    }
+  }
+  return tags;
 };
 
 // ---------------------------------------------------------------------------

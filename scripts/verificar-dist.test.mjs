@@ -71,6 +71,11 @@ describe("verificarHtml: sem inline (RNF-01)", () => {
     expect(verificarHtml(html)).toEqual([]);
   });
 
+  it("termina o comentário no primeiro -->, como o navegador, e confere o que vem depois", () => {
+    const html = pagina({ corpo: "<!-- <!-- a --> <script>x()</script> -->" });
+    expect(verificarHtml(html)).toEqual([expect.stringContaining("<script>")]);
+  });
+
   it("relata cada problema encontrado", () => {
     const html = pagina({
       cabeca: "<style>a{}</style>",

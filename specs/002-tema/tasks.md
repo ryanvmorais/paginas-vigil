@@ -32,7 +32,7 @@ vitrine da Etapa 2 em diante é a superfície de verificação.
 - [x] `packages/tema/src/estilos/base.css`: reset, corpo, `:focus-visible`, `.envoltorio`, sem rolagem horizontal da página. — RNF-02
 - [x] `scripts/verificar-dist.mjs` e `scripts/verificar-dist.test.mjs`: função que recebe o HTML e devolve os problemas (`<script>` sem `src`, `<style>`, `style=`, e em página com `hreflang` a falta de `lang`, `canonical`, do trio `alternate` ou de `og:locale`), com o teste usando HTML montado no próprio teste; o executável varre `dist/` e sai com código 1 se achar algo. — RNF-01, ADR-2
 - [x] `apps/*/astro.config.mjs` e `apps/*/package.json`: `build.inlineStylesheets: "never"`, `vite.build.assetsInlineLimit: 0` e o `build` como `astro build && node ../../scripts/verificar-dist.mjs dist`. — RNF-01, ADR-2
-- [x] Portão de qualidade. — `format:check`, `lint`, `typecheck`, `test` (37 testes em 5 arquivos, 16 deles do `verificar-dist`) e `build` (com o `verificar-dist` rodando nos dois sites) verdes.
+- [x] Portão de qualidade. — `format:check`, `lint`, `typecheck`, `test` (38 testes em 5 arquivos, 17 deles do `verificar-dist`) e `build` (com o `verificar-dist` rodando nos dois sites) verdes.
 
 ## Etapa 2 — Layout, cabeçalho, botão e comando (o topo da página)
 
