@@ -12,7 +12,12 @@
     "./componentes/*": "./src/componentes/*"
   },
   "scripts": {
-    "typecheck": "tsc --noEmit"
+    "typecheck": "astro check"
+  },
+  "devDependencies": {
+    "@astrojs/check": "catalog:",
+    "astro": "catalog:",
+    "typescript": "catalog:"
   },
   "peerDependencies": {
     "astro": "catalog:"
