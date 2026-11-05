@@ -8,22 +8,11 @@ Contribuições são bem-vindas: correções de erros, textos e traduções que 
 
 O projeto é um workspace [pnpm](https://pnpm.io/pt/) com três pacotes: `packages/tema` (tema e utilidades compartilhados), `apps/webvigil` e `apps/mailvigil` (os dois sites, feitos em [Astro](https://astro.build/)). O código é TypeScript, e cada site existe em português e em inglês.
 
-```bash
-pnpm install
-git config core.hooksPath .githooks   # uma vez por clone: ativa o hook de pre-commit
-```
+Como instalar e ativar o hook de pre-commit está na seção [Desenvolvimento do README](README.md#desenvolvimento). A visão da arquitetura e das convenções para quem usa o Claude Code está no [CLAUDE.md](CLAUDE.md).
 
 ## Antes de abrir um pull request
 
-Rode o portão de qualidade inteiro e confira que ele está verde. O CI roda esta mesma sequência, e o hook de pre-commit roda as quatro primeiras etapas:
-
-```bash
-pnpm format:check
-pnpm lint
-pnpm typecheck
-pnpm test
-pnpm build
-```
+Rode o portão de qualidade inteiro (formatação, lint, tipos, testes e build, listados na seção [Desenvolvimento do README](README.md#desenvolvimento)) e confira que ele está verde. O CI roda esta mesma sequência, e o hook de pre-commit roda as quatro primeiras etapas.
 
 ## Convenções
 
