@@ -1,0 +1,17 @@
+# --- 1. GERADOS E DE TERCEIROS ---
+# Não são nossos para formatar: dependências e o lockfile (escrito pelo pnpm).
+node_modules
+pnpm-lock.yaml
+
+# --- 2. SAÍDA DE BUILD ---
+# O que o Astro gera em `dist/` e os tipos que ele escreve em `.astro/`; recriáveis com `pnpm build`.
+dist
+.astro
+
+# --- 3. SAÍDA DE TESTE ---
+# Relatório de cobertura, recriável com `pnpm test`.
+coverage
+
+# --- 4. RELATÓRIOS DO LIGHTHOUSE ---
+# Saída local do `lhci autorun`, recriável.
+.lighthouseci
