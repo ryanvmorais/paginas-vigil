@@ -97,8 +97,8 @@ portão de qualidade e confira se os READMEs (nos dois idiomas) e este arquivo r
 
 ## Specs
 
-Cada funcionalidade nasce como spec em [specs/](specs/README.md), conduzida pela `/spec`: requisitos,
-design e tarefas, cada fase aprovada antes da seguinte. O formato de referência é a
+Cada funcionalidade nasce como spec em [specs/](specs/README.md), em três arquivos escritos em ordem:
+`requirements.md`, `design.md` e `tasks.md`, cada fase aprovada antes da seguinte. O formato de referência é a
 `specs/001-fundacao/`, que registra o chão atual (workspace, portões de qualidade, CI e `main`
 protegida). Tela nova tem o mockup aprovado no `design.md`.
 
