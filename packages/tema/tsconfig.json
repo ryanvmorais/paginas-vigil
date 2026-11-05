@@ -1,5 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "../../tsconfig.base.json",
-  "include": ["src"]
+  // `.astro/types.d.ts` é gerado pelo `astro check` e dá os tipos do Astro aos componentes `.astro`.
+  "include": [".astro/types.d.ts", "src"]
 }
