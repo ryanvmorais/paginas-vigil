@@ -1,6 +1,6 @@
 ---
 feature: Tema compartilhado — tokens, fontes, layout bilíngue e componentes dos dois sites
-status: rascunho
+status: em andamento
 date: 2026-11-05
 related: [001-fundacao]
 origin: conception
@@ -15,12 +15,12 @@ vitrine da Etapa 2 em diante é a superfície de verificação.
 
 ## Etapa 0 — Lógica pura: ajuda de idioma e textos do tema
 
-- [ ] `packages/tema/src/caminhos.test.ts`: escrever primeiro os casos de `caminhoNoIdioma` e `outroIdioma`: `/` ↔ `/en/`, `/x/` ↔ `/en/x/`, sem barra final, `/en` sem barra, idempotência. — RF-04, RNF-04
-- [ ] `packages/tema/src/caminhos.ts`: `outroIdioma(idioma)` e `caminhoNoIdioma(caminho, idioma)`, funções puras, com o cabeçalho `@file` e a documentação no padrão de `idiomas.ts`. — RF-04, ADR-1
-- [ ] `packages/tema/src/textos.ts`: dicionários `pt` e `en` do tema (rótulos do seletor de idioma, do botão de copiar e do aviso de copiado, do rótulo da navegação), tipados com `Dicionario`. — RF-10
-- [ ] `packages/tema/src/textos.test.ts`: `chavesFaltantes` nas duas direções entre `pt` e `en`. — RF-10, RNF-04
-- [ ] `packages/tema/package.json`: mapa `exports` com `./idiomas`, `./caminhos`, `./textos`, `./layouts/*` e `./componentes/*`, e `astro` em `peerDependencies` (versão do `catalog:`). — ADR-1
-- [ ] Portão de qualidade. — _resultado a registrar_
+- [x] `packages/tema/src/caminhos.test.ts`: escrever primeiro os casos de `caminhoNoIdioma` e `outroIdioma`: `/` ↔ `/en/`, `/x/` ↔ `/en/x/`, sem barra final, `/en` sem barra, idempotência. — RF-04, RNF-04
+- [x] `packages/tema/src/caminhos.ts`: `outroIdioma(idioma)` e `caminhoNoIdioma(caminho, idioma)`, funções puras, com o cabeçalho `@file` e a documentação no padrão de `idiomas.ts`. — RF-04, ADR-1
+- [x] `packages/tema/src/textos.ts`: dicionários `pt` e `en` do tema (rótulos do seletor de idioma, do botão de copiar e do aviso de copiado, do rótulo da navegação), tipados com `Dicionario`. — RF-10
+- [x] `packages/tema/src/textos.test.ts`: `chavesFaltantes` nas duas direções entre `pt` e `en`. — RF-10, RNF-04
+- [x] `packages/tema/package.json`: mapa `exports` com `./idiomas`, `./caminhos`, `./textos`, `./layouts/*` e `./componentes/*`, e `astro` em `peerDependencies` (versão do `catalog:`). — ADR-1
+- [x] Portão de qualidade. — `format:check`, `lint`, `typecheck`, `test` (21 testes em 4 arquivos) e `build` verdes.
 
 ## Etapa 1 — Estilos, fontes, sem inline e verificação do HTML
 

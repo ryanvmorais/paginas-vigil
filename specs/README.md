@@ -39,10 +39,10 @@ Nenhuma fase começa sem a aprovação explícita da anterior.
 
 Os sites não têm versão numerada: cada merge na `main` com o CI verde é uma entrega, e a coluna `entrega` fica em `—`.
 
-| Spec                            | Escopo                                                                                                           | Entrega | Status    |
-| ------------------------------- | ---------------------------------------------------------------------------------------------------------------- | ------- | --------- |
-| [`001-fundacao`](001-fundacao/) | workspace pnpm, tema com a paridade de idiomas, portão de qualidade, CI, cadeia de suprimentos, `main` protegida | —       | concluído |
-| [`002-tema`](002-tema/)         | tokens, fontes locais, layout bilíngue e blocos de interface compartilhados pelos dois sites                     | —       | aprovado  |
+| Spec                            | Escopo                                                                                                           | Entrega | Status       |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------------------- | ------- | ------------ |
+| [`001-fundacao`](001-fundacao/) | workspace pnpm, tema com a paridade de idiomas, portão de qualidade, CI, cadeia de suprimentos, `main` protegida | —       | concluído    |
+| [`002-tema`](002-tema/)         | tokens, fontes locais, layout bilíngue e blocos de interface compartilhados pelos dois sites                     | —       | em andamento |
 
 ## Notas de manutenção
 

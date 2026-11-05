@@ -1,13 +1,20 @@
 {
   "name": "@paginas-vigil/tema",
   "private": true,
-  "description": "Código compartilhado das páginas: idiomas e conferência dos dicionários de texto.",
+  "description": "Tema compartilhado das páginas: idiomas, textos e ajuda de idioma, com estilos e blocos Astro consumidos como fonte.",
   "license": "Apache-2.0",
   "type": "module",
   "exports": {
-    "./idiomas": "./src/idiomas.ts"
+    "./idiomas": "./src/idiomas.ts",
+    "./caminhos": "./src/caminhos.ts",
+    "./textos": "./src/textos.ts",
+    "./layouts/*": "./src/layouts/*",
+    "./componentes/*": "./src/componentes/*"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "astro": "catalog:"
   }
 }
