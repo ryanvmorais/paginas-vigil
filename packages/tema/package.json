@@ -1,0 +1,13 @@
+{
+  "name": "@paginas-vigil/tema",
+  "private": true,
+  "description": "Código compartilhado das páginas: idiomas e conferência dos dicionários de texto.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "exports": {
+    "./idiomas": "./src/idiomas.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  }
+}
