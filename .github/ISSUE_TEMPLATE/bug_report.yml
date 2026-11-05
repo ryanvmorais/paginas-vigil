@@ -1,0 +1,56 @@
+# Formulário de bug — lido pelo GitHub ao abrir uma issue nova.
+# O PR que corrige fecha a issue com "Closes #N".
+name: "Relatar um bug"
+description: "Algo numa das páginas não funciona como deveria"
+labels:
+  - "bug"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Obrigado por relatar. Uma vulnerabilidade nas Páginas Vigil (por exemplo, injeção de script
+        ou medição que dispara sem consentimento) **não** é issue pública: relate em privado pelo
+        relato de vulnerabilidades do GitHub, na aba Security. Texto errado, tradução ruim e
+        problema de layout são bugs normais.
+
+  - type: dropdown
+    id: pagina
+    attributes:
+      label: "Em qual site"
+      options:
+        - "WebVigil"
+        - "MailVigil"
+        - "Os dois"
+    validations:
+      required: true
+
+  - type: textarea
+    id: o-que-acontece
+    attributes:
+      label: "O que acontece"
+      description: "O comportamento errado que você viu. Se ajudar, cole o endereço da página e um print."
+    validations:
+      required: true
+
+  - type: textarea
+    id: o-que-deveria
+    attributes:
+      label: "O que deveria acontecer"
+    validations:
+      required: true
+
+  - type: textarea
+    id: como-reproduzir
+    attributes:
+      label: "Como reproduzir"
+      placeholder: |
+        1. Abri a página em português
+        2. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: ambiente
+    attributes:
+      label: "Ambiente"
+      description: "Opcional. Navegador e versão, sistema operacional, tamanho da tela, leitor de tela."
