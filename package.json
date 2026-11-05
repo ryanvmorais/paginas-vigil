@@ -1,0 +1,32 @@
+{
+  "name": "paginas-vigil",
+  "private": true,
+  "description": "Sites estáticos de apresentação do WebVigil e do MailVigil, em Astro.",
+  "license": "Apache-2.0",
+  "author": "Ryan Morais",
+  "type": "module",
+  "packageManager": "pnpm@12.16.1",
+  "engines": {
+    "node": ">=26"
+  },
+  "scripts": {
+    "build": "pnpm -r --if-present build",
+    "lint": "eslint",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^26.6.5",
+    "eslint": "catalog:",
+    "eslint-plugin-astro": "catalog:",
+    "globals": "^17.13.0",
+    "prettier": "catalog:",
+    "prettier-plugin-astro": "catalog:",
+    "typescript": "catalog:",
+    "typescript-eslint": "catalog:",
+    "vitest": "catalog:"
+  }
+}

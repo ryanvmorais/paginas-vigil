@@ -1,0 +1,37 @@
+# --- 1. DEPENDÊNCIAS ---
+# Recriável com `pnpm install`; o pnpm-lock.yaml É commitado (instalação reprodutível).
+node_modules/
+
+# --- 2. SAÍDA DE BUILD ---
+# `dist/` é o que o Astro publica e `.astro/` guarda os tipos que ele gera; ambos saem do `pnpm build`.
+dist/
+.astro/
+
+# --- 3. CACHES DE FERRAMENTA ---
+# Efêmeros por design: cada ferramenta os recria na próxima execução.
+.eslintcache
+*.tsbuildinfo
+
+# --- 4. SAÍDA DE TESTE ---
+# Relatório de cobertura (`pnpm test`) e saída local do `lhci autorun`; no CI o do Lighthouse vira
+# artefato do run. Os dois são recriáveis.
+coverage/
+.lighthouseci/
+
+# --- 5. SEGREDOS E AMBIENTE ---
+# O `.env` guarda valores locais e nunca vai para o repositório.
+.env
+.env.*
+# Exceção: o modelo documentado, só com nomes e placeholders, para quem clona saber o que definir.
+!.env.example
+
+# --- 6. DEPLOY ---
+# Estado local do Wrangler (Cloudflare): porta de dev, cache e variáveis locais.
+.wrangler/
+.dev.vars
+
+# --- 7. EDITOR E SISTEMA OPERACIONAL ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

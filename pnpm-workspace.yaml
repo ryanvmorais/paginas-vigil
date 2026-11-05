@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=https://json.schemastore.org/pnpm-workspace.json
+# Workspace e configuração do pnpm 12, lidos pelo pnpm (não pelo CI nem pelo deploy). O pnpm 12
+# lê as configurações daqui; o campo "pnpm" do package.json é ignorado.
+
+packages:
+  - packages/*
+  - apps/*
+
+# Espera uma semana (em minutos) antes de resolver uma release nova, o mesmo cooldown do
+# Dependabot: uma versão recém-publicada pode estar quebrada ou comprometida no dia em que sai.
+minimumReleaseAge: 10080
+
+# Aviso aceito de propósito no `pnpm audit`: o `minimatch` 10.x (negação de serviço por
+# amplificação de globs) vem do ESLint 10 e do `typescript-eslint`, que exigem `^10.2`, e a
+# correção só existe na 11. É dependência de desenvolvimento e só lê os padrões da nossa config,
+# nunca texto do visitante. Sai daqui quando essas ferramentas passarem a aceitar o `minimatch` 11.
+auditConfig:
+  ignoreGhsas:
+    - GHSA-g3hv-75wg-m249
+
+# Versões compartilhadas pelo workspace: cada pacote escreve `catalog:` e a versão mora só aqui,
+# então os dois apps e a raiz nunca divergem.
+catalog:
+  "@astrojs/check": ^0.9.12
+  astro: ^7.4.4
+  eslint: ^10.13.0
+  eslint-plugin-astro: ^3.2.1
+  prettier: ^3.9.10
+  prettier-plugin-astro: ^1.1.2
+  # Fica no 6.x de propósito: o `@astrojs/check` aceita `^5 || ^6` e o `typescript-eslint` aceita
+  # `<6.1`. Sobe para o 7 quando as duas ferramentas passarem a suportá-lo.
+  typescript: ^6.0.3
+  typescript-eslint: ^8.72.1
+  vitest: ^4.1.12

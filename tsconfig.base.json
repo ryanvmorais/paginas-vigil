@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    // --- Linguagem e módulos ---
+    // ES modules nativos, resolvidos como o Astro (Vite) e o Vitest resolvem.
+    "target": "ES2024",
+    "lib": ["ES2024", "DOM"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    // `import type` explícito no que é só tipo: o bundler apaga o resto sem adivinhar.
+    "verbatimModuleSyntax": true,
+
+    // --- Só checar, nunca emitir ---
+    // Quem compila é o Astro (e o Vitest para os testes); o `tsc` e o `astro check` só verificam.
+    "noEmit": true,
+
+    // --- Rigor ---
+    "strict": true,
+    // Índice fora do limite devolve `undefined`: o tipo precisa dizer isso.
+    "noUncheckedIndexedAccess": true,
+    "skipLibCheck": true
+  }
+}

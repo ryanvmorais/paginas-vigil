@@ -1,0 +1,21 @@
+{
+  "name": "@paginas-vigil/mailvigil",
+  "private": true,
+  "description": "Página de apresentação do MailVigil (mailvigil.ryanmorais.com.br).",
+  "license": "Apache-2.0",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "typecheck": "astro check"
+  },
+  "dependencies": {
+    "@paginas-vigil/tema": "workspace:*",
+    "astro": "catalog:"
+  },
+  "devDependencies": {
+    "@astrojs/check": "catalog:",
+    "typescript": "catalog:"
+  }
+}
