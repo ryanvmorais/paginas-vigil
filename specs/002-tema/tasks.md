@@ -24,14 +24,15 @@ vitrine da Etapa 2 em diante é a superfície de verificação.
 
 ## Etapa 1 — Estilos, fontes, sem inline e verificação do HTML
 
-- [ ] Spike do `astro check` no pacote: tentar `typecheck: astro check` em `packages/tema` (com `@astrojs/check` e `typescript` do `catalog:` e um `astro.config.mjs` mínimo); se não rodar sem páginas, manter `tsc --noEmit` e registrar a decisão aqui. — ADR-1
-- [ ] `packages/tema/src/fontes/`: gerar os subconjuntos `woff2` de Sora 800, JetBrains Mono 400 e 700 (latim, latim-1, pontuação e, na JetBrains Mono, U+2500 a U+257F), com a licença OFL e um `LEIAME.md` do procedimento de regeração. — RF-02, ADR-3
-- [ ] `packages/tema/src/estilos/fontes.css`: `@font-face` das três fontes com `font-display: swap` e fonte de reserva de métrica parecida. — RF-02, RNF-03
-- [ ] `packages/tema/src/estilos/tokens.css`: as variáveis do `:root` do mockup, claro e escuro por `prefers-color-scheme`, e `data-produto` para o acento; sem `--sev-*`. — RF-01
-- [ ] `packages/tema/src/estilos/base.css`: reset, corpo, `:focus-visible`, `.envoltorio`, sem rolagem horizontal da página. — RNF-02
-- [ ] `scripts/verificar-dist.mjs` e `scripts/verificar-dist.test.mjs`: função que recebe o HTML e devolve os problemas (`<script>` sem `src`, `<style>`, `style=`, e em página com `hreflang` a falta de `lang`, `canonical`, do trio `alternate` ou de `og:locale`), com o teste usando HTML montado no próprio teste; o executável varre `dist/` e sai com código 1 se achar algo. — RNF-01, ADR-2
-- [ ] `apps/*/astro.config.mjs` e `apps/*/package.json`: `build.inlineStylesheets: "never"`, `vite.build.assetsInlineLimit: 0` e o `build` como `astro build && node ../../scripts/verificar-dist.mjs dist`. — RNF-01, ADR-2
-- [ ] Portão de qualidade. — _resultado a registrar_
+- [x] Spike do `astro check` no pacote: tentar `typecheck: astro check` em `packages/tema` (com `@astrojs/check` e `typescript` do `catalog:` e um `astro.config.mjs` mínimo); se não rodar sem páginas, manter `tsc --noEmit` e registrar a decisão aqui. — ADR-1
+      **Decisão: `astro check` roda no pacote** e acusa erro de tipo dentro de um `.astro` de teste. Imprime o aviso inofensivo "Missing pages directory", e o `astro.config.mjs` do tema explica isso. O tema ganhou `astro`, `@astrojs/check` e `typescript` em `devDependencies`.
+- [x] `packages/tema/src/fontes/`: gerar os subconjuntos `woff2` de Sora 800, JetBrains Mono 400 e 700 (latim, latim-1, pontuação e, na JetBrains Mono, U+2500 a U+257F), com a licença OFL e um `LEIAME.md` do procedimento de regeração. — RF-02, ADR-3
+- [x] `packages/tema/src/estilos/fontes.css`: `@font-face` das três fontes com `font-display: swap` e fonte de reserva de métrica parecida. — RF-02, RNF-03
+- [x] `packages/tema/src/estilos/tokens.css`: as variáveis do `:root` do mockup, claro e escuro por `prefers-color-scheme`, e `data-produto` para o acento; sem `--sev-*`. — RF-01
+- [x] `packages/tema/src/estilos/base.css`: reset, corpo, `:focus-visible`, `.envoltorio`, sem rolagem horizontal da página. — RNF-02
+- [x] `scripts/verificar-dist.mjs` e `scripts/verificar-dist.test.mjs`: função que recebe o HTML e devolve os problemas (`<script>` sem `src`, `<style>`, `style=`, e em página com `hreflang` a falta de `lang`, `canonical`, do trio `alternate` ou de `og:locale`), com o teste usando HTML montado no próprio teste; o executável varre `dist/` e sai com código 1 se achar algo. — RNF-01, ADR-2
+- [x] `apps/*/astro.config.mjs` e `apps/*/package.json`: `build.inlineStylesheets: "never"`, `vite.build.assetsInlineLimit: 0` e o `build` como `astro build && node ../../scripts/verificar-dist.mjs dist`. — RNF-01, ADR-2
+- [x] Portão de qualidade. — `format:check`, `lint`, `typecheck`, `test` (37 testes em 5 arquivos, 16 deles do `verificar-dist`) e `build` (com o `verificar-dist` rodando nos dois sites) verdes.
 
 ## Etapa 2 — Layout, cabeçalho, botão e comando (o topo da página)
 
