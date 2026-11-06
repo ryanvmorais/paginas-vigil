@@ -85,6 +85,23 @@ const classes = `n-${faixa(caracteres)} l-${faixa(linhas)}`;
     display: block;
   }
 
+  /* Pista de rolagem no celular: as duas camadas `local` (cobertura, na cor do fundo) andam com o
+   * conteúdo e escondem a sombra na ponta em que a rolagem já chegou; as duas `scroll` (sombra) ficam
+   * coladas na borda. Resultado: sombra só do lado em que há linha escondida. */
+  @media (max-width: 719px) {
+    pre {
+      background:
+        linear-gradient(to right, var(--term-bg), var(--term-bg)) left center / 20px 100% no-repeat
+          local,
+        linear-gradient(to left, var(--term-bg), var(--term-bg)) right center / 20px 100% no-repeat
+          local,
+        radial-gradient(farthest-side at 0 50%, rgb(255 255 255 / 0.2), transparent) left center /
+          12px 100% no-repeat scroll,
+        radial-gradient(farthest-side at 100% 50%, rgb(255 255 255 / 0.2), transparent) right
+          center / 12px 100% no-repeat scroll;
+    }
+  }
+
   @media (min-width: 720px) {
     pre {
       padding: 22px 24px;

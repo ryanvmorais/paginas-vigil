@@ -96,18 +96,20 @@ const grupos = Object.values(t.faz.grupos).map((grupo) => ({
     </Secao>
 
     <Secao id="relatorio" titulo={t.relatorio.titulo} lead={t.relatorio.lead}>
-      <FiguraRelatorio
-        imagens={{ claroDesktop, escuroDesktop, claroCelular, escuroCelular }}
-        alt={t.relatorio.alt}
-        legenda={t.relatorio.legenda}
-      />
-      <Aviso
-        rotulo={t.relatorio.aviso.rotulo}
-        titulo={t.relatorio.aviso.titulo}
-        link={{ href: `${leiame}#web-ui`, rotulo: t.relatorio.aviso.link }}
-      >
-        {t.relatorio.aviso.texto}
-      </Aviso>
+      <div class="relatorio">
+        <FiguraRelatorio
+          imagens={{ claroDesktop, escuroDesktop, claroCelular, escuroCelular }}
+          alt={t.relatorio.alt}
+          legenda={t.relatorio.legenda}
+        />
+        <Aviso
+          rotulo={t.relatorio.aviso.rotulo}
+          titulo={t.relatorio.aviso.titulo}
+          link={{ href: `${leiame}#web-ui`, rotulo: t.relatorio.aviso.link }}
+        >
+          {t.relatorio.aviso.texto}
+        </Aviso>
+      </div>
     </Secao>
 
     <Secao id="o-que-faz" titulo={t.faz.titulo}>
@@ -140,5 +142,12 @@ const grupos = Object.values(t.faz.grupos).map((grupo) => ({
   /* O terminal fica logo abaixo do topo, com um respiro curto antes da primeira seção. */
   .terminal {
     padding-bottom: 8px;
+  }
+
+  /* Seção do relatório: abertura (do `Secao`), figura e aviso, um sob o outro, na mesma ordem em toda
+   * largura e com espaçamento próprio (ADR-2). */
+  .relatorio {
+    display: grid;
+    gap: 24px;
   }
 </style>

@@ -3,7 +3,8 @@
  * @file Aviso opcional: um quadro com rótulo, título, texto e um link.
  *
  * Serve a um esclarecimento que não é limite nem recurso (o dashboard do WebVigil que só vem pelo
- * repositório, por exemplo). O texto é o `slot`; o link é opcional e abre numa aba nova (RF-09).
+ * repositório, por exemplo). O texto é o `slot`; o link é opcional e abre numa aba nova (RF-09). Ocupa a
+ * largura da coluna e não tem margem própria: o espaço até o bloco anterior é de quem o monta.
  */
 export interface Props {
   /** Etiqueta curta acima do título, por exemplo "Opcional". Aparece em maiúsculas. */
@@ -33,8 +34,6 @@ const { rotulo, titulo, link } = Astro.props;
     display: grid;
     gap: 6px;
     justify-items: start;
-    max-width: 960px;
-    margin-top: 24px;
     padding: 18px 20px;
     border: 1px solid var(--border);
     border-radius: 12px;
@@ -55,9 +54,9 @@ const { rotulo, titulo, link } = Astro.props;
   }
 
   p {
-    max-width: 70ch;
     color: var(--text-2);
     font-size: var(--fs-corpo);
+    text-wrap: pretty;
   }
 
   /* Alvo de toque de 44 px (RNF-02). */
