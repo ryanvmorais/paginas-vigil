@@ -40,7 +40,7 @@ const faixa = (valor: number) => Math.ceil(valor / 5) * 5;
 const classes = `n-${faixa(caracteres)} l-${faixa(linhas)}`;
 ---
 
-<figure class="terminal" role="group" aria-label={rotulo}>
+<figure class="terminal" aria-label={rotulo}>
   <figcaption class="cabeca">{titulo}</figcaption>
   <pre
     class={classes}

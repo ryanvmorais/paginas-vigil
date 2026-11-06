@@ -6,6 +6,10 @@
  * `hreflang` do idioma de destino, para o leitor de tela pronunciar o nome certo. O texto visível é a
  * sigla (`PT`, `EN`); o nome completo vem de `textos.ts` e fica só para o leitor de tela, o que mantém
  * o nome acessível contendo o texto visível (RF-05).
+ *
+ * A página tem o seletor no cabeçalho e outro no rodapé. Só o primeiro é um marco `nav`: dois marcos
+ * com o mesmo rótulo confundem quem navega por marcos, então o do rodapé (`marco={false}`) é um
+ * `div role="group"` com o mesmo rótulo.
  */
 import { caminhoNoIdioma } from "../caminhos";
 import { IDIOMAS, type Idioma } from "../idiomas";
@@ -16,14 +20,17 @@ export interface Props {
   idioma: Idioma;
   /** Caminho da página na versão atual; o link do outro idioma é calculado a partir dele. */
   caminho: string;
+  /** `true` (padrão) renderiza um marco `nav`; `false`, um grupo sem marco, para a segunda ocorrência. */
+  marco?: boolean;
 }
 
-const { idioma, caminho } = Astro.props;
+const { idioma, caminho, marco = true } = Astro.props;
+const Raiz = marco ? "nav" : "div";
 const t = textos[idioma];
 const LANG = { pt: "pt-BR", en: "en" } as const;
 ---
 
-<nav class="seletor" aria-label={t.seletorIdioma.rotulo}>
+<Raiz class="seletor" role={marco ? undefined : "group"} aria-label={t.seletorIdioma.rotulo}>
   {IDIOMAS.map((alvo) => {
     const conteudo = (
       <>
@@ -46,7 +53,7 @@ const LANG = { pt: "pt-BR", en: "en" } as const;
       </a>
     );
   })}
-</nav>
+</Raiz>
 
 <style>
   /* Alvo de toque de 44 px de altura e 40 de largura (RNF-02). Sem sublinhado: o idioma atual se
