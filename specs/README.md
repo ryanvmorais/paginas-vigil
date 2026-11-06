@@ -5,7 +5,7 @@ As Páginas Vigil são construídas com spec-driven development. Cada funcionali
 ## Convenções
 
 - **Numeração:** `NNN` sequencial, três dígitos (`001`, `002`, …), na ordem em que as specs são abertas. O nome é curto e em português (`001-fundacao`).
-- **Arquivos:** cada spec tem `requirements.md` (o quê e por quê), `design.md` (como) e `tasks.md` (a quebra executável). Os três levam o mesmo frontmatter: `feature`, `status`, `date`, `related`, `origin`.
+- **Arquivos:** cada spec tem `requirements.md` (o quê e por quê), `design.md` (como) e `tasks.md` (a quebra executável). Os três levam o mesmo frontmatter: `feature`, `status`, `date`, `related`, `origin`. Uma spec pode ter arquivos de apoio citados nas tarefas (a `004` tem o `fatos.md`, o inventário das afirmações conferidas contra a ferramenta).
 - **Fases e portões:** `requirements → design → tasks → implementação`. Cada fase termina com aprovação humana explícita antes de a próxima começar.
 - **Status válidos:** `rascunho` → `aprovado` → `em andamento` → `concluído`. `origin: conception` para spec escrita antes da implementação; `reverse-engineering` só para documentar algo já terminado.
 - **Critério de aceite:** Given / When / Then, um item por cenário.

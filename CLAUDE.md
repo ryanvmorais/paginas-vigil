@@ -117,7 +117,7 @@ test/                 # testes do repositório: impessoalidade.test.ts (ver "Con
 > Cuidado: a medição é o Google Analytics 4 com Consent Mode, negado por padrão, e o `gtag.js` só é
 > carregado depois do aceite. O identificador vem de `PUBLIC_GA_MEASUREMENT_ID` (ver `.env.example`; o
 > `vite.envDir` dos apps aponta para a raiz): vazio ou fora do formato significa página sem medição, sem
-> banner e sem o controle "Gerenciar cookies", e o build segue. A escolha do visitante fica no cookie
+> banner e sem o controle "Gerenciar Cookies", e o build segue. A escolha do visitante fica no cookie
 > `cookies-accepted`, de domínio, que vale também no site principal, com recuo para o `localStorage` e
 > depois para a memória. O CI constrói os dois sites com e sem medição (identificador de teste
 > `G-TESTE12345`), e o Lighthouse mede a página com o banner aberto.
