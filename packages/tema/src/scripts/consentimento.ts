@@ -75,10 +75,7 @@ function ligarBanner(secao: HTMLElement): void {
   const botaoRecusar = secao.querySelector<HTMLButtonElement>("[data-recusar]");
   const botaoFechar = secao.querySelector<HTMLButtonElement>("[data-fechar]");
   const titulo = secao.querySelector<HTMLElement>("h2");
-  const escolhaAtual = secao.querySelector<HTMLElement>("[data-escolha-atual]");
-  const valorEscolha = secao.querySelector<HTMLElement>("[data-escolha-valor]");
   if (!id || !botaoAceitar || !botaoRecusar || !botaoFechar || !titulo) return;
-  if (!escolhaAtual || !valorEscolha) return;
 
   const meios: Meios = { cookie: criarArmazemCookie(), local: criarArmazemLocal() };
   const memoria: Memoria = {};
@@ -100,12 +97,6 @@ function ligarBanner(secao: HTMLElement): void {
 
   /** Mostra o banner. */
   const abrir = (reaberto: boolean): void => {
-    const escolha = reaberto ? lerEscolha(meios, memoria) : undefined;
-    escolhaAtual.hidden = escolha === undefined;
-    if (escolha !== undefined) {
-      valorEscolha.textContent =
-        (escolha === "aceita" ? secao.dataset.aceita : secao.dataset.recusada) ?? "";
-    }
     secao.hidden = false;
     // O leitor de tela anuncia o título ao reabrir; na primeira visita nada recebe foco à força.
     if (reaberto) titulo.focus();
