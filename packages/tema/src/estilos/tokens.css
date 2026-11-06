@@ -49,6 +49,9 @@
   --term-text: #e2e8f0;
   --term-muted: #94a3b8;
 
+  /* Sombra do banner de consentimento, o único cartão que flutua sobre a página. */
+  --sombra-banner: 0 10px 30px rgba(15, 23, 42, 0.2);
+
   /* Tipografia. `Sora` e `JetBrains Mono` vêm de `fontes.css`, cada uma com a reserva de métrica
    * parecida logo depois, para a troca de fonte não deslocar o layout. */
   --font-body: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -84,6 +87,8 @@
 
     --term-bg: #060b16;
     --term-border: #243049;
+
+    --sombra-banner: 0 10px 30px rgba(0, 0, 0, 0.55);
   }
 }
 

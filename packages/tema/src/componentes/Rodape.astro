@@ -1,12 +1,19 @@
 ---
 /**
- * @file Rodapé: nome e licença, link do outro produto, item extra opcional e o seletor de idioma.
+ * @file Rodapé: nome e licença, link do outro produto, item extra opcional, política e o seletor de idioma.
  *
  * O item extra (por exemplo o link do DMARC Fácil, no MailVigil) entra no
  * `slot`, ao lado do link do outro produto. A navegação do rodapé tem rótulo próprio, vindo de
  * `textos.ts`; o seletor de idioma é o mesmo do cabeçalho (RF-09).
+ *
+ * O link "Política de privacidade" aparece sempre; o botão "Gerenciar cookies" só existe com medição
+ * (identificador válido) e nasce `hidden`: o `scripts/consentimento.ts` o revela, como o botão de
+ * copiar do `Comando`. Os dois ficam fora da navegação "Mais projetos", que lista só projetos
+ * (RF-04, RF-05).
  */
 import type { Idioma } from "../idiomas";
+import { validarIdMedicao } from "../medicao";
+import { POLITICA } from "../politica";
 import { textos } from "../textos";
 import SeletorIdioma from "./SeletorIdioma.astro";
 
@@ -20,6 +27,9 @@ export interface Props {
 }
 
 const { nome, licenca, outroProduto, idioma, caminho } = Astro.props;
+const t = textos[idioma].rodape;
+const politica = POLITICA[idioma];
+const comMedicao = validarIdMedicao(import.meta.env.PUBLIC_GA_MEASUREMENT_ID) !== undefined;
 ---
 
 <footer class="rodape">
@@ -28,10 +38,21 @@ const { nome, licenca, outroProduto, idioma, caminho } = Astro.props;
       {nome} · {licenca}
     </span>
     <div class="links">
-      <nav aria-label={textos[idioma].rodape.maisProjetos}>
+      <nav aria-label={t.maisProjetos}>
         <a href={outroProduto.href}>{outroProduto.nome}</a>
         <slot />
       </nav>
+      <div class="legal">
+        <a href={politica.href}>
+          {t.politica}
+          {!politica.traduzida && ` ${textos[idioma].consentimento.foraDoIdioma}`}
+        </a>
+        {comMedicao && (
+          <button type="button" data-gerenciar-cookies hidden>
+            {t.gerenciar}
+          </button>
+        )}
+      </div>
       <SeletorIdioma idioma={idioma} caminho={caminho} marco={false} />
     </div>
   </div>
@@ -57,7 +78,8 @@ const { nome, licenca, outroProduto, idioma, caminho } = Astro.props;
     gap: 6px 18px;
   }
 
-  nav {
+  nav,
+  .legal {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -65,10 +87,28 @@ const { nome, licenca, outroProduto, idioma, caminho } = Astro.props;
   }
 
   /* Alvo de toque de 44 px (RNF-02). */
-  nav :global(a) {
+  nav :global(a),
+  .legal a,
+  .legal button {
     display: inline-flex;
     align-items: center;
     min-height: 44px;
+  }
+
+  .legal button {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--link);
+    font: inherit;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
+  }
+
+  /* `display` acima vence o `hidden` do navegador; sem esta regra o botão apareceria sem JavaScript. */
+  .legal button[hidden] {
+    display: none;
   }
 
   @media (min-width: 720px) {

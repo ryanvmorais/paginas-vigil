@@ -1,0 +1,14 @@
+Páginas Vigil
+Copyright (c) os autores e colaboradores das Páginas Vigil.
+Licenciado sob a Apache License 2.0 (veja o arquivo LICENSE).
+
+Este produto inclui material de terceiros:
+
+Ícone "cookie-bite" (Font Awesome Free 6.7.2)
+  Copyright 2024 Fonticons, Inc. (https://fontawesome.com)
+  Licença CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/)
+  Usado, embutido como SVG, no banner de consentimento
+  (packages/tema/src/componentes/Consentimento.astro). O desenho não foi alterado.
+
+As fontes Sora e JetBrains Mono, versionadas em packages/tema/src/fontes/, seguem a SIL Open
+Font License 1.1 (veja a licença nessa pasta).

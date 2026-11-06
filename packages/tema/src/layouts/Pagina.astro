@@ -10,13 +10,20 @@
  * As URLs absolutas vêm de `Astro.site` (campo `site` do `astro.config.mjs` de cada app). Os dois
  * `preload` cobrem as fontes que aparecem no topo (Sora 800 e JetBrains Mono 400), para a troca de
  * fonte não deslocar o layout (RNF-03). Sem `<script>` nem `style=` aqui (RNF-01).
+ *
+ * A medição liga só com um identificador válido em `PUBLIC_GA_MEASUREMENT_ID` (lido em tempo de
+ * build): então o banner de consentimento é o primeiro filho do `<body>`, para o teclado e o leitor
+ * de tela o encontrarem sem atravessar a página. Sem identificador (ou inválido) nada é renderizado
+ * e o build segue (RF-06, ADR-7).
  */
 import "../estilos/fontes.css";
 import "../estilos/tokens.css";
 import "../estilos/base.css";
 
 import { caminhoNoIdioma, outroIdioma } from "../caminhos";
+import Consentimento from "../componentes/Consentimento.astro";
 import type { Idioma } from "../idiomas";
+import { validarIdMedicao } from "../medicao";
 import jetbrainsMono400 from "../fontes/jetbrains-mono-400.woff2?url";
 import sora800 from "../fontes/sora-800.woff2?url";
 
@@ -47,6 +54,7 @@ const urlNoIdioma = (alvo: Idioma) => new URL(caminhoNoIdioma(caminho, alvo), As
 const canonical = urlNoIdioma(idioma);
 const outro = outroIdioma(idioma);
 const urlImagem = imagemSocial === undefined ? undefined : new URL(imagemSocial, Astro.site).href;
+const idMedicao = validarIdMedicao(import.meta.env.PUBLIC_GA_MEASUREMENT_ID);
 ---
 
 <!doctype html>
@@ -74,6 +82,7 @@ const urlImagem = imagemSocial === undefined ? undefined : new URL(imagemSocial,
     <link rel="icon" href="data:," />
   </head>
   <body>
+    {idMedicao !== undefined && <Consentimento id={idMedicao} idioma={idioma} />}
     <slot />
   </body>
 </html>
