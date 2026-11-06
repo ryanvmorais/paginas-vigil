@@ -1,6 +1,6 @@
 ---
 feature: Página do MailVigil — revisão completa de fatos, texto, imagens, links, botões e estrutura, em português e em inglês
-status: em andamento
+status: concluído
 date: 2026-11-06
 related: [002-tema, 003-medicao, 004-pagina-webvigil]
 origin: conception
@@ -141,7 +141,7 @@ consultada, numa pasta temporária.
 | "Como funciona" (topo)       | `#como-funciona`                                                            |
 | "Ver no GitHub" (fim)        | o mesmo do topo (repetição aceita)                                          |
 | "Ler a documentação"         | pasta `docs/` do repositório (`.../tree/main/docs`)                         |
-| Convite ao DMARC Fácil       | pt: `https://dmarc-facil.ryanmorais.com.br/`; en: a mesma página sob `/en/` |
+| Convite ao DMARC Fácil       | `https://dmarc-facil.ryanmorais.com.br/` nos dois idiomas (só em português) |
 | Rodapé: outro produto        | o site do WebVigil                                                          |
 | Menu do desktop e do celular | `#como-funciona`, `#relatorio`, `#o-que-faz`, `#instalar`, nesta ordem      |
 

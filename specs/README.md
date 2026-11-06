@@ -5,7 +5,7 @@ As Páginas Vigil são construídas com spec-driven development. Cada funcionali
 ## Convenções
 
 - **Numeração:** `NNN` sequencial, três dígitos (`001`, `002`, …), na ordem em que as specs são abertas. O nome é curto e em português (`001-fundacao`).
-- **Arquivos:** cada spec tem `requirements.md` (o quê e por quê), `design.md` (como) e `tasks.md` (a quebra executável). Os três levam o mesmo frontmatter: `feature`, `status`, `date`, `related`, `origin`. Uma spec pode ter arquivos de apoio citados nas tarefas (a `004` tem o `fatos.md`, o inventário das afirmações conferidas contra a ferramenta).
+- **Arquivos:** cada spec tem `requirements.md` (o quê e por quê), `design.md` (como) e `tasks.md` (a quebra executável). Os três levam o mesmo frontmatter: `feature`, `status`, `date`, `related`, `origin`. Uma spec pode ter arquivos de apoio citados nas tarefas (a `004` e a `005` têm o `fatos.md`, o inventário das afirmações conferidas contra a ferramenta).
 - **Fases e portões:** `requirements → design → tasks → implementação`. Cada fase termina com aprovação humana explícita antes de a próxima começar.
 - **Status válidos:** `rascunho` → `aprovado` → `em andamento` → `concluído`. `origin: conception` para spec escrita antes da implementação; `reverse-engineering` só para documentar algo já terminado.
 - **Critério de aceite:** Given / When / Then, um item por cenário.
@@ -39,13 +39,13 @@ Nenhuma fase começa sem a aprovação explícita da anterior.
 
 Os sites não têm versão numerada: cada merge na `main` com o CI verde é uma entrega, e a coluna `entrega` fica em `—`.
 
-| Spec                                            | Escopo                                                                                                                                                                     | Entrega | Status       |
-| ----------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- | ------------ |
-| [`001-fundacao`](001-fundacao/)                 | workspace pnpm, tema com a paridade de idiomas, portão de qualidade, CI, cadeia de suprimentos, `main` protegida                                                           | —       | concluído    |
-| [`002-tema`](002-tema/)                         | tokens, fontes locais, layout bilíngue e blocos de interface compartilhados pelos dois sites                                                                               | —       | concluído    |
-| [`003-medicao`](003-medicao/)                   | Google Analytics 4 com Consent Mode, banner de consentimento e política de segurança de conteúdo sem inline                                                                | —       | concluído    |
-| [`004-pagina-webvigil`](004-pagina-webvigil/)   | revisão completa da página do WebVigil: fatos, textos, imagens, links, botões, estrutura e escala tipográfica, em português e em inglês                                    | —       | concluído    |
-| [`005-pagina-mailvigil`](005-pagina-mailvigil/) | revisão completa da página do MailVigil: fatos conferidos na ferramenta, passos que rodam em ordem, saída e capturas regeradas, textos aprovados, em português e em inglês | —       | em andamento |
+| Spec                                            | Escopo                                                                                                                                                                     | Entrega | Status    |
+| ----------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- | --------- |
+| [`001-fundacao`](001-fundacao/)                 | workspace pnpm, tema com a paridade de idiomas, portão de qualidade, CI, cadeia de suprimentos, `main` protegida                                                           | —       | concluído |
+| [`002-tema`](002-tema/)                         | tokens, fontes locais, layout bilíngue e blocos de interface compartilhados pelos dois sites                                                                               | —       | concluído |
+| [`003-medicao`](003-medicao/)                   | Google Analytics 4 com Consent Mode, banner de consentimento e política de segurança de conteúdo sem inline                                                                | —       | concluído |
+| [`004-pagina-webvigil`](004-pagina-webvigil/)   | revisão completa da página do WebVigil: fatos, textos, imagens, links, botões, estrutura e escala tipográfica, em português e em inglês                                    | —       | concluído |
+| [`005-pagina-mailvigil`](005-pagina-mailvigil/) | revisão completa da página do MailVigil: fatos conferidos na ferramenta, passos que rodam em ordem, saída e capturas regeradas, textos aprovados, em português e em inglês | —       | concluído |
 
 ## Notas de manutenção
 

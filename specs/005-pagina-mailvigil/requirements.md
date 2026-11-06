@@ -1,6 +1,6 @@
 ---
 feature: Página do MailVigil — revisão completa de fatos, texto, imagens, links, botões e estrutura, em português e em inglês
-status: em andamento
+status: concluído
 date: 2026-11-06
 related: [002-tema, 003-medicao, 004-pagina-webvigil]
 origin: conception
@@ -51,8 +51,9 @@ nada nela foi ainda confirmado em navegador; o inventário completo é o RF-01):
 - **Saída do terminal e capturas:** a saída e as oito capturas (dois idiomas, celular e desktop, claro e
   escuro) vêm do mockup, não de uma execução da 1.7.0. As linhas do veredito têm até 80 colunas, quebra que
   a própria ferramenta faz, e no celular o bloco rola para o lado.
-- **Convite ao DMARC Fácil:** aparece no bloco de limites e no rodapé, com destino por idioma; o destino e o
-  idioma dele nunca foram conferidos.
+- **Convite ao DMARC Fácil:** aparecia no bloco de limites e no rodapé, com destino por idioma; o destino e o
+  idioma dele nunca foram conferidos. Na Etapa 4 o rodapé deixou de repeti-lo: o convite do bloco de limites
+  basta, e só nele o aviso "(in Portuguese)" acompanha o link.
 
 Esta spec fecha a página do MailVigil inteira: cada afirmação factual com fonte e resultado, cada bloco de
 texto aprovado nos dois idiomas, cada imagem, link, botão e trecho de estrutura coerente com o resto da página
