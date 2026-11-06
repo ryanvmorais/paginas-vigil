@@ -130,7 +130,7 @@ describe("verificarHtml: marcação de idioma (RF-03)", () => {
 // As três peças do modo com medição, como o Astro as emite: o banner, o controle do rodapé e o
 // script de consentimento (arquivo externo nomeado pelo componente).
 const BANNER = '<section data-consentimento data-medicao="G-ABC1234567" hidden></section>';
-const CONTROLE = '<button type="button" data-gerenciar-cookies hidden>Gerenciar cookies</button>';
+const CONTROLE = '<button type="button" data-gerenciar-cookies hidden>Gerenciar Cookies</button>';
 const SCRIPT_CONSENTIMENTO =
   '<script type="module" src="/_astro/Consentimento.astro_astro_type_script_index_0_lang.AbC123.js"></script>';
 
