@@ -87,11 +87,14 @@ mantenedor na hora.
 
 ## Etapa 4 — Links, destinos e verificação mecânica
 
-- [ ] `scripts/verificar-dist.test.mjs`: escrever primeiro os casos novos, com HTML montado no teste: link interno para `id` inexistente reprovado; dois botões da mesma página com o mesmo destino externo reprovados, salvo o par "Ver no GitHub" do topo e do fim; página sem esses problemas aprovada. — RF-06, ADR-9
-- [ ] `scripts/verificar-dist.mjs`: conferir que todo link interno aponta para um `id` existente e a regra dos destinos externos repetidos. — RF-06, ADR-9
-- [ ] `apps/webvigil/src/componentes/Vitrine.astro`: "Ler a documentação" aponta para a pasta `docs/` do repositório da ferramenta; "Ver no GitHub" e o aviso do painel mantêm os destinos de hoje no idioma da página; conferir cada destino abrindo o link. — RF-06, ADR-8
-- [ ] `apps/webvigil/src/textos.test.ts` (e o equivalente do MailVigil, se cabível): teste do tamanho do título (até 60 caracteres) e da descrição (até 160) de cada idioma. — RF-09
-- [ ] Portão de qualidade. — Anotar o resultado real.
+- [x] `scripts/verificar-dist.test.mjs`: escrever primeiro os casos novos, com HTML montado no teste: link interno para `id` inexistente reprovado; dois botões da mesma página com o mesmo destino externo reprovados, salvo o par "Ver no GitHub" do topo e do fim; página sem esses problemas aprovada. — RF-06, ADR-9
+- [x] `scripts/verificar-dist.mjs`: conferir que todo link interno aponta para um `id` existente e a regra dos destinos externos repetidos. — RF-06, ADR-9
+  - O par aceito é o dos dois botões primários (o "Ver no GitHub" do topo e o do fim), não "primeiro e último botão": o último botão da página é "Ler a documentação". O fragmento (`#readme`) não distingue destinos, porque a página aberta é a mesma.
+- [x] `apps/webvigil/src/componentes/Vitrine.astro`: "Ler a documentação" aponta para a pasta `docs/` do repositório da ferramenta; "Ver no GitHub" e o aviso do painel mantêm os destinos de hoje no idioma da página; conferir cada destino abrindo o link. — RF-06, ADR-8
+  - Destinos abertos em 2026-11-06, todos com resposta 200: README em inglês, `README.pt-BR.md`, `docs/` e a seção "Web UI" (âncora `#web-ui`, existente nos dois READMEs). O MailVigil tinha o mesmo destino repetido ("Ler a documentação" = README); a regra nova o pegaria no build, então ele também aponta para `docs/`, que existe no repositório dele.
+- [x] `apps/webvigil/src/textos.test.ts` (e o equivalente do MailVigil, se cabível): teste do tamanho do título (até 60 caracteres) e da descrição (até 160) de cada idioma. — RF-09
+- [x] Portão de qualidade. — Anotar o resultado real.
+  - **Resultado (2026-11-06):** `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test` (132 testes) e `pnpm build` verdes, e o build dos dois sites com `G-TESTE12345` também; o `verificar-dist` reprovou o par errado da primeira versão da regra e passou depois da correção.
 
 ## Etapa 5 — Capturas e saída do terminal regeradas
 

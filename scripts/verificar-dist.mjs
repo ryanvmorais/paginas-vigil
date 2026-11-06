@@ -2,7 +2,7 @@
  * @file Confere o HTML que o build do Astro gerou: sem inline, com a marcação de idioma, com a medição
  * coerente e com todo recurso dentro da política de segurança de conteúdo (CSP).
  *
- * Quatro regras, todas guardadas aqui para não dependerem de alguém lembrar (specs 002 e 003):
+ * Seis regras, todas guardadas aqui para não dependerem de alguém lembrar (specs 002, 003 e 004):
  *
  * 1. **Sem inline (RNF-01).** A política de segurança de conteúdo (CSP) do deploy não vai permitir
  *    `unsafe-inline`. O Astro decide sozinho inserir um estilo ou script pequeno direto no HTML, então
@@ -13,6 +13,10 @@
  *    script de consentimento, ou não tem nenhum dos três; o banner leva um `data-medicao` válido.
  * 4. **Compatível com a CSP (RF-09).** Todo `<script src>`, `<link>` que busca recurso, `<img>` e
  *    `<source>` aponta para o próprio site ou para um domínio que `politicaCsp` do modo libera.
+ * 5. **Âncoras (RF-06, spec 004).** Todo `<a href="#algo">` aponta para um `id` que existe na página.
+ * 6. **Destinos dos botões (RF-06, spec 004).** Dois botões da mesma página não levam ao mesmo destino
+ *    externo, salvo o par de botões primários (o "Ver no GitHub" do topo e o do fim), que repete de
+ *    propósito.
  *
  * Uso, a partir da pasta de um site: `node ../../scripts/verificar-dist.mjs dist`. Sai com código 1 e
  * lista cada arquivo e problema se achar algo, ou com 0 se estiver tudo certo. A função
@@ -205,7 +209,66 @@ const conferirModoDeMedicao = (tags) => {
 };
 
 /**
- * Confere um documento HTML contra as regras de "sem inline", de medição, de CSP e de marcação de idioma.
+ * Confere que todo link interno (`href="#algo"`) aponta para um `id` que existe na página.
+ *
+ * `href="#"` (topo da página) e links que não começam por `#` ficam de fora.
+ *
+ * @param {{ nome: string, atributos: Map<string, string> }[]} tags - tags do documento
+ * @returns {string[]} um texto por âncora quebrada, sem repetir a mesma âncora
+ */
+const conferirAncoras = (tags) => {
+  const ids = new Set(tags.map(({ atributos }) => atributos.get("id")).filter(Boolean));
+  const quebradas = new Set();
+  for (const { nome, atributos } of tags) {
+    const href = atributos.get("href") ?? "";
+    if (nome === "a" && href.length > 1 && href.startsWith("#") && !ids.has(href.slice(1))) {
+      quebradas.add(href);
+    }
+  }
+  return [...quebradas].map((href) => `link interno ${href} sem alvo: nenhum elemento com esse id`);
+};
+
+/**
+ * Confere que dois botões da página não levam ao mesmo destino externo.
+ *
+ * Botão é o `<a>` com a classe `botao` (o componente `Botao.astro`). O fragmento (`#readme`) não
+ * conta como destino diferente: a página aberta é a mesma. A repetição aceita é a do topo e do fim,
+ * que convida a ler o código de novo depois da leitura: dois botões primários, e só eles.
+ *
+ * @param {{ nome: string, atributos: Map<string, string> }[]} tags - tags do documento
+ * @returns {string[]} um texto por destino repetido
+ */
+const conferirDestinosDosBotoes = (tags) => {
+  const botoes = tags
+    .filter(
+      ({ nome, atributos }) =>
+        nome === "a" && (atributos.get("class") ?? "").split(/\s+/).includes("botao"),
+    )
+    .map(({ atributos }) => ({
+      destino: (atributos.get("href") ?? "").split("#")[0] ?? "",
+      primario: (atributos.get("class") ?? "").split(/\s+/).includes("primario"),
+    }));
+  const porDestino = new Map();
+  for (const botao of botoes) {
+    if (/^https?:\/\//i.test(botao.destino)) {
+      porDestino.set(botao.destino, [...(porDestino.get(botao.destino) ?? []), botao]);
+    }
+  }
+  const problemas = [];
+  for (const [destino, grupo] of porDestino) {
+    const ehParPrimario = grupo.length === 2 && grupo.every(({ primario }) => primario);
+    if (grupo.length > 1 && !ehParPrimario) {
+      problemas.push(
+        `${grupo.length} botões levam ao mesmo destino externo (${destino}); ` +
+          "só o par de botões primários (topo e fim) pode repetir",
+      );
+    }
+  }
+  return problemas;
+};
+
+/**
+ * Confere um documento HTML contra as regras de "sem inline", de medição, de CSP, de âncoras, de destinos e de marcação de idioma.
  *
  * @param {string} html - documento HTML completo
  * @returns {string[]} um texto por problema encontrado; vazio se o documento está correto
@@ -237,7 +300,10 @@ export const verificarHtml = (html) => {
     }
   }
 
-  // 3. Marcação de idioma: só em página que declara `hreflang` (a 404, por exemplo, não precisa).
+  // 3. Links e botões: âncoras com alvo e destinos externos sem repetição indevida.
+  problemas.push(...conferirAncoras(tags), ...conferirDestinosDosBotoes(tags));
+
+  // 4. Marcação de idioma: só em página que declara `hreflang` (a 404, por exemplo, não precisa).
   if (!tags.some(({ atributos }) => atributos.has("hreflang"))) {
     return problemas;
   }

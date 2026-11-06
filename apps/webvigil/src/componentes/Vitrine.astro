@@ -42,6 +42,8 @@ const caminho = Astro.url.pathname;
 
 const REPOSITORIO = "https://github.com/ryanvmorais/webvigil";
 const OUTRO_PRODUTO = "https://mailvigil.ryanmorais.com.br";
+// "Ler a documentação" abre a pasta `docs/` (só em inglês, ADR-8); "Ver no GitHub" abre o README no
+// idioma da página.
 // O README em português leva ao `README.pt-BR.md`; o de inglês, ao `README.md` (raiz do repositório).
 const leiame = idioma === "pt" ? `${REPOSITORIO}/blob/main/README.pt-BR.md` : REPOSITORIO;
 
@@ -125,7 +127,12 @@ const grupos = Object.values(t.faz.grupos).map((grupo) => ({
       <Botao href={leiame} variante="primario" target="_blank" rel="noopener">
         {t.topo.verGithub}
       </Botao>
-      <Botao href={`${REPOSITORIO}#readme`} variante="secundario" target="_blank" rel="noopener">
+      <Botao
+        href={`${REPOSITORIO}/tree/main/docs`}
+        variante="secundario"
+        target="_blank"
+        rel="noopener"
+      >
         {t.final.docs}
       </Botao>
     </ChamadaFinal>
