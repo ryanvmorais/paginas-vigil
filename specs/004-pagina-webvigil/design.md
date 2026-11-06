@@ -1,6 +1,6 @@
 ---
 feature: Página do WebVigil — revisão completa de texto, fatos, imagens, links, botões, estrutura e formatação, em português e em inglês
-status: aprovado
+status: em andamento
 date: 2026-11-06
 related: [002-tema, 003-medicao]
 origin: conception
