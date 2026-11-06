@@ -24,10 +24,12 @@ const SAIDA_EN = [
   '│ <span class="t-dim t-b">INFO</span>     │     2 │',
   "└──────────┴───────┘",
   '<span class="t-dim">…</span>',
-  '      <span class="t-high t-b">HIGH</span>  Werkzeug interactive debugger exposed  http://127.0.0.1:9100/boom',
-  '    <span class="t-med t-b">MEDIUM</span>  Content-Security-Policy header is missing  http://127.0.0.1:9100/',
   '    <span class="t-med t-b">MEDIUM</span>  jquery 1.7.1 has known vulnerabilities  http://127.0.0.1:9100/static/jquery-1.7.1.min.js',
-  "       <span class=\"t-low t-b\">LOW</span>  Cookie 'session' is set without the HttpOnly attribute",
+  '      <span class="t-high t-b">HIGH</span>  Werkzeug interactive debugger exposed  http://127.0.0.1:9100/boom',
+  "       <span class=\"t-low t-b\">LOW</span>  Cookie 'session' is set without the HttpOnly attribute  http://127.0.0.1:9100/ (session)",
+  '    <span class="t-med t-b">MEDIUM</span>  Content-Security-Policy header is missing  http://127.0.0.1:9100/ (Content-Security-Policy)',
+  '<span class="t-dim">…</span>',
+  "  <span class=\"t-crit t-b\">CRITICAL</span>  OS command injection via the 'host' parameter  http://127.0.0.1:9100/ping (host)",
 ].join("\n");
 
 /** Saída do terminal por idioma. */
