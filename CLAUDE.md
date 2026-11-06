@@ -90,8 +90,8 @@ apps/mailvigil/       # site do MailVigil
 .github/workflows/    # ci, codeql, dependency-review, pnpm-audit, lighthouse
 .github/lighthouse/   # limites do Lighthouse CI por site e por formato (celular, desktop)
 .githooks/            # pre-commit: o portão de qualidade em modo verificação
-scripts/              # verificar-dist.mjs: confere o HTML gerado (sem inline, modo da medição, CSP), rodado no build
-                      # de cada site; csp.mjs: a política de segurança de conteúdo, fonte única (cada .mjs tem o teste ao lado)
+scripts/              # verificar-dist.mjs: confere o HTML gerado (sem inline, modo da medição, CSP, âncoras e destinos
+                      # dos botões), rodado no build de cada site; csp.mjs: a política de segurança de conteúdo, fonte única (cada .mjs tem o teste ao lado)
 test/                 # testes do repositório: impessoalidade.test.ts (ver "Convenções")
 .claude/              # hooks do Claude Code (ver "Qualidade e automação")
 ```

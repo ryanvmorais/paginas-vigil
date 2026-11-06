@@ -261,3 +261,135 @@ describe("verificarHtml: compatibilidade com a CSP (RF-09)", () => {
     expect(verificarHtml(html).filter((p) => p.includes("CSP"))).toEqual([]);
   });
 });
+
+// Um botão do tema: `<a>` com a classe `botao` (o Astro soma atributos `data-astro-cid-*`).
+const botao = (href, variante = "secundario", rotulo = "rótulo") =>
+  `<a href="${href}" class="botao ${variante}" data-astro-cid-x="true">${rotulo}</a>`;
+
+describe("verificarHtml: âncoras (RF-06)", () => {
+  it("aceita link interno para um id que existe", () => {
+    const html = pagina({
+      corpo: '<a href="#instalar">Instalar</a><section id="instalar"><h2>Instalar</h2></section>',
+    });
+    expect(verificarHtml(html)).toEqual([]);
+  });
+
+  it("recusa link interno para um id que não existe", () => {
+    const html = pagina({ corpo: '<a href="#sumiu">Sumiu</a><section id="instalar"></section>' });
+    expect(verificarHtml(html)).toEqual([expect.stringContaining("#sumiu")]);
+  });
+
+  it("confere o botão e o link do menu, e relata cada âncora quebrada uma vez", () => {
+    const html = pagina({
+      corpo: `<a href="#sumiu">menu</a><a href="#sumiu">menu do celular</a>${botao("#outro")}`,
+    });
+    expect(verificarHtml(html)).toEqual([
+      expect.stringContaining("#sumiu"),
+      expect.stringContaining("#outro"),
+    ]);
+  });
+
+  it("não confunde o id com o texto da página nem com o valor de outro atributo", () => {
+    const html = pagina({
+      corpo:
+        '<a href="#instalar">Instalar</a><p>id="instalar"</p><p data-id="instalar" class="instalar"></p>',
+    });
+    expect(verificarHtml(html)).toEqual([expect.stringContaining("#instalar")]);
+  });
+
+  it("deixa de fora o link para o topo (#) e os links que não são âncora", () => {
+    const html = pagina({
+      corpo:
+        '<a href="#">topo</a><a href="/en/#instalar">en</a><a href="https://exemplo.test/#x">fora</a>',
+    });
+    expect(verificarHtml(html)).toEqual([]);
+  });
+});
+
+describe("verificarHtml: destinos externos dos botões (RF-06)", () => {
+  const REPO = "https://github.com/ryanvmorais/webvigil";
+
+  it("aceita uma página em que cada botão tem um destino próprio", () => {
+    const html = pagina({
+      corpo: [
+        botao(REPO, "primario"),
+        botao("#como-funciona"),
+        botao(`${REPO}/tree/main/docs`),
+      ].join(""),
+    });
+    expect(verificarHtml(html.replace("</body>", '<h2 id="como-funciona"></h2></body>'))).toEqual(
+      [],
+    );
+  });
+
+  it("recusa dois botões da mesma página com o mesmo destino externo", () => {
+    const html = pagina({
+      corpo: [
+        botao(REPO, "primario"),
+        botao(`${REPO}/tree/main/docs`),
+        botao(`${REPO}/tree/main/docs`),
+      ].join(""),
+    });
+    expect(verificarHtml(html)).toEqual([expect.stringContaining(`${REPO}/tree/main/docs`)]);
+  });
+
+  it("trata o fragmento como a mesma página: README e README#readme são o mesmo destino", () => {
+    const html = pagina({
+      corpo: [botao("#a", "primario"), botao(REPO), botao(`${REPO}#readme`)].join(""),
+    });
+    expect(verificarHtml(html)).toEqual([
+      expect.stringContaining("sem alvo"),
+      expect.stringContaining(REPO),
+    ]);
+  });
+
+  it("aceita o par de botões primários: o Ver no GitHub do topo e o do fim", () => {
+    const html = pagina({
+      corpo: [
+        botao(REPO, "primario", "Ver no GitHub"),
+        botao("https://exemplo.test/outro"),
+        botao(REPO, "primario", "Ver no GitHub"),
+        botao(`${REPO}/tree/main/docs`),
+      ].join(""),
+    });
+    expect(verificarHtml(html)).toEqual([]);
+  });
+
+  it("recusa a repetição entre botões que não são os dois primários, mesmo com o par presente", () => {
+    const html = pagina({
+      corpo: [
+        botao(REPO, "primario"),
+        botao(`${REPO}/tree/main/docs`),
+        botao(`${REPO}/tree/main/docs`),
+        botao(REPO, "primario"),
+      ].join(""),
+    });
+    expect(verificarHtml(html)).toEqual([expect.stringContaining(`${REPO}/tree/main/docs`)]);
+  });
+
+  it("recusa a repetição de um botão primário com um secundário", () => {
+    const html = pagina({ corpo: [botao(REPO, "primario"), botao(REPO)].join("") });
+    expect(verificarHtml(html)).toEqual([expect.stringContaining(REPO)]);
+  });
+
+  it("recusa o destino que aparece três vezes, ainda que todos sejam primários", () => {
+    const html = pagina({
+      corpo: [botao(REPO, "primario"), botao(REPO, "primario"), botao(REPO, "primario")].join(""),
+    });
+    expect(verificarHtml(html)).toEqual([expect.stringContaining(REPO)]);
+  });
+
+  it("não conta links comuns: o aviso do painel pode repetir um destino de botão", () => {
+    const html = pagina({
+      corpo: [botao(REPO, "primario"), `<a href="${REPO}">no texto</a>`].join(""),
+    });
+    expect(verificarHtml(html)).toEqual([]);
+  });
+
+  it("não conta botões internos que se repetem", () => {
+    const html = pagina({
+      corpo: `<h2 id="a"></h2>${botao("#a")}${botao("#a")}`,
+    });
+    expect(verificarHtml(html)).toEqual([]);
+  });
+});

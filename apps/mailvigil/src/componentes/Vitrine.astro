@@ -143,7 +143,12 @@ const grupos = Object.values(t.faz.grupos).map((grupo) => ({
       <Botao href={leiame} variante="primario" target="_blank" rel="noopener">
         {t.topo.verGithub}
       </Botao>
-      <Botao href={`${REPOSITORIO}#readme`} variante="secundario" target="_blank" rel="noopener">
+      <Botao
+        href={`${REPOSITORIO}/tree/main/docs`}
+        variante="secundario"
+        target="_blank"
+        rel="noopener"
+      >
         {t.final.docs}
       </Botao>
     </ChamadaFinal>

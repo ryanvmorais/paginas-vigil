@@ -15,4 +15,13 @@ describe("textos da vitrine do MailVigil", () => {
   it("tem em português todos os textos do inglês", () => {
     expect(chavesFaltantes(textos.en, textos.pt)).toEqual([]);
   });
+
+  it.each(["pt", "en"] as const)(
+    "mantém o título (até 60 caracteres) e a descrição (até 160) de %s",
+    (idioma) => {
+      const { titulo, descricao } = textos[idioma].meta;
+      expect(titulo.length).toBeLessThanOrEqual(60);
+      expect(descricao.length).toBeLessThanOrEqual(160);
+    },
+  );
 });
