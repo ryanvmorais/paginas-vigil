@@ -52,7 +52,7 @@ const { titulo, apoio, fina } = Astro.props;
   .apoio {
     max-width: 72ch;
     color: var(--text-2);
-    font-size: 17px;
+    font-size: var(--fs-abertura);
     line-height: 1.55;
   }
 
@@ -64,7 +64,7 @@ const { titulo, apoio, fina } = Astro.props;
 
   .fina {
     color: var(--text-3);
-    font-size: 13px;
+    font-size: var(--fs-codigo);
   }
 
   @media (max-width: 560px) {
@@ -77,10 +77,6 @@ const { titulo, apoio, fina } = Astro.props;
     .topo {
       gap: 24px;
       padding-block: 72px 44px;
-    }
-
-    .apoio {
-      font-size: 19px;
     }
   }
 </style>

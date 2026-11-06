@@ -41,14 +41,14 @@ const { grupos } = Astro.props;
 
   h3 {
     margin-bottom: 6px;
-    font-size: 18px;
+    font-size: var(--fs-abertura);
     font-weight: 700;
   }
 
   .intro {
     margin-bottom: 8px;
     color: var(--text-2);
-    font-size: 14.5px;
+    font-size: var(--fs-corpo);
   }
 
   li {
@@ -63,7 +63,7 @@ const { grupos } = Astro.props;
 
   span {
     color: var(--text-2);
-    font-size: 14.5px;
+    font-size: var(--fs-corpo);
   }
 
   .intro :global(code),
@@ -72,7 +72,7 @@ const { grupos } = Astro.props;
     border-radius: 6px;
     background: var(--code);
     font-family: var(--font-code);
-    font-size: 0.88em;
+    font-size: 0.875em;
     white-space: nowrap;
   }
 

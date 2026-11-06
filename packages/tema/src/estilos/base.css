@@ -54,7 +54,7 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-body);
-  font-size: 15px;
+  font-size: var(--fs-corpo);
   line-height: 1.5;
   overflow-x: clip;
   padding-left: env(safe-area-inset-left, 0);

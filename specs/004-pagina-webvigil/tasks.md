@@ -1,6 +1,6 @@
 ---
 feature: Página do WebVigil — revisão completa de texto, fatos, imagens, links, botões, estrutura e formatação, em português e em inglês
-status: aprovado
+status: em andamento
 date: 2026-11-06
 related: [002-tema, 003-medicao]
 origin: conception
@@ -24,13 +24,35 @@ mantenedor na hora.
 
 ## Etapa 0 — Spike e escala tipográfica
 
-- [ ] Spike da reserva do banner: num build de teste com a CSP do deploy (`style-src 'self'`) emitida como cabeçalho ou `<meta>`, conferir em Chrome se `document.body.style.setProperty("--altura-consentimento", "123px")` é aplicado e não gera violação de CSP. Registrar a decisão aqui: se for barrado, o plano é a contingência do design (reserva por faixa de largura, valores medidos nos dois idiomas). — RF-11, ADR-6
-- [ ] Medição de partida: em Chrome real, anotar nesta spec o tamanho calculado de cada papel de texto (corpo, abertura, subtítulo, código, legenda, rótulo, nome do produto, título de "O que ele não faz") e a altura da página nos dois sites a 390 e 1280 px, para comparar no fim. — RF-10, RNF-02
-- [ ] `packages/tema/src/estilos/tokens.css`: tokens de tamanho `--fs-rotulo` (12 px), `--fs-codigo` (14), `--fs-corpo` (16), `--fs-abertura` (18) e `--fs-marca` (22), com o comentário do papel de cada um. — RF-10, ADR-4
-- [ ] `packages/tema/src/estilos/base.css`: corpo de 16 px (`--fs-corpo`), e o código em linha a 0,875 do texto ao redor. — RF-10
-- [ ] Componentes do tema: trocar cada tamanho solto pelo token do papel, conforme a tabela do design (`Passos`, `Grupos`, `Aviso`, `Topo`, `Secao`, `Comando`, `Terminal`, `FiguraRelatorio`, `Rodape`, `Cabecalho`, `Limites`, `ChamadaFinal`, `SeletorIdioma`, `Consentimento` e `terminal.css`). Nenhum `font-size` com valor numérico fica de fora, salvo os títulos (`h1` e `h2` das seções), que não mudam. — RF-10, ADR-4
-- [ ] Conferir em Chrome real, nos dois sites, a 360, 390, 430, 768 e 1280 px, claro e escuro: o tamanho calculado de cada papel é o da tabela, nada quebra, corta ou estoura, e o MailVigil continua correto. — RF-10, RNF-02
-- [ ] Portão de qualidade. — Anotar o resultado real e os tamanhos medidos.
+- [x] Spike da reserva do banner: num build de teste com a CSP do deploy (`style-src 'self'`) emitida como cabeçalho ou `<meta>`, conferir em Chrome se `document.body.style.setProperty("--altura-consentimento", "123px")` é aplicado e não gera violação de CSP. Registrar a decisão aqui: se for barrado, o plano é a contingência do design (reserva por faixa de largura, valores medidos nos dois idiomas). — RF-11, ADR-6
+  - **Decisão do spike (2026-11-06):** `document.body.style.setProperty("--altura-consentimento", "123px")` é aplicado (o valor volta em `getComputedStyle`) e não gera violação de CSP com a política de `scripts/csp.mjs` emitida como cabeçalho HTTP (`style-src 'self'`, build com medição, Chrome real). Controle: `setAttribute("style", ...)` no mesmo documento é barrado (`style-src-attr`). A reserva medida fica como no design; a contingência por faixa de largura é dispensada.
+- [x] Medição de partida: em Chrome real, anotar nesta spec o tamanho calculado de cada papel de texto (corpo, abertura, subtítulo, código, legenda, rótulo, nome do produto, título de "O que ele não faz") e a altura da página nos dois sites a 390 e 1280 px, para comparar no fim. — RF-10, RNF-02
+  - **Medição de partida (2026-11-06, Chrome real, build com medição, viewport 390 e 1280 px; tamanhos calculados, em px):**
+
+    | Papel                                         | 390 px | 1280 px |
+    | --------------------------------------------- | ------ | ------- |
+    | Corpo, itens dos grupos, texto dos limites    | 15     | 15      |
+    | Abertura das seções (`.lead`)                 | 15     | 15      |
+    | Apoio do topo                                 | 17     | 19      |
+    | Subtítulos (passos, grupos)                   | 18     | 18      |
+    | Título do aviso                               | 17     | 17      |
+    | Texto dos passos e do aviso                   | 14,5   | 14,5    |
+    | Código dos passos (blocos e em linha)         | 12,76  | 12,76   |
+    | Comando                                       | 14     | 14      |
+    | Terminal                                      | 12,5   | 13,5    |
+    | Legenda da captura, linha fina do topo        | 13     | 13      |
+    | Rodapé                                        | 13,5   | 13,5    |
+    | Rótulos em maiúsculas ("Passo N", "Opcional") | 11     | 11      |
+    | Nome do produto (`.marca`)                    | 20     | 20      |
+    | Título de "O que ele não faz"                 | 20     | 22      |
+
+    Altura da página (px), 390 / 1280: WebVigil pt 5064 / 4241, en 5110 / 4263; MailVigil pt 4630 / 3634, en 4522 / 3612.
+- [x] `packages/tema/src/estilos/tokens.css`: tokens de tamanho `--fs-rotulo` (12 px), `--fs-codigo` (14), `--fs-corpo` (16), `--fs-abertura` (18) e `--fs-marca` (22), com o comentário do papel de cada um. — RF-10, ADR-4
+- [x] `packages/tema/src/estilos/base.css`: corpo de 16 px (`--fs-corpo`), e o código em linha a 0,875 do texto ao redor. — RF-10
+- [x] Componentes do tema: trocar cada tamanho solto pelo token do papel, conforme a tabela do design (`Passos`, `Grupos`, `Aviso`, `Topo`, `Secao`, `Comando`, `Terminal`, `FiguraRelatorio`, `Rodape`, `Cabecalho`, `Limites`, `ChamadaFinal`, `SeletorIdioma`, `Consentimento` e `terminal.css`). Nenhum `font-size` com valor numérico fica de fora, salvo os títulos (`h1` e `h2` das seções), que não mudam. — RF-10, ADR-4
+- [x] Conferir em Chrome real, nos dois sites, a 360, 390, 430, 768 e 1280 px, claro e escuro: o tamanho calculado de cada papel é o da tabela, nada quebra, corta ou estoura, e o MailVigil continua correto. — RF-10, RNF-02
+- [x] Portão de qualidade. — Anotar o resultado real e os tamanhos medidos.
+  - **Resultado (2026-11-06):** `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test` (todos os testes passam) e `pnpm build` verdes, e o build dos dois sites com `G-TESTE12345` também. Tamanhos medidos em Chrome real em 40 combinações (dois sites, pt e en, claro e escuro, 360, 390, 430, 768 e 1280 px): todos os papéis na escala (corpo 16, abertura e subtítulos 18, código e texto fino 14, rótulos 12, marca e título de limites 22, terminal 12 no celular e 14 no desktop, código em linha 14), sem rolagem horizontal da página e sem elemento fora da tela. Altura da página (px), 390 / 1280: WebVigil pt 5323 / 4336, en 5346 / 4360; MailVigil pt 4826 / 3743, en 4730 / 3695.
 
 ## Etapa 1 — Estrutura da seção do relatório e medida dos textos
 

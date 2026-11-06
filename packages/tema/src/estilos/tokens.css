@@ -57,6 +57,15 @@
   --font-body: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-title: "Sora", "Sora Reserva", system-ui, sans-serif;
   --font-code: "JetBrains Mono", "JetBrains Mono Reserva", Consolas, monospace;
+
+  /* Escala tipográfica (spec 004, RF-10, ADR-4): cinco tamanhos, cada um com um papel. Os componentes
+   * usam estes tokens e nunca um valor de tamanho solto; os títulos (`h1` e `h2` das seções) ficam
+   * fora da escala, porque crescem com a largura. */
+  --fs-rotulo: 12px; /* rótulos em maiúsculas ("Passo 1", "Opcional"), cabeça e saída do terminal no celular */
+  --fs-codigo: 14px; /* código (comando, blocos, terminal no desktop) e texto fino (legenda, rodapé, banner) */
+  --fs-corpo: 16px; /* texto corrido: corpo, passos, itens dos grupos, aviso, limites, chamada final */
+  --fs-abertura: 18px; /* frase de abertura das seções, apoio do topo e subtítulos */
+  --fs-marca: 22px; /* nome do produto no cabeçalho e título de "O que ele não faz" */
 }
 
 /* 2. Esquema escuro

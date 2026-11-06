@@ -43,21 +43,21 @@ const { rotulo, titulo, link } = Astro.props;
 
   .rotulo {
     color: var(--text-3);
-    font-size: 11px;
+    font-size: var(--fs-rotulo);
     font-weight: 700;
     letter-spacing: 0.06em;
     text-transform: uppercase;
   }
 
   h3 {
-    font-size: 17px;
+    font-size: var(--fs-abertura);
     font-weight: 700;
   }
 
   p {
     max-width: 70ch;
     color: var(--text-2);
-    font-size: 14.5px;
+    font-size: var(--fs-corpo);
   }
 
   /* Alvo de toque de 44 px (RNF-02). */
