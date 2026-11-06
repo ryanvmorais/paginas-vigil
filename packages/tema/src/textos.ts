@@ -21,6 +21,7 @@ const pt = {
   },
   navegacao: {
     rotulo: "Seções",
+    menu: "Seções",
   },
   rodape: {
     maisProjetos: "Mais projetos",
@@ -57,6 +58,7 @@ const en: TextosTema = {
   },
   navegacao: {
     rotulo: "Sections",
+    menu: "Sections",
   },
   rodape: {
     maisProjetos: "More projects",

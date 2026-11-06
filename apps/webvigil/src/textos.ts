@@ -20,7 +20,12 @@ const pt = {
       "Scanner de vulnerabilidades web de código aberto. Roda no terminal e no CI. Por padrão só observa, então pode apontar para produção.",
   },
   nome: "WebVigil",
-  navegacao: { como: "Como funciona", faz: "O que ele faz", instalar: "Instalar" },
+  navegacao: {
+    como: "Como funciona",
+    relatorio: "Relatório",
+    faz: "O que ele faz",
+    instalar: "Instalar",
+  },
   topo: {
     titulo: "Descubra quais vulnerabilidades seu site possui.",
     apoio:
@@ -152,7 +157,12 @@ const en: TextosPagina = {
       "An open-source web vulnerability scanner. Runs in the terminal and in CI. By default it only observes, so you can point it at production.",
   },
   nome: "WebVigil",
-  navegacao: { como: "How it works", faz: "What it does", instalar: "Install" },
+  navegacao: {
+    como: "How it works",
+    relatorio: "Report",
+    faz: "What it does",
+    instalar: "Install",
+  },
   topo: {
     titulo: "Find out which vulnerabilities your site has.",
     apoio:

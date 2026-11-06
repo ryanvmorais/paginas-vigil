@@ -3,9 +3,12 @@
  * @file Cabeçalho da página: logo e nome à esquerda, navegação no meio e seletor de idioma à direita,
  * como no mockup aprovado.
  *
- * O logo chega pelo `slot="logo"` (os arquivos vêm na fase de imagens). A navegação só aparece a
- * partir de 720 px e só se o site passar itens. Não há botão do GitHub: o cabeçalho não é fixo e o
- * botão repetia o do topo e o da chamada final (RF-05, decisão 3 da spec 002).
+ * O logo chega pelo `slot="logo"` (os arquivos vêm na fase de imagens). A navegação em linha só
+ * aparece a partir de 720 px; abaixo disso entra o menu do celular, um `<details>` com o ícone de
+ * três linhas e um painel sob o cabeçalho (RF-06, ADR-1). Os dois só existem se o site passar itens,
+ * e só um deles fica na árvore de acessibilidade de cada vez (o outro é `display: none`), para não
+ * repetir o defeito dos marcos duplicados. Não há botão do GitHub: o cabeçalho não é fixo e o botão
+ * repetia o do topo e o da chamada final (RF-05, decisão 3 da spec 002).
  */
 import { caminhoNoIdioma } from "../caminhos";
 import type { Idioma } from "../idiomas";
@@ -23,6 +26,7 @@ export interface Props {
 }
 
 const { nome, caminho, idioma, navegacao = [] } = Astro.props;
+const t = textos[idioma];
 ---
 
 <header class="cabecalho">
@@ -32,18 +36,59 @@ const { nome, caminho, idioma, navegacao = [] } = Astro.props;
       <span>{nome}</span>
     </a>
     {navegacao.length > 0 && (
-      <nav class="navegacao" aria-label={textos[idioma].navegacao.rotulo}>
+      <nav class="navegacao" aria-label={t.navegacao.rotulo}>
         {navegacao.map((item) => (
           <a href={item.href}>{item.rotulo}</a>
         ))}
       </nav>
     )}
-    <SeletorIdioma idioma={idioma} caminho={caminho} />
+    <div class="acoes">
+      <SeletorIdioma idioma={idioma} caminho={caminho} />
+      {navegacao.length > 0 && (
+        <nav class="menu" aria-label={t.navegacao.rotulo}>
+          {/* `data-menu` é o gancho do scripts/menu.ts; sem o script o `<details>` funciona igual. */}
+          <details data-menu>
+            <summary class="menu-botao">
+              <svg
+                viewBox="0 0 24 24"
+                width="24"
+                height="24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <path class="traco traco-cima" d="M4 7h16" />
+                <path class="traco traco-meio" d="M4 12h16" />
+                <path class="traco traco-baixo" d="M4 17h16" />
+              </svg>
+              <span class="so-leitor">{t.navegacao.menu}</span>
+            </summary>
+            <ul class="menu-painel">
+              {navegacao.map((item) => (
+                <li>
+                  <a href={item.href}>{item.rotulo}</a>
+                </li>
+              ))}
+            </ul>
+          </details>
+        </nav>
+      )}
+    </div>
   </div>
 </header>
 
+<script>
+  import "../scripts/menu";
+</script>
+
 <style>
+  /* `relative` é a âncora do painel do menu; o `z-index` o põe acima do conteúdo da página. */
   .cabecalho {
+    position: relative;
+    z-index: 10;
     border-bottom: 1px solid var(--border);
   }
 
@@ -76,7 +121,14 @@ const { nome, caminho, idioma, navegacao = [] } = Astro.props;
     flex: none;
   }
 
-  /* Navegação só no desktop (ADR-5): no celular a página é curta e o seletor basta. */
+  /* Seletor de idioma e menu lado a lado, a 8 px um do outro (ADR-1). */
+  .acoes {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Navegação em linha só a partir de 720 px (ADR-5); abaixo disso vale o menu do celular. */
   .navegacao {
     display: none;
     gap: 24px;
@@ -95,9 +147,92 @@ const { nome, caminho, idioma, navegacao = [] } = Astro.props;
     text-decoration: underline;
   }
 
+  /* Menu do celular. O `<details>` não é posicionado, então o painel se ancora no cabeçalho e ocupa
+   * a largura inteira sob ele. */
+  .menu-botao {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    color: var(--text);
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .menu-botao::-webkit-details-marker {
+    display: none;
+  }
+
+  /* Cada traço gira em torno do próprio centro, dado em coordenadas do `viewBox` (o `fill-box` de um
+   * traço sem altura não tem centro confiável); aberto, os de cima e de baixo se cruzam num X e o do
+   * meio some. A troca só anima para quem não pediu menos movimento (RNF-02). */
+  .traco {
+    transform-box: view-box;
+  }
+
+  .traco-cima {
+    transform-origin: 12px 7px;
+  }
+
+  .traco-baixo {
+    transform-origin: 12px 17px;
+  }
+
+  details[open] .traco-cima {
+    transform: translateY(5px) rotate(45deg);
+  }
+
+  details[open] .traco-meio {
+    opacity: 0;
+  }
+
+  details[open] .traco-baixo {
+    transform: translateY(-5px) rotate(-45deg);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .traco {
+      transition:
+        transform 0.2s ease,
+        opacity 0.2s ease;
+    }
+  }
+
+  .menu-painel {
+    position: absolute;
+    top: 100%;
+    inset-inline: 0;
+    margin: 0;
+    padding: 0 20px;
+    list-style: none;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    box-shadow: var(--sombra-menu);
+  }
+
+  .menu-painel li + li {
+    border-top: 1px solid var(--border);
+  }
+
+  /* Alvo de toque de 48 px por item (RNF-02). */
+  .menu-painel a {
+    display: flex;
+    align-items: center;
+    min-height: 48px;
+    color: var(--text);
+    font-weight: 500;
+    text-decoration: none;
+  }
+
   @media (min-width: 720px) {
     .navegacao {
       display: flex;
+    }
+
+    .menu {
+      display: none;
     }
   }
 </style>
