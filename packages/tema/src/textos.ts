@@ -2,9 +2,10 @@
  * @file Textos que o próprio tema emite, em português e em inglês.
  *
  * São os rótulos de acessibilidade e de controle que os blocos do tema escrevem sozinhos (seletor
- * de idioma, navegação, botão de copiar). O texto de cada site chega por prop ou `slot` e vive no
- * dicionário do app. Os dois idiomas têm o mesmo formato por tipo (`en` é `TextosTema`) e o teste
- * de paridade confere as chaves nas duas direções (RF-10).
+ * de idioma, navegação, botão de copiar, banner de consentimento e links do rodapé). O texto de
+ * cada site chega por prop ou `slot` e vive no dicionário do app. Os dois idiomas têm o mesmo
+ * formato por tipo (`en` é `TextosTema`) e o teste de paridade confere as chaves nas duas
+ * direções (RF-10).
  */
 
 import type { Dicionario, Idioma } from "./idiomas";
@@ -23,12 +24,28 @@ const pt = {
   },
   rodape: {
     maisProjetos: "Mais projetos",
+    politica: "Política de privacidade",
+    gerenciar: "Gerenciar cookies",
   },
   copiar: {
     rotulo: "Copiar",
     copiado: "Copiado",
     anuncio: "Comando copiado",
     falhou: "Não foi possível copiar o comando",
+  },
+  consentimento: {
+    titulo: "Privacidade & Cookies",
+    texto:
+      "Utilizo cookies para entender quais conteúdos são mais acessados e melhorar o site. Eles só são ativados se você aceitar.",
+    saibaMais: "Saiba mais na",
+    politica: "Política de Privacidade",
+    foraDoIdioma: "(em português)",
+    aceitar: "Aceitar",
+    recusar: "Recusar",
+    fechar: "Fechar e recusar cookies",
+    escolhaAtual: "Sua escolha:",
+    escolhaAceita: "aceita",
+    escolhaRecusada: "recusada",
   },
 } satisfies Dicionario;
 
@@ -43,12 +60,28 @@ const en: TextosTema = {
   },
   rodape: {
     maisProjetos: "More projects",
+    politica: "Privacy policy",
+    gerenciar: "Manage cookies",
   },
   copiar: {
     rotulo: "Copy",
     copiado: "Copied",
     anuncio: "Command copied",
     falhou: "Could not copy the command",
+  },
+  consentimento: {
+    titulo: "Privacy & Cookies",
+    texto:
+      "I use cookies to understand which content is most visited and to improve the site. They are only enabled if you accept.",
+    saibaMais: "Learn more in the",
+    politica: "Privacy Policy",
+    foraDoIdioma: "(in Portuguese)",
+    aceitar: "Accept",
+    recusar: "Decline",
+    fechar: "Close and decline cookies",
+    escolhaAtual: "Your choice:",
+    escolhaAceita: "accepted",
+    escolhaRecusada: "declined",
   },
 };
 

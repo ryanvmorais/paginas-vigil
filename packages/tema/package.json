@@ -8,6 +8,9 @@
     "./idiomas": "./src/idiomas.ts",
     "./caminhos": "./src/caminhos.ts",
     "./textos": "./src/textos.ts",
+    "./consentimento": "./src/consentimento.ts",
+    "./medicao": "./src/medicao.ts",
+    "./politica": "./src/politica.ts",
     "./layouts/*": "./src/layouts/*",
     "./componentes/*": "./src/componentes/*"
   },
