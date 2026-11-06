@@ -64,7 +64,11 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Gerar o site
+        # Com o identificador de teste a página sai com o banner de consentimento, que na primeira
+        # visita fica aberto: é essa a página que o visitante vê e que o Lighthouse precisa medir.
         run: pnpm --filter @paginas-vigil/${{ matrix.site }} build
+        env:
+          PUBLIC_GA_MEASUREMENT_ID: G-TESTE12345
 
       - name: Medir e conferir os limites
         run: npx --yes @lhci/cli@${{ env.LHCI_VERSION }} autorun --config=.github/lighthouse/${{ matrix.site }}-${{ matrix.modo }}.json

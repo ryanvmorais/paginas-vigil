@@ -2,8 +2,8 @@
 # Pipeline de CI (GitHub Actions). Dois jobs independentes, para a falha de um não esconder a
 # do outro:
 #   qualidade  espelha o pre-commit local (.githooks/pre-commit) e confere o build dos dois
-#              sites: prettier, eslint, typecheck, testes e build. Verde aqui significa o mesmo
-#              que verde num clone limpo
+#              sites, sem e com medição: prettier, eslint, typecheck, testes e build. Verde aqui
+#              significa o mesmo que verde num clone limpo
 #   seguranca  `pnpm audit` sobre o lockfile (as exceções aceitas ficam em pnpm-workspace.yaml)
 # O Node vem do `engines` do package.json (>=26) e o pnpm do campo `packageManager`.
 name: CI
@@ -57,8 +57,16 @@ jobs:
       - name: Testes
         run: pnpm test
 
-      - name: Build dos dois sites
+      - name: Build dos dois sites, sem medição
         run: pnpm build
+
+      - name: Build dos dois sites, com medição
+        # O identificador de teste liga o modo com medição (banner, controle e script de
+        # consentimento) para o `verificar-dist` conferir também esse HTML contra a CSP. É um
+        # valor sintético: nenhum identificador real entra no CI.
+        run: pnpm build
+        env:
+          PUBLIC_GA_MEASUREMENT_ID: G-TESTE12345
 
   seguranca:
     name: seguranca

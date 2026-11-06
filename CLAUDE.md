@@ -11,7 +11,7 @@ um workspace pnpm. Cada site é publicado no próprio subdomínio (`webvigil.rya
 > Cuidado: o nome do repositório (`paginas-vigil`) é exceção à regra "nome do repositório = subdomínio",
 > porque um repositório serve dois subdomínios. Não renomeie para casar com um deles.
 
-Estado: em construção. Os dois sites já têm a página inteira (português e inglês) montada com o tema. Nada está no ar e ainda não há medição nem política de privacidade.
+Estado: em construção. Os dois sites já têm a página inteira (português e inglês) montada com o tema. Nada está no ar. A medição (Google Analytics 4 com consentimento) já está no código, mas só liga com um identificador; a política de privacidade mora no site principal.
 
 ## Comandos comuns
 
@@ -40,13 +40,17 @@ pnpm --filter mailvigil dev
 ```text
 packages/tema/        # tema e utilidades compartilhados pelos dois sites
   src/idiomas.ts      # IDIOMAS e chavesFaltantes: confere a paridade pt/en dos dicionários
+  src/medicao.ts      # validarIdMedicao: só o formato G-XXXXXXXXXX liga a medição
+  src/politica.ts     # endereço da política de privacidade do site principal e domínio do cookie de escolha
+  src/consentimento.ts # núcleo puro do consentimento: escolha, cookie, Consent Mode e gtag, tudo injetado
                       # (cada módulo .ts tem o teste ao lado, em *.test.ts)
   src/caminhos.ts     # troca o idioma e calcula o caminho da outra versão da página (links e seletor)
   src/textos.ts       # rótulos que o próprio tema emite (seletor de idioma, navegação, botão de copiar)
   src/layouts/        # Pagina.astro: casca da página (head, SEO bilíngue, cabeçalho, rodapé)
   src/componentes/    # blocos .astro compartilhados: Aviso, Botao, Cabecalho, ChamadaFinal, Comando,
-                      # FiguraRelatorio, Grupos, Limites, Passos, Rodape, Secao, SeletorIdioma, Terminal, Topo
-  src/scripts/        # copiar.ts: botão de copiar, empacotado pelo Astro em arquivo externo
+                      # Consentimento, FiguraRelatorio, Grupos, Limites, Passos, Rodape, Secao, SeletorIdioma, Terminal, Topo
+  src/scripts/        # copiar.ts (botão de copiar) e consentimento.ts (banner, cookie e gtag.js), empacotados
+                      # pelo Astro em arquivo externo
   src/estilos/        # fontes.css, tokens.css, base.css e terminal.css: estilos globais; os três primeiros
                       # vêm pelo layout e o terminal.css pelo Terminal.astro
   src/fontes/         # woff2 em subconjunto das três fontes, a licença OFL e o LEIAME de regeração
@@ -61,7 +65,8 @@ apps/mailvigil/       # site do MailVigil
 .github/workflows/    # ci, codeql, dependency-review, pnpm-audit, lighthouse
 .github/lighthouse/   # limites do Lighthouse CI por site e por formato (celular, desktop)
 .githooks/            # pre-commit: o portão de qualidade em modo verificação
-scripts/              # verificar-dist.mjs (e seu teste): confere o HTML gerado, rodado no build de cada site
+scripts/              # verificar-dist.mjs: confere o HTML gerado (sem inline, modo da medição, CSP), rodado no build
+                      # de cada site; csp.mjs: a política de segurança de conteúdo, fonte única (cada .mjs tem o teste ao lado)
 test/                 # testes do repositório: impessoalidade.test.ts (ver "Convenções")
 .claude/              # hooks do Claude Code (ver "Qualidade e automação")
 ```
@@ -79,10 +84,18 @@ test/                 # testes do repositório: impessoalidade.test.ts (ver "Con
 > `scripts/verificar-dist.mjs`, que roda no `build` de cada site e falha se achar `<script>` sem `src`,
 > `<style>` ou `style=` no HTML gerado.
 
-> Cuidado: a medição ainda não existe no código. Quando existir, é o Google Analytics 4 com Consent Mode,
-> negado por padrão, com o identificador em `PUBLIC_GA_MEASUREMENT_ID` (ver `.env.example`); vazio
-> significa nenhuma medição. A política de privacidade e o banner de cookies acompanham a medição e não
-> são opcionais.
+> ⚠️ NÃO regredir: a CSP é uma só. `scripts/csp.mjs` (`politicaCsp`) define o que o deploy emite, e o
+> `verificar-dist` confere cada recurso do HTML contra ela. Sem medição, nenhum domínio externo; com
+> medição, só os hosts do Google Analytics, nunca `*`, `unsafe-inline` nem `unsafe-eval`. Um domínio novo
+> entra em `csp.mjs`, no teste e no `design.md` da spec 003, nunca só num deles.
+
+> Cuidado: a medição é o Google Analytics 4 com Consent Mode, negado por padrão, e o `gtag.js` só é
+> carregado depois do aceite. O identificador vem de `PUBLIC_GA_MEASUREMENT_ID` (ver `.env.example`; o
+> `vite.envDir` dos apps aponta para a raiz): vazio ou fora do formato significa página sem medição, sem
+> banner e sem o controle "Gerenciar cookies", e o build segue. A escolha do visitante fica no cookie
+> `cookies-accepted`, de domínio, que vale também no site principal, com recuo para o `localStorage` e
+> depois para a memória. O CI constrói os dois sites com e sem medição (identificador de teste
+> `G-TESTE12345`), e o Lighthouse mede a página com o banner aberto.
 
 ## Convenções
 

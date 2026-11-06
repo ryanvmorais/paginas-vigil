@@ -141,7 +141,9 @@ O Dependabot abre PRs de atualização por semana, agrupando minor e patch, com 
 | `@types/node`          | Tipos do Node para os scripts e os hooks de desenvolvimento.                                                                                                                                                                  |
 | `.githooks/pre-commit` | Roda formatação, lint, tipos e testes antes de cada commit, o mesmo portão do CI.                                                                                                                                             |
 | Fontes locais          | Sora (800) e JetBrains Mono (400 e 700) em woff2 em subconjunto, com a licença OFL, em `packages/tema/src/fontes`. Servidas do próprio site: sem CDN de fontes e sem origem externa para a política de segurança de conteúdo. |
-| `copiar.ts`            | O botão de copiar comando, o único script que roda no navegador; o Astro o empacota em arquivo externo, o que mantém a página sem script inline.                                                                              |
+| `copiar.ts`            | O botão de copiar comando; o Astro o empacota em arquivo externo, o que mantém a página sem script inline.                                                                                                                    |
+| Consentimento          | `consentimento.ts` (núcleo puro, testado) e o script do banner ligam o Google Analytics 4 em Consent Mode, negado por padrão: o `gtag.js` só é buscado depois do aceite, e a escolha fica em cookie de domínio.               |
+| `scripts/csp.mjs`      | A política de segurança de conteúdo, em um lugar só: o `verificar-dist` confere o HTML do build contra ela e o deploy a escreverá como cabeçalho.                                                                             |
 
 ---
 
@@ -152,4 +154,5 @@ O Dependabot abre PRs de atualização por semana, agrupando minor e patch, com 
 - **Biblioteca de i18n:** duas línguas fixas num site estático não justificam; o dicionário e o teste de paridade bastam.
 - **Next.js, Nuxt ou qualquer renderização no servidor:** o conteúdo não muda por visitante, então HTML pronto atende.
 - **Bundler próprio (Vite avulso, webpack):** o Astro já traz o seu.
-- **CDN de fontes ou de scripts de terceiros:** quanto menos origem externa, menor a superfície de ataque e mais simples a política de segurança de conteúdo.
+- **CDN de fontes ou de scripts de terceiros:** quanto menos origem externa, menor a superfície de ataque e mais simples a política de segurança de conteúdo. A única exceção é o `gtag.js` do Google Analytics, carregado só com consentimento.
+- **Google Tag Manager e snippet inline do Google:** o snippet padrão é inline e obrigaria `unsafe-inline` na CSP; o consentimento é um módulo externo.

@@ -51,6 +51,8 @@ Invariantes frágeis que cruzam specs:
 
 - **Nenhum script inline nas páginas.** A política de segurança de conteúdo do deploy não vai permitir `unsafe-inline`; todo script vai em arquivo externo. Origem: [`001-fundacao`](001-fundacao/requirements.md) (RNF-02).
 - **`verificar-dist` no build.** O `scripts/verificar-dist.mjs` roda no `build` de cada site e falha se o HTML gerado tiver `<script>` sem `src`, `<style>` ou `style=`; o `build.inlineStylesheets: "never"` dos `astro.config.mjs` mantém o CSS em arquivo. Quem adicionar um componente precisa manter essas duas guardas. Origem: [`002-tema`](002-tema/design.md) (ADR-2).
+- **A CSP é uma só.** `scripts/csp.mjs` (`politicaCsp`) é a fonte do que o deploy emite; o `verificar-dist` confere o HTML contra ela e `test/csp.test.ts` garante que a URL do `gtag.js` cabe nela. Sem medição, nenhum domínio externo; com medição, só os hosts do Google Analytics, nunca `*`, `unsafe-inline` nem `unsafe-eval`. Quem muda a lista muda os três lugares e o `design.md` da spec. Origem: [`003-medicao`](003-medicao/design.md) (ADR-5).
+- **Contrato do cookie de escolha.** `cookies-accepted`, valor `true` ou `false`, no domínio do site principal (`Path=/`, `SameSite=Lax`, `Secure` em HTTPS, 400 dias), lido por qualquer dos três sites. O formato é o mesmo do site principal; mudar nome, valor ou domínio quebra a escolha já gravada. Origem: [`003-medicao`](003-medicao/design.md) (ADR-2).
 - **Paridade de idiomas.** Todo dicionário de texto tem um teste que roda `chavesFaltantes` nas duas direções (`pt` contra `en` e `en` contra `pt`). Origem: [`001-fundacao`](001-fundacao/requirements.md) (RF-01).
 
 ## Spec-ouro

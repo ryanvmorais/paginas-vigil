@@ -36,6 +36,8 @@ pnpm --filter webvigil dev
 pnpm --filter mailvigil dev
 ```
 
+Audience measurement (Google Analytics 4 with consent) is off by default. To turn it on, copy `.env.example` to `.env` and fill in `PUBLIC_GA_MEASUREMENT_ID`: without it the page has no measurement, no cookie banner and no "Manage cookies" control.
+
 The quality gate, the same one CI and the pre-commit hook run:
 
 ```bash
