@@ -44,9 +44,6 @@ const pt = {
     aceitar: "Aceitar",
     recusar: "Recusar",
     fechar: "Fechar e recusar cookies",
-    escolhaAtual: "Sua escolha:",
-    escolhaAceita: "aceita",
-    escolhaRecusada: "recusada",
   },
 } satisfies Dicionario;
 
@@ -81,9 +78,6 @@ const en: TextosTema = {
     aceitar: "Accept",
     recusar: "Decline",
     fechar: "Close and decline cookies",
-    escolhaAtual: "Your choice:",
-    escolhaAceita: "accepted",
-    escolhaRecusada: "declined",
   },
 };
 

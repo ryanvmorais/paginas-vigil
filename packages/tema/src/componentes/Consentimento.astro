@@ -39,8 +39,6 @@ const politica = POLITICA[idioma];
   aria-labelledby="consentimento-titulo"
   data-consentimento
   data-medicao={id}
-  data-aceita={t.escolhaAceita}
-  data-recusada={t.escolhaRecusada}
   hidden
 >
   <h2 id="consentimento-titulo" tabindex="-1">
@@ -59,9 +57,6 @@ const politica = POLITICA[idioma];
       {!politica.traduzida && ` ${t.foraDoIdioma}`}
     </a>
     .
-  </p>
-  <p class="escolha-atual" data-escolha-atual hidden>
-    {t.escolhaAtual} <span data-escolha-valor></span>.
   </p>
   <div class="acoes">
     <button type="button" class="botao-escolha" data-recusar>
@@ -106,8 +101,7 @@ const politica = POLITICA[idioma];
   }
 
   /* `display` acima vence o `hidden` do navegador; sem esta regra o banner nunca fecharia. */
-  .consentimento[hidden],
-  .escolha-atual[hidden] {
+  .consentimento[hidden] {
     display: none;
   }
 
@@ -144,11 +138,6 @@ const politica = POLITICA[idioma];
   p a {
     font-weight: 600;
     text-underline-offset: 2px;
-  }
-
-  .escolha-atual {
-    color: var(--text);
-    font-weight: 600;
   }
 
   .fechar {

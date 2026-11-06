@@ -172,7 +172,6 @@ Estrutura do `Consentimento.astro` (as classes e o visual saem do mockup):
 >
   <h2 id="consentimento-titulo" tabindex="-1"><svg aria-hidden="true">…</svg>…</h2>
   <p>… <a href="política">…</a></p>
-  <p data-escolha-atual hidden>…</p>
   <div>
     <button type="button" data-recusar>…</button><button type="button" data-aceitar>…</button>
   </div>
@@ -188,8 +187,8 @@ Estrutura do `Consentimento.astro` (as classes e o visual saem do mockup):
 - **Foco:** primeira visita, ao escolher, o foco vai para o `<main>` (`tabindex="-1"`, `preventScroll`).
   Reaberto por "Gerenciar cookies", o foco vai para o título do banner (o leitor de tela o anuncia ao reabrir) e, ao escolher ou
   fechar com Esc (que mantém a escolha atual), volta ao botão que abriu.
-- **Escolha atual:** quando reaberto, `[data-escolha-atual]` mostra "Sua escolha: aceita/recusada" em texto,
-  sem depender de cor.
+- **Escolha atual:** o banner reaberto não repete a escolha anterior em texto (a linha "Sua escolha: …"
+  saiu na spec 004, por ser desnecessária); os dois botões bastam.
 - **Reserva de rolagem:** com o banner aberto o script põe uma classe no `<body>` que reserva, no fim da
   página, o espaço do cartão (valor fixo por faixa de largura); a classe sai quando o banner fecha. Sem isso o
   cartão cobriria o "Gerenciar cookies" do rodapé.
