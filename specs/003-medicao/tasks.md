@@ -32,12 +32,12 @@ o build é o do modo sem medição.
 
 ## Etapa 1 — CSP e verificação do HTML
 
-- [ ] `scripts/csp.test.mjs`: escrever primeiro os casos de `politicaCsp`: com medição, `script-src` com `'self'` e só o domínio do `gtag.js`; sem medição, nenhuma diretiva com domínio externo; nunca `unsafe-inline`, `unsafe-eval` nem `*`; `default-src`, `base-uri`, `form-action`, `object-src` e `frame-ancestors` em `'none'`. — RF-09, RNF-01
-- [ ] `scripts/csp.mjs`: `politicaCsp({ medicao })` devolve as diretivas e o texto do cabeçalho, conforme a tabela do design. — RF-09, ADR-5
-- [ ] `test/csp.test.ts`: a URL do `gtag.js` do núcleo é aceita pelo `script-src` de `politicaCsp({ medicao: true })`. — RF-09, ADR-5
-- [ ] `scripts/verificar-dist.test.mjs`: escrever primeiro os casos novos, com HTML montado no teste: com medição, sem inline e compatível; sem medição, sem banner, controle nem referência externa; banner sem `data-medicao` válido, ou banner sem controle (meio-termo), reprovados; `<script src>`, `<link>` e `<img>` de domínio fora da CSP reprovados; inline reprovado. — RF-06, RF-09
-- [ ] `scripts/verificar-dist.mjs`: detectar o modo pelo HTML (`data-consentimento`, `data-medicao`, `data-gerenciar-cookies`), exigir a coerência dos três e conferir cada recurso buscado pelo HTML (`script src`, `link` de `stylesheet`, `preload`, `modulepreload` e `icon`, `img`, `source`) contra `politicaCsp` do modo; `<a>`, `canonical` e `alternate` ficam fora. — RF-06, RF-09, ADR-5
-- [ ] Portão de qualidade. — anotar o resultado real.
+- [x] `scripts/csp.test.mjs`: escrever primeiro os casos de `politicaCsp`: com medição, `script-src` com `'self'` e só o domínio do `gtag.js`; sem medição, nenhuma diretiva com domínio externo; nunca `unsafe-inline`, `unsafe-eval` nem `*`; `default-src`, `base-uri`, `form-action`, `object-src` e `frame-ancestors` em `'none'`. — RF-09, RNF-01
+- [x] `scripts/csp.mjs`: `politicaCsp({ medicao })` devolve as diretivas e o texto do cabeçalho, conforme a tabela do design; `urlPermitida(politica, diretiva, url)` diz se a política deixa buscar uma URL (relativa vale `'self'`, absoluta só se o host está na lista, curinga só para subdomínio). — RF-09, ADR-5
+- [x] `test/csp.test.ts`: a URL do `gtag.js` do núcleo é aceita pelo `script-src` de `politicaCsp({ medicao: true })`. — RF-09, ADR-5
+- [x] `scripts/verificar-dist.test.mjs`: escrever primeiro os casos novos, com HTML montado no teste: com medição, sem inline e compatível; sem medição, sem banner, controle nem referência externa; banner sem `data-medicao` válido, ou banner sem controle (meio-termo), reprovados; `<script src>`, `<link>` e `<img>` de domínio fora da CSP reprovados; inline reprovado. — RF-06, RF-09
+- [x] `scripts/verificar-dist.mjs`: detectar o modo pelo HTML (`data-consentimento`, `data-medicao`, `data-gerenciar-cookies`), exigir a coerência dos três e conferir cada recurso buscado pelo HTML (`script src`, `link` de `stylesheet`, `preload`, `modulepreload` e `icon`, `img`, `source`) contra `politicaCsp` do modo; `<a>`, `canonical` e `alternate` ficam fora. O script de consentimento é reconhecido pelo nome do arquivo (`consentimento`, o que o Astro deriva do componente); a Etapa 2 confirma o nome real no build com medição. — RF-06, RF-09, ADR-5
+- [x] Portão de qualidade. — `format:check`, `lint`, `typecheck` (0 erros nos três pacotes), `test` (114 testes em 11 arquivos) e `build` (`verificar-dist` sem problemas nos dois sites, no modo sem medição) verdes. O modo com medição só tem o que conferir de verdade na Etapa 2, quando o banner existir.
 
 ## Etapa 2 — Banner, script, rodapé e integração
 
