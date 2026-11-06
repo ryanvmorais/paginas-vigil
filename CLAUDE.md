@@ -35,6 +35,31 @@ pnpm --filter webvigil dev
 pnpm --filter mailvigil dev
 ```
 
+Para conferir o que o visitante verá, construa e sirva o build (no `cmd`; `rem` é o comentário dele):
+
+```bat
+rem Build com a medição ligada (identificador de teste); sem a variável a página sai sem banner
+set PUBLIC_GA_MEASUREMENT_ID=G-TESTE12345
+pnpm --filter webvigil build
+
+rem Serve o build para a rede: abra o endereço "Network" que o terminal mostra, no computador e no celular
+pnpm --filter webvigil preview --host --port 4400
+
+rem Limpa a variável deste terminal
+set PUBLIC_GA_MEASUREMENT_ID=
+```
+
+No PowerShell a variável é `$env:PUBLIC_GA_MEASUREMENT_ID = "G-TESTE12345"` (em outra linha, ou separada do
+comando por `;`); no bash, `PUBLIC_GA_MEASUREMENT_ID=G-TESTE12345 pnpm --filter webvigil build`.
+
+> Cuidado: no `cmd`, `set VAR=valor` não leva espaço ao redor do `=`; com espaço o nome da variável fica
+> errado e o build sai sem banner. A variável vale até fechar o terminal.
+
+> Cuidado: aberta por um endereço de rede (`http://192.168...`), a página não está em contexto seguro, o
+> navegador não oferece `navigator.clipboard` e o botão "Copiar" não aparece, o que é o comportamento
+> previsto. Para vê-lo no celular, use `localhost` (por exemplo, `adb reverse` no Android). O `preview` também
+> não emite a CSP: quem a confere no build é o `verificar-dist`.
+
 ## Arquitetura
 
 ```text
