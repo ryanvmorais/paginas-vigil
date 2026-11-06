@@ -36,10 +36,10 @@ código (design, "Mockup").
 
 ## Etapa 1 — Menu
 
-- [ ] `apps/mailvigil/src/textos.ts`: `navegacao.relatorio` em português ("Relatório") e em inglês ("Report"), com a paridade passando. — RF-06
-- [ ] `apps/mailvigil/src/componentes/Vitrine.astro`: o item "Relatório" na navegação, na ordem da página (Como funciona, Relatório, O que ele faz, Instalar), apontando para o `id` da seção do relatório, que precisa existir. — RF-06
-- [ ] Conferir em Chrome real, a 390 e 1280 px, nos dois idiomas: o menu do desktop com quatro itens e o painel do celular com quatro links, cada um levando à seção certa, visível abaixo do cabeçalho. — RF-06
-- [ ] Portão de qualidade e `verificar-dist` (âncoras) nos dois sites. — Anotar o resultado real.
+- [x] `apps/mailvigil/src/textos.ts`: `navegacao.relatorio` em português ("Relatório") e em inglês ("Report"), com a paridade passando. — RF-06
+- [x] `apps/mailvigil/src/componentes/Vitrine.astro`: o item "Relatório" na navegação, na ordem da página (Como funciona, Relatório, O que ele faz, Instalar), apontando para o `id` da seção do relatório, que precisa existir. — RF-06
+- [x] Conferir em Chrome real, a 390 e 1280 px, nos dois idiomas: o menu do desktop com quatro itens e o painel do celular com quatro links, cada um levando à seção certa, visível abaixo do cabeçalho. — RF-06 — Resultado (2026-11-06, build servido, Chrome real, 390 e 1280 px, pt e en): quatro itens em cada combinação, cada âncora leva ao topo da seção certa e o painel do celular fecha depois do toque; o cabeçalho não é fixo, então nada o sobrepõe.
+- [x] Portão de qualidade e `verificar-dist` (âncoras) nos dois sites. — Resultado (2026-11-06): `pnpm format:check`, `pnpm lint` e `pnpm typecheck` sem erro; `pnpm test` com 11 arquivos e 132 testes passando; `pnpm build` dos dois sites com `verificar-dist: dist sem problemas`.
 
 ## Etapa 2 — Saída do terminal e capturas
 

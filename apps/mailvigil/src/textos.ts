@@ -20,7 +20,12 @@ const pt = {
       "Lê os relatórios agregados DMARC, agrupa o tráfego por remetente e dá um veredito sobre p=reject com o critério à mostra. Roda offline.",
   },
   nome: "MailVigil",
-  navegacao: { como: "Como funciona", faz: "O que ele faz", instalar: "Instalar" },
+  navegacao: {
+    como: "Como funciona",
+    relatorio: "Relatório",
+    faz: "O que ele faz",
+    instalar: "Instalar",
+  },
   topo: {
     titulo: "Descubra se seu domínio já está pronto para p=reject.",
     apoio:
@@ -127,7 +132,12 @@ const en: TextosPagina = {
       "It reads DMARC aggregate reports, groups the traffic by sender and gives a verdict on p=reject with the criterion in plain sight. Runs offline.",
   },
   nome: "MailVigil",
-  navegacao: { como: "How it works", faz: "What it does", instalar: "Install" },
+  navegacao: {
+    como: "How it works",
+    relatorio: "Report",
+    faz: "What it does",
+    instalar: "Install",
+  },
   topo: {
     titulo: "Find out if your domain is ready for p=reject.",
     apoio:
