@@ -310,15 +310,17 @@ aprovado no `design.md` antes de qualquer código.
   **Then** a página do MailVigil continua correta e a escala é decidida no `design.md` com o mockup
   aprovado.
 
-### RF-11 — Reserva de rolagem do banner proporcional ao cartão
+### RF-11 — Sem reserva de rolagem para o banner (revisto em 2026-11-06)
+
+A versão aprovada pedia uma reserva proporcional ao cartão; o mantenedor a retirou por desnecessária.
 
 - **Given** o banner de consentimento aberto, nos dois idiomas, no desktop e no celular
   **When** o visitante rola até o fim
-  **Then** os links do rodapé, inclusive "Gerenciar cookies", ficam livres do cartão, e o espaço reservado
-  é o do cartão (altura mais margem e uma folga curta), sem sobrar um vazio perceptível.
+  **Then** a página termina onde termina sem o banner, sem espaço reservado: o cartão pode cobrir o fim do
+  rodapé, e o visitante o fecha pelo X ou escolhendo.
 - **Given** o visitante que aceitou ou recusou
   **When** o banner fecha
-  **Then** a reserva some e o rodapé termina rente ao fim da página, como hoje.
+  **Then** o rodapé fica à mostra, com o "Gerenciar Cookies" para reabri-lo.
 
 ## Requisitos não-funcionais
 
