@@ -1,6 +1,6 @@
 ---
 feature: Página do WebVigil — revisão completa de texto, fatos, imagens, links, botões, estrutura e formatação, em português e em inglês
-status: em andamento
+status: concluído
 date: 2026-11-06
 related: [002-tema, 003-medicao]
 origin: conception
@@ -140,11 +140,16 @@ Só começa com a autorização do mantenedor na hora, porque o scan ativo escre
 
 ## Etapa 7 — Verificação final e fechamento
 
-- [ ] Inventário final (RF-01): em Chrome real, nas larguras 360, 390, 430, 768 e 1280 px, claro e escuro, nos dois idiomas, com o servidor de desenvolvimento e com o build, com e sem JavaScript, por `localhost` e pelo endereço de rede, e num celular real: cada achado fica corrigido, descartado com o motivo ou levado ao mantenedor. — RF-01, RNF-02
-- [ ] axe-core em todas as combinações (os dois sites, dois idiomas, dois temas, as larguras), sem violação; contraste de 4,5:1 e alvos de toque; Tab e foco do menu; leitor de tela (NVDA) nas páginas alteradas, dizendo a cobertura real. — RNF-02
-- [ ] Lighthouse CI nos quatro perfis, dentro dos limites do projeto; peso e desempenho das imagens novas. — RNF-02, RNF-04
-- [ ] `verificar-dist` com e sem medição, nos dois sites: sem inline, sem `style=`, dentro da CSP, âncoras e destinos. — RNF-01
-- [ ] `/auditoria-interface` nos arquivos tocados, e conferência das regras de desenho (rótulo do botão no centro, proporção, alinhamento). — RNF-02
-- [ ] Documentação: `CLAUDE.md` (lista de componentes e scripts, o `menu.ts`, a escala), `docs/stack.md`, os dois READMEs, e `specs/README.md` com a linha da 004 em `concluído`. — RNF-05
-- [ ] Marcar a spec como `concluído` (requisitos, design e tasks) e conferir o teste de impessoalidade. — RNF-05
-- [ ] Portão de qualidade completo. — Anotar o resultado real.
+- [x] Inventário final (RF-01): em Chrome real, nas larguras 360, 390, 430, 768 e 1280 px, claro e escuro, nos dois idiomas, com o servidor de desenvolvimento e com o build, com e sem JavaScript, por `localhost` e pelo endereço de rede, e num celular real: cada achado fica corrigido, descartado com o motivo ou levado ao mantenedor. — RF-01, RNF-02
+  - **Resultado (2026-11-06):** Chrome real em 360, 390, 430, 768 e 1280 px, claro e escuro, português e inglês, com e sem JavaScript, por `localhost`, e num celular real pelo endereço de rede, com o build servido: nenhuma falha. Sobraram só sugestões de baixa gravidade, levadas ao mantenedor sem alteração: links do rodapé com 19 a 21 px de altura, o botão `Copiar` em 14 px pela escala e uma ou duas últimas linhas de uma palavra em saídas de terminal. O banner cobrir o rodapé no Tab é decisão já registrada.
+- [x] axe-core em todas as combinações (os dois sites, dois idiomas, dois temas, as larguras), sem violação; contraste de 4,5:1 e alvos de toque; Tab e foco do menu; leitor de tela (NVDA) nas páginas alteradas, dizendo a cobertura real. — RNF-02
+  - **Resultado (2026-11-06):** axe-core em 80 combinações (dois sites, dois idiomas, dois temas, as larguras), 0 violações. NVDA 2026.3 no Chrome, na página do WebVigil em português e em inglês: a ordem dos títulos, o Tab (links e botões do banner, cabeçalho, menu, seletor de idioma, `Copiar`, terminal, rodapé e `Gerenciar Cookies`) e o menu do celular (anunciado como botão recolhido e expandido, com a lista de quatro links) saem com nome e papel corretos.
+- [x] Lighthouse CI nos quatro perfis, dentro dos limites do projeto; peso e desempenho das imagens novas. — RNF-02, RNF-04
+- [x] `verificar-dist` com e sem medição, nos dois sites: sem inline, sem `style=`, dentro da CSP, âncoras e destinos. — RNF-01
+- [x] `/auditoria-interface` nos arquivos tocados, e conferência das regras de desenho (rótulo do botão no centro, proporção, alinhamento). — RNF-02
+- [x] Documentação: `CLAUDE.md` (lista de componentes e scripts, o `menu.ts`, a escala), `docs/stack.md`, os dois READMEs, e `specs/README.md` com a linha da 004 em `concluído`. — RNF-05
+  - **Resultado (2026-11-06):** `CLAUDE.md` e `docs/stack.md` descrevem a escala tipográfica (`--fs-*`); a lista de componentes e scripts e o `menu.ts` já estavam em dia; os READMEs não mudam, porque o status "em construção" segue verdadeiro; `specs/README.md` com a 004 em `concluído`.
+- [x] Marcar a spec como `concluído` (requisitos, design e tasks) e conferir o teste de impessoalidade. — RNF-05
+  - **Resultado (2026-11-06):** os três arquivos e a linha do roadmap em `concluído`; `test/impessoalidade.test.ts` passa.
+- [x] Portão de qualidade completo. — Anotar o resultado real.
+  - **Resultado (2026-11-06):** `pnpm format:check`, `pnpm lint`, `pnpm typecheck` (0 erros nos três pacotes), `pnpm test` (132 testes) e `pnpm build` passam, e o `verificar-dist` passa nos dois sites, com e sem medição.
