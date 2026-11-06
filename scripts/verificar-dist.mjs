@@ -9,7 +9,7 @@
  *    o verificador falha se achar `<script>` sem `src`, `<style>` ou o atributo `style=`.
  * 2. **Marcação de idioma (RF-03).** Em página que declara `hreflang`, exige `lang` no `<html>`, o
  *    `canonical`, o trio de `alternate` (`pt-BR`, `en`, `x-default`) e o `og:locale`.
- * 3. **Modo de medição coerente (RF-06).** A página tem o banner, o controle "Gerenciar cookies" e o
+ * 3. **Modo de medição coerente (RF-06).** A página tem o banner, o controle "Gerenciar Cookies" e o
  *    script de consentimento, ou não tem nenhum dos três; o banner leva um `data-medicao` válido.
  * 4. **Compatível com a CSP (RF-09).** Todo `<script src>`, `<link>` que busca recurso, `<img>` e
  *    `<source>` aponta para o próprio site ou para um domínio que `politicaCsp` do modo libera.

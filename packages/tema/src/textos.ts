@@ -25,8 +25,8 @@ const pt = {
   },
   rodape: {
     maisProjetos: "Mais projetos",
-    politica: "Política de privacidade",
-    gerenciar: "Gerenciar cookies",
+    politica: "Política de Privacidade",
+    gerenciar: "Gerenciar Cookies",
   },
   copiar: {
     rotulo: "Copiar",
@@ -62,8 +62,8 @@ const en: TextosTema = {
   },
   rodape: {
     maisProjetos: "More projects",
-    politica: "Privacy policy",
-    gerenciar: "Manage cookies",
+    politica: "Privacy Policy",
+    gerenciar: "Manage Cookies",
   },
   copiar: {
     rotulo: "Copy",
