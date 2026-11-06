@@ -133,13 +133,15 @@ O Dependabot abre PRs de atualização por semana, agrupando minor e patch, com 
 
 ## Peças menores
 
-| Peça                   | Para que serve                                                                    |
-| ---------------------- | --------------------------------------------------------------------------------- |
-| `@astrojs/check`       | Faz o `tsc` entender os arquivos `.astro` (o `pnpm typecheck` dos sites).         |
-| `eslint-plugin-astro`  | Regras de lint (e de acessibilidade) para `.astro`.                               |
-| `globals`              | Lista dos globais de cada ambiente (navegador, Node) para o ESLint.               |
-| `@types/node`          | Tipos do Node para os scripts e os hooks de desenvolvimento.                      |
-| `.githooks/pre-commit` | Roda formatação, lint, tipos e testes antes de cada commit, o mesmo portão do CI. |
+| Peça                   | Para que serve                                                                                                                                                                                                                |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `@astrojs/check`       | Faz o `tsc` entender os arquivos `.astro` (o `pnpm typecheck` dos sites).                                                                                                                                                     |
+| `eslint-plugin-astro`  | Regras de lint (e de acessibilidade) para `.astro`.                                                                                                                                                                           |
+| `globals`              | Lista dos globais de cada ambiente (navegador, Node) para o ESLint.                                                                                                                                                           |
+| `@types/node`          | Tipos do Node para os scripts e os hooks de desenvolvimento.                                                                                                                                                                  |
+| `.githooks/pre-commit` | Roda formatação, lint, tipos e testes antes de cada commit, o mesmo portão do CI.                                                                                                                                             |
+| Fontes locais          | Sora (800) e JetBrains Mono (400 e 700) em woff2 em subconjunto, com a licença OFL, em `packages/tema/src/fontes`. Servidas do próprio site: sem CDN de fontes e sem origem externa para a política de segurança de conteúdo. |
+| `copiar.ts`            | O botão de copiar comando, o único script que roda no navegador; o Astro o empacota em arquivo externo, o que mantém a página sem script inline.                                                                              |
 
 ---
 
