@@ -31,6 +31,13 @@ import { validarIdMedicao } from "../medicao";
 const CLASSE_RESERVA = "reserva-consentimento";
 
 /**
+ * Propriedade CSS do `<body>` com a altura medida do cartão, em px. O `Consentimento.astro` soma a ela a
+ * margem do cartão e a folga para calcular a reserva. Escrita por `style.setProperty`, que a CSP
+ * `style-src 'self'` não bloqueia (spike da Etapa 0 da spec 004); o atributo `style` no HTML seria barrado.
+ */
+const PROPRIEDADE_ALTURA = "--altura-consentimento";
+
+/**
  * Armazém da escolha no cookie do domínio do site principal.
  *
  * @returns o armazém sobre `document.cookie`
@@ -101,6 +108,16 @@ function ligarBanner(secao: HTMLElement): void {
   // Quem reabriu o banner, para devolver o foco a ele depois; vazio na primeira visita.
   let origem: HTMLElement | undefined;
 
+  /** Publica no `<body>` a altura atual do cartão; o CSS faz a conta da reserva. */
+  const publicarAltura = (): void => {
+    const altura = Math.ceil(secao.getBoundingClientRect().height);
+    document.body.style.setProperty(PROPRIEDADE_ALTURA, `${altura}px`);
+  };
+
+  // Só existe enquanto o banner está aberto. Sem `ResizeObserver` a propriedade não é escrita e o CSS
+  // recua para uma reserva fixa.
+  let observador: ResizeObserver | undefined;
+
   /** Mostra o banner e reserva o espaço dele no fim da página. */
   const abrir = (reaberto: boolean): void => {
     const escolha = reaberto ? lerEscolha(meios, memoria) : undefined;
@@ -111,6 +128,12 @@ function ligarBanner(secao: HTMLElement): void {
     }
     secao.hidden = false;
     document.body.classList.add(CLASSE_RESERVA);
+    // O cartão muda de altura com a largura da janela, a quebra do texto e o "Sua escolha atual"; por
+    // isso a medida é observada, não tirada uma vez. A primeira leitura chega logo depois do `observe`.
+    if (typeof ResizeObserver !== "undefined" && observador === undefined) {
+      observador = new ResizeObserver(publicarAltura);
+      observador.observe(secao);
+    }
     // O leitor de tela anuncia o título ao reabrir; na primeira visita nada recebe foco à força.
     if (reaberto) titulo.focus();
   };
@@ -119,6 +142,9 @@ function ligarBanner(secao: HTMLElement): void {
   const fechar = (): void => {
     secao.hidden = true;
     document.body.classList.remove(CLASSE_RESERVA);
+    observador?.disconnect();
+    observador = undefined;
+    document.body.style.removeProperty(PROPRIEDADE_ALTURA);
     const alvo = origem ?? document.querySelector<HTMLElement>("main");
     if (alvo === null) return;
     if (origem === undefined) alvo.tabIndex = -1;
