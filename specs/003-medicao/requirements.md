@@ -1,6 +1,6 @@
 ---
 feature: Medição com consentimento — Google Analytics 4 em Consent Mode, banner e CSP sem inline
-status: aprovado
+status: em andamento
 date: 2026-11-06
 related: [001-fundacao, 002-tema]
 origin: conception

@@ -1,6 +1,6 @@
 ---
 feature: Medição com consentimento — Google Analytics 4 em Consent Mode, banner e CSP sem inline
-status: aprovado
+status: em andamento
 date: 2026-11-06
 related: [001-fundacao, 002-tema]
 origin: conception
@@ -16,16 +16,19 @@ o build é o do modo sem medição.
 
 ## Etapa 0 — Spikes e lógica pura: identificador, política e consentimento
 
-- [ ] Spike do Astro: com um componente de teste que tem `<script>` e é renderizado atrás de um `if`, construir um app e conferir se o `<script src>` sai no HTML quando a condição é falsa. Registrar a decisão aqui: se sair, o plano é o do "Riscos" do design (script inerte sem o banner, verificador aceitando o `src` só com o banner e, em último caso, um segundo layout por modo). — RF-06, ADR-7
-- [ ] Spike do `envDir`: com `vite.envDir: "../.."` nos `astro.config.mjs`, conferir que `import.meta.env.PUBLIC_GA_MEASUREMENT_ID`, lido num `.astro` do tema, vem de um `.env` na raiz do repositório no `pnpm dev` e no `pnpm build`; senão, registrar o recuo (um `.env` por app). — RF-06
-- [ ] `packages/tema/src/medicao.test.ts`: escrever primeiro os casos de `validarIdMedicao`: `G-ABC1234567` válido; vazio, `undefined`, com espaço, minúsculo, curto e longo demais recusados. — RF-06, RNF-05
-- [ ] `packages/tema/src/medicao.ts`: `validarIdMedicao(valor)` devolve o identificador ou `undefined` (`^G-[A-Z0-9]{10}$`), com o cabeçalho `@file` no padrão de `idiomas.ts`. — RF-06
-- [ ] `packages/tema/src/politica.ts`: o endereço da política do site principal por idioma (`href` e `traduzida`) e o domínio do cookie, em um só lugar. — RF-05, ADR-2
-- [ ] `packages/tema/src/consentimento.test.ts`: escrever primeiro os casos do núcleo, com cookie, armazenamento local e `gtag` montados no teste: estado padrão negado nos quatro campos; aceitar concede só `analytics_storage`; recusar mantém tudo negado e não carrega o `gtag.js`; restauração do cookie, do armazenamento local e da memória; cookie que não confirma na leitura cai para o local; local que lança cai para a memória; o cookie vence o local; valor diferente de `true`/`false` é "sem escolha"; revogação só nega `analytics_storage`; `criarGtag` empurra `arguments`; ordem `default` → `update` → `js` → `config` e um único `config` com aceitar, recusar e aceitar de novo. — RF-01, RF-03, RF-04, RF-07, RNF-04, RNF-05
-- [ ] `packages/tema/src/consentimento.ts`: tipos `Escolha`, `Armazem` e `Meios`; `lerEscolha`, `gravarEscolha` (grava, lê de volta e recua), `estadoPadrao`, `estadoAceito`, `estadoRevogado`, `criarGtag`, o aplicador da escolha e a constante da URL do `gtag.js`. — RF-01, RF-03, RF-04, RF-07, ADR-1, ADR-2, ADR-3
-- [ ] `packages/tema/src/textos.ts`: dicionários `pt` e `en` de `consentimento` (título, texto, "Saiba mais na", política, aceitar, recusar, fechar, escolha atual, rótulo da região) e `rodape.politica`/`rodape.gerenciar`, com o texto do banner do site principal; o `textos.test.ts` existente cobre a paridade. — RF-05, RF-08
-- [ ] `packages/tema/package.json`: `exports` com `./consentimento`, `./medicao` e `./politica`. — ADR-1
-- [ ] Portão de qualidade. — anotar o resultado real e a decisão dos dois spikes.
+- [x] Spike do Astro: com um componente de teste que tem `<script>` e é renderizado atrás de um `if`, construir um app e conferir se o `<script src>` sai no HTML quando a condição é falsa. Registrar a decisão aqui: se sair, o plano é o do "Riscos" do design (script inerte sem o banner, verificador aceitando o `src` só com o banner e, em último caso, um segundo layout por modo). — RF-06, ADR-7
+      **Decisão: o Astro não emite o `<script src>` de um componente que não é renderizado.** Com o componente atrás de um `if` falso, o HTML da página saiu sem `<script>` (o arquivo `.js` existe em `_astro/`, mas nenhuma página o referencia); renderizado, a página ganhou um único `<script type="module" src>`. O plano do "Riscos" do design (script inerte, verificador tolerante, segundo layout) não é necessário: o `Consentimento.astro` leva o `<script>` e o `Pagina` o renderiza só com identificador válido.
+- [x] Spike do `envDir`: com `vite.envDir: "../.."` nos `astro.config.mjs`, conferir que `import.meta.env.PUBLIC_GA_MEASUREMENT_ID`, lido num `.astro` do tema, vem de um `.env` na raiz do repositório no `pnpm dev` e no `pnpm build`; senão, registrar o recuo (um `.env` por app). — RF-06
+      **Decisão: `vite.envDir: "../.."` funciona.** Num componente `.astro` do tema, `import.meta.env.PUBLIC_GA_MEASUREMENT_ID` veio do `.env` da raiz no `astro build` e no `astro dev`, e ficou `undefined` (atributo omitido) sem o `.env`. Sem recuo para um `.env` por app.
+- [x] `packages/tema/src/medicao.test.ts`: escrever primeiro os casos de `validarIdMedicao`: `G-ABC1234567` válido; vazio, `undefined`, com espaço, minúsculo, curto e longo demais recusados. — RF-06, RNF-05
+- [x] `packages/tema/src/medicao.ts`: `validarIdMedicao(valor)` devolve o identificador ou `undefined` (`^G-[A-Z0-9]{10}$`), com o cabeçalho `@file` no padrão de `idiomas.ts`. — RF-06
+- [x] `packages/tema/src/politica.ts`: o endereço da política do site principal por idioma (`href` e `traduzida`) e o domínio do cookie, em um só lugar. — RF-05, ADR-2
+- [x] `packages/tema/src/consentimento.test.ts`: escrever primeiro os casos do núcleo, com cookie, armazenamento local e `gtag` montados no teste: estado padrão negado nos quatro campos; aceitar concede só `analytics_storage`; recusar mantém tudo negado e não carrega o `gtag.js`; restauração do cookie, do armazenamento local e da memória; cookie que não confirma na leitura cai para o local; local que lança cai para a memória; o cookie vence o local; valor diferente de `true`/`false` é "sem escolha"; revogação só nega `analytics_storage`; `criarGtag` empurra `arguments`; ordem `default` → `update` → `js` → `config` e um único `config` com aceitar, recusar e aceitar de novo. — RF-01, RF-03, RF-04, RF-07, RNF-04, RNF-05
+- [x] `packages/tema/src/consentimento.ts`: tipos `Escolha`, `Armazem` e `Meios`; `lerEscolha`, `gravarEscolha` (grava, lê de volta e recua), `estadoPadrao`, `estadoAceito`, `estadoRevogado`, `criarGtag`, o aplicador da escolha (`criarMedicao`, com `iniciar` e `aplicar`) e a constante da URL do `gtag.js` (`URL_GTAG`). Também `montarCookie` e `lerCookie`, puras, para o script de entrada só repassar `document.cookie`. — RF-01, RF-03, RF-04, RF-07, ADR-1, ADR-2, ADR-3
+- [x] `packages/tema/src/textos.ts`: dicionários `pt` e `en` de `consentimento` (título, texto, "Saiba mais na", política, aceitar, recusar, fechar, escolha atual, rótulo da região) e `rodape.politica`/`rodape.gerenciar`, com o texto do banner do site principal; o `textos.test.ts` existente cobre a paridade. — RF-05, RF-08
+      **Sem chave de rótulo da região:** a região é nomeada pelo título (`aria-labelledby`), como o design manda. Entraram `foraDoIdioma` ("(em português)"/"(in Portuguese)", usado quando `traduzida` é falso) e as palavras da escolha atual (`escolhaAceita`/`escolhaRecusada`).
+- [x] `packages/tema/package.json`: `exports` com `./consentimento`, `./medicao` e `./politica`. — ADR-1
+- [x] Portão de qualidade. — `format:check`, `lint`, `typecheck` (tema e os dois apps, 0 erros), `test` (80 testes em 9 arquivos) e `build` (`verificar-dist` sem problemas nos dois sites) verdes. Decisão dos spikes: ver as duas primeiras tarefas.
 
 ## Etapa 1 — CSP e verificação do HTML
 
