@@ -1,0 +1,144 @@
+---
+/**
+ * @file Página do WebVigil montada com os blocos do tema, no idioma pedido.
+ *
+ * Segue o mockup aprovado da spec 002 (direção A, "Terminal primeiro"): cabeçalho, topo, terminal
+ * com a saída real, passos, o relatório em HTML (com o aviso do dashboard), o que ele faz, o que ele
+ * não faz, a chamada final e o rodapé. Os textos vêm de `textos.ts` e a saída do terminal de
+ * `terminais.ts`. As duas páginas (`/` e `/en/`) só diferem no idioma que passam para cá.
+ */
+import Aviso from "@paginas-vigil/tema/componentes/Aviso.astro";
+import Botao from "@paginas-vigil/tema/componentes/Botao.astro";
+import Cabecalho from "@paginas-vigil/tema/componentes/Cabecalho.astro";
+import ChamadaFinal from "@paginas-vigil/tema/componentes/ChamadaFinal.astro";
+import Comando from "@paginas-vigil/tema/componentes/Comando.astro";
+import FiguraRelatorio from "@paginas-vigil/tema/componentes/FiguraRelatorio.astro";
+import Grupos from "@paginas-vigil/tema/componentes/Grupos.astro";
+import Limites from "@paginas-vigil/tema/componentes/Limites.astro";
+import Passos from "@paginas-vigil/tema/componentes/Passos.astro";
+import Rodape from "@paginas-vigil/tema/componentes/Rodape.astro";
+import Secao from "@paginas-vigil/tema/componentes/Secao.astro";
+import Terminal from "@paginas-vigil/tema/componentes/Terminal.astro";
+import Topo from "@paginas-vigil/tema/componentes/Topo.astro";
+import { caminhoNoIdioma } from "@paginas-vigil/tema/caminhos";
+import type { Idioma } from "@paginas-vigil/tema/idiomas";
+import Pagina from "@paginas-vigil/tema/layouts/Pagina.astro";
+
+import claroCelular from "../assets/relatorio/web-en-phone-light.png";
+import claroDesktop from "../assets/relatorio/web-en-wide-light.png";
+import escuroCelular from "../assets/relatorio/web-en-phone-dark.png";
+import escuroDesktop from "../assets/relatorio/web-en-wide-dark.png";
+import { saidaTerminal } from "../terminais";
+import { textos } from "../textos";
+import Logo from "./Logo.astro";
+
+export interface Props {
+  idioma: Idioma;
+}
+
+const { idioma } = Astro.props;
+const t = textos[idioma];
+const caminho = Astro.url.pathname;
+
+const REPOSITORIO = "https://github.com/ryanvmorais/webvigil";
+const OUTRO_PRODUTO = "https://mailvigil.ryanmorais.com.br";
+// O README em português leva ao `README.pt-BR.md`; o de inglês, ao `README.md` (raiz do repositório).
+const leiame = idioma === "pt" ? `${REPOSITORIO}/blob/main/README.pt-BR.md` : REPOSITORIO;
+
+const passos = Object.values(t.como.passos);
+const grupos = Object.values(t.faz.grupos).map((grupo) => ({
+  titulo: grupo.titulo,
+  intro: grupo.intro,
+  itens: Object.values(grupo.itens),
+}));
+---
+
+<Pagina
+  produto="webvigil"
+  idioma={idioma}
+  caminho={caminho}
+  titulo={t.meta.titulo}
+  descricao={t.meta.descricao}
+>
+  <Cabecalho
+    nome={t.nome}
+    caminho={caminho}
+    idioma={idioma}
+    navegacao={[
+      { href: "#como-funciona", rotulo: t.navegacao.como },
+      { href: "#o-que-faz", rotulo: t.navegacao.faz },
+      { href: "#instalar", rotulo: t.navegacao.instalar },
+    ]}
+  >
+    <Logo slot="logo" />
+  </Cabecalho>
+  <main>
+    <Topo titulo={t.topo.titulo} apoio={t.topo.apoio} fina={t.topo.fina}>
+      <Fragment slot="acoes">
+        <Botao href={leiame} variante="primario" target="_blank" rel="noopener">
+          {t.topo.verGithub}
+        </Botao>
+        <Botao href="#como-funciona" variante="secundario">
+          {t.topo.comoFunciona}
+        </Botao>
+      </Fragment>
+      <Comando slot="comando" comando={t.topo.comando} idioma={idioma} />
+    </Topo>
+
+    <div class="envoltorio terminal">
+      <Terminal rotulo={t.terminal.rotulo} titulo={t.terminal.titulo} comando={t.terminal.comando}>
+        <Fragment set:html={saidaTerminal[idioma]} />
+      </Terminal>
+    </div>
+
+    <Secao id="como-funciona" titulo={t.como.titulo} lead={t.como.lead}>
+      <Passos passos={passos} rotuloPasso={t.como.rotuloPasso} />
+    </Secao>
+
+    <Secao id="relatorio" titulo={t.relatorio.titulo} lead={t.relatorio.lead}>
+      <FiguraRelatorio
+        imagens={{ claroDesktop, escuroDesktop, claroCelular, escuroCelular }}
+        alt={t.relatorio.alt}
+        legenda={t.relatorio.legenda}
+      />
+      <Aviso
+        rotulo={t.relatorio.aviso.rotulo}
+        titulo={t.relatorio.aviso.titulo}
+        link={{ href: `${leiame}#web-ui`, rotulo: t.relatorio.aviso.link }}
+      >
+        {t.relatorio.aviso.texto}
+      </Aviso>
+    </Secao>
+
+    <Secao id="o-que-faz" titulo={t.faz.titulo}>
+      <Grupos grupos={grupos} />
+    </Secao>
+
+    <Limites titulo={t.limites.titulo}>
+      <p>{t.limites.texto}</p>
+    </Limites>
+
+    <ChamadaFinal titulo={t.final.titulo} texto={t.final.texto}>
+      <Botao href={leiame} variante="primario" target="_blank" rel="noopener">
+        {t.topo.verGithub}
+      </Botao>
+      <Botao href={`${REPOSITORIO}#readme`} variante="secundario" target="_blank" rel="noopener">
+        {t.final.docs}
+      </Botao>
+    </ChamadaFinal>
+  </main>
+  <Rodape
+    nome={t.nome}
+    licenca="Apache-2.0"
+    outroProduto={{ nome: "MailVigil", href: `${OUTRO_PRODUTO}${caminhoNoIdioma("/", idioma)}` }}
+    idioma={idioma}
+    caminho={caminho}
+  />
+</Pagina>
+
+<style>
+  /* O terminal fica logo abaixo do topo, com um respiro curto antes da primeira seção. */
+  .terminal {
+    padding-bottom: 8px;
+  }
+</style>
