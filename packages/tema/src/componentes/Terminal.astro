@@ -1,0 +1,94 @@
+---
+/**
+ * @file Terminal: o comando digitado e a saída real dele, a prova do produto.
+ *
+ * É o único ponto de ênfase da página. O texto completo está sempre no HTML (nada depende de
+ * JavaScript): o comando num `span.digita` e a saída (o `slot`) num `span.saida`. O `<pre>` rola na
+ * horizontal por dentro do bloco, e a página nunca (RF-08). A animação é só CSS (`terminal.css`, ADR-4);
+ * como o CSS não conta texto, este componente conta os caracteres do comando e as linhas da saída no
+ * build e escolhe as classes `.n-*` e `.l-*`, falhando o build se o valor passar da faixa.
+ */
+import "../estilos/terminal.css";
+
+export interface Props {
+  /** Rótulo acessível do bloco (lido pelo leitor de tela), por exemplo "Exemplo de saída no terminal". */
+  rotulo: string;
+  /** Texto do cabeçalho do terminal: o que a saída mostra. */
+  titulo: string;
+  /** Comando digitado, sem o `$` do prompt. */
+  comando: string;
+}
+
+const { rotulo, titulo, comando } = Astro.props;
+
+// Faixas cobertas por `terminal.css`, de 5 em 5. Valor fora delas falha o build.
+const MAX_CARACTERES = 120;
+const MAX_LINHAS = 80;
+
+const saida = await Astro.slots.render("default");
+const caracteres = [...comando].length;
+const linhas = saida.split("\n").length;
+
+if (caracteres > MAX_CARACTERES || linhas > MAX_LINHAS) {
+  throw new Error(
+    `Terminal.astro: comando com ${caracteres} caracteres (máximo ${MAX_CARACTERES}) e saída com ` +
+      `${linhas} linhas (máximo ${MAX_LINHAS}). Amplie as faixas em estilos/terminal.css.`,
+  );
+}
+
+const faixa = (valor: number) => Math.ceil(valor / 5) * 5;
+const classes = `n-${faixa(caracteres)} l-${faixa(linhas)}`;
+---
+
+<figure class="terminal" role="group" aria-label={rotulo}>
+  <figcaption class="cabeca">{titulo}</figcaption>
+  <pre
+    class={classes}
+    tabindex="0"
+  ><span class="t-dim">$</span> <span class="digita">{comando}</span><span class="saida" set:html={saida} /></pre>
+</figure>
+
+<style>
+  /* Fundo escuro nos dois esquemas: o terminal é o único ponto de ênfase (RF-08). */
+  .terminal {
+    overflow: hidden;
+    border: 1px solid var(--term-border);
+    border-radius: 12px;
+    background: var(--term-bg);
+    color: var(--term-text);
+  }
+
+  .cabeca {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--term-border);
+    color: var(--term-muted);
+    font-family: var(--font-code);
+    font-size: 12px;
+  }
+
+  /* `overflow-x: auto` faz a linha larga rolar dentro do bloco; `tabindex=0` deixa o teclado rolar. */
+  pre {
+    margin: 0;
+    padding: 16px;
+    overflow-x: auto;
+    font-family: var(--font-code);
+    font-size: 12.5px;
+    line-height: 1.35;
+    white-space: pre;
+  }
+
+  /* Cada linha de saída ocupa o espaço final desde o primeiro quadro (a animação só recorta). */
+  .saida {
+    display: block;
+  }
+
+  @media (min-width: 720px) {
+    pre {
+      padding: 22px 24px;
+      font-size: 13.5px;
+    }
+  }
+</style>

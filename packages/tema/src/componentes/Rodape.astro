@@ -1,0 +1,80 @@
+---
+/**
+ * @file Rodapé: nome e licença, link do outro produto, item extra opcional e o seletor de idioma.
+ *
+ * O item extra (por exemplo o link do DMARC Fácil, no MailVigil) entra no
+ * `slot`, ao lado do link do outro produto. A navegação do rodapé tem rótulo próprio, vindo de
+ * `textos.ts`; o seletor de idioma é o mesmo do cabeçalho (RF-09).
+ */
+import type { Idioma } from "../idiomas";
+import { textos } from "../textos";
+import SeletorIdioma from "./SeletorIdioma.astro";
+
+export interface Props {
+  nome: string;
+  licenca: string;
+  outroProduto: { nome: string; href: string };
+  idioma: Idioma;
+  /** Caminho da página na versão atual; vai ao seletor de idioma. */
+  caminho: string;
+}
+
+const { nome, licenca, outroProduto, idioma, caminho } = Astro.props;
+---
+
+<footer class="rodape">
+  <div class="envoltorio conteudo">
+    <span>
+      {nome} · {licenca}
+    </span>
+    <div class="links">
+      <nav aria-label={textos[idioma].rodape.maisProjetos}>
+        <a href={outroProduto.href}>{outroProduto.nome}</a>
+        <slot />
+      </nav>
+      <SeletorIdioma idioma={idioma} caminho={caminho} />
+    </div>
+  </div>
+</footer>
+
+<style>
+  .rodape {
+    padding-block: 24px;
+    border-top: 1px solid var(--border);
+    color: var(--text-3);
+    font-size: 13.5px;
+  }
+
+  .conteudo {
+    display: grid;
+    gap: 8px;
+  }
+
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 18px;
+  }
+
+  nav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 18px;
+  }
+
+  /* Alvo de toque de 44 px (RNF-02). */
+  nav :global(a) {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+
+  @media (min-width: 720px) {
+    .conteudo {
+      grid-template-columns: 1fr auto;
+      align-items: center;
+    }
+  }
+</style>

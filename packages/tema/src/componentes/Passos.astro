@@ -1,0 +1,89 @@
+---
+/**
+ * @file Passos numerados: uma sequência de três colunas no desktop e empilhada no celular.
+ *
+ * A numeração é verdadeira (é uma ordem de execução), por isso a lista é `<ol>`. Cada passo tem
+ * título, texto, e um trecho de código opcional. O texto aceita `<code>` e entra por `set:html`
+ * (texto nosso). O rótulo ("Passo", "Step") vem do site (RF-09).
+ */
+export interface Props {
+  passos: { titulo: string; texto: string; codigo?: string }[];
+  /** Palavra antes do número, por exemplo "Passo". Aparece em maiúsculas. */
+  rotuloPasso: string;
+}
+
+const { passos, rotuloPasso } = Astro.props;
+---
+
+<ol class="passos">
+  {passos.map((passo, i) => (
+    <li class="passo">
+      <span class="numero">
+        {rotuloPasso} {i + 1}
+      </span>
+      <h3>{passo.titulo}</h3>
+      <p set:html={passo.texto} />
+      {passo.codigo !== undefined && <div class="codigo">{passo.codigo}</div>}
+    </li>
+  ))}
+</ol>
+
+<style>
+  .passos {
+    display: grid;
+    gap: 28px;
+  }
+
+  .passo {
+    display: grid;
+    gap: 8px;
+    align-content: start;
+    min-width: 0;
+    padding-top: 12px;
+    border-top: 2px solid var(--text);
+  }
+
+  .numero {
+    color: var(--text-3);
+    font-family: var(--font-code);
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  h3 {
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  p {
+    color: var(--text-2);
+    font-size: 14.5px;
+  }
+
+  p :global(code) {
+    padding: 1px 5px;
+    border-radius: 6px;
+    background: var(--code);
+    font-family: var(--font-code);
+    font-size: 0.88em;
+    white-space: nowrap;
+  }
+
+  .codigo {
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: var(--code);
+    font-family: var(--font-code);
+    font-size: 13px;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+  }
+
+  @media (min-width: 720px) {
+    .passos {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+    }
+  }
+</style>

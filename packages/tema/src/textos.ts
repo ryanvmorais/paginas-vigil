@@ -19,11 +19,15 @@ const pt = {
     en: "English",
   },
   navegacao: {
-    rotulo: "Principal",
+    rotulo: "Seções",
+  },
+  rodape: {
+    maisProjetos: "Mais projetos",
   },
   copiar: {
-    rotulo: "Copiar comando",
-    copiado: "Comando copiado",
+    rotulo: "Copiar",
+    copiado: "Copiado",
+    anuncio: "Comando copiado",
     falhou: "Não foi possível copiar o comando",
   },
 } satisfies Dicionario;
@@ -35,11 +39,15 @@ const en: TextosTema = {
     en: "English",
   },
   navegacao: {
-    rotulo: "Main",
+    rotulo: "Sections",
+  },
+  rodape: {
+    maisProjetos: "More projects",
   },
   copiar: {
-    rotulo: "Copy command",
-    copiado: "Command copied",
+    rotulo: "Copy",
+    copiado: "Copied",
+    anuncio: "Command copied",
     falhou: "Could not copy the command",
   },
 };

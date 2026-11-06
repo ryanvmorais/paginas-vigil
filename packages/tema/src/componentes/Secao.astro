@@ -1,0 +1,43 @@
+---
+/**
+ * @file Seção da página: título, frase de abertura opcional e o conteúdo no `slot`.
+ *
+ * Texto de leitura alinhado à esquerda, com a frase de abertura limitada a 62 caracteres por linha. O
+ * espaçamento e o filete entre seções vêm de `.secao` em `base.css`. O `lead` aceita `<code>` e
+ * entra por `set:html`: é texto nosso, nunca de visitante (RF-09).
+ */
+export interface Props {
+  /** Âncora da seção (alvo da navegação do cabeçalho). */
+  id?: string;
+  titulo: string;
+  /** Frase de abertura, com marcação `<code>` se precisar. */
+  lead?: string;
+}
+
+const { id, titulo, lead } = Astro.props;
+---
+
+<section id={id} class="secao">
+  <div class="envoltorio">
+    <h2>{titulo}</h2>
+    {lead !== undefined && <p class="lead" set:html={lead} />}
+    <slot />
+  </div>
+</section>
+
+<style>
+  .lead {
+    max-width: 62ch;
+    margin-bottom: 24px;
+    color: var(--text-2);
+  }
+
+  .lead :global(code) {
+    padding: 1px 5px;
+    border-radius: 6px;
+    background: var(--code);
+    font-family: var(--font-code);
+    font-size: 0.88em;
+    white-space: nowrap;
+  }
+</style>

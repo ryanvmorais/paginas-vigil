@@ -1,0 +1,95 @@
+---
+/**
+ * @file Comando de instalação com botão de copiar.
+ *
+ * Renderiza o comando num `<code>` e um botão com `hidden`: o `scripts/copiar.ts` o revela só quando
+ * `navigator.clipboard` existe, copia o texto e escreve o resultado na região `role="status"`, que o
+ * leitor de tela anuncia. Sem JavaScript o botão nunca aparece e o comando continua visível e
+ * selecionável (RF-07). O script é um arquivo externo empacotado pelo Astro (RNF-01).
+ */
+import type { Idioma } from "../idiomas";
+import { textos } from "../textos";
+
+export interface Props {
+  /** O comando exatamente como deve ser copiado. */
+  comando: string;
+  idioma: Idioma;
+}
+
+const { comando, idioma } = Astro.props;
+const t = textos[idioma].copiar;
+---
+
+<div
+  class="comando"
+  data-comando
+  data-copiado={t.copiado}
+  data-anuncio={t.anuncio}
+  data-falhou={t.falhou}
+>
+  <code>{comando}</code>
+  <button type="button" hidden>
+    {t.rotulo}
+  </button>
+  <span class="so-leitor" role="status"></span>
+</div>
+
+<script>
+  import "../scripts/copiar";
+</script>
+
+<style>
+  .comando {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    width: fit-content;
+    max-width: 100%;
+    padding: 4px 4px 4px 14px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--card);
+  }
+
+  /* O comando rola por dentro do bloco se for mais largo que a tela, sem empurrar a página. */
+  code {
+    min-width: 0;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    font-family: var(--font-code);
+    font-size: 14px;
+    white-space: nowrap;
+  }
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    min-height: 44px;
+    padding: 0 14px;
+    border: 0;
+    border-radius: 8px;
+    background: var(--code);
+    color: var(--text);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  /* `display` acima vence o `hidden` do navegador; sem esta regra o botão apareceria sem JavaScript. */
+  button[hidden] {
+    display: none;
+  }
+
+  @media (max-width: 560px) {
+    .comando {
+      width: 100%;
+    }
+
+    code {
+      flex: 1;
+    }
+  }
+</style>

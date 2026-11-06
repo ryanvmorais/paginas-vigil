@@ -1,0 +1,223 @@
+/**
+ * @file Estilos do terminal: cores da saída, classes de contagem e a animação de digitação.
+ *
+ * Importado pelo `Terminal.astro`. O terminal é escuro nos dois esquemas (`--term-*` de `tokens.css`) e
+ * é a única ousadia da página (spec 002, RF-08). A animação é só CSS (ADR-4): o texto completo está
+ * sempre no HTML, e sem `prefers-reduced-motion: no-preference` nada é ocultado nem animado.
+ *
+ * Estrutura do arquivo:
+ *   1. Cores da saída
+ *   2. Contagem de caracteres e de linhas (`.n-*`, `.l-*`)
+ *   3. Animação (digitação do comando e revelação da saída)
+ */
+
+/* 1. Cores da saída
+ * Classes que as saídas reais usam (`t-crit`, `t-ok`…). Cores fixas, pensadas para o fundo escuro do
+ * terminal nos dois esquemas; `--term-text` e `--term-muted` vêm de `tokens.css`. */
+.terminal {
+  --t-crit: #f87171;
+  --t-high: #fb923c;
+  --t-med: #fbbf24;
+  --t-low: #38bdf8;
+  --t-ok: #4ade80;
+  --t-bad: #f87171;
+}
+
+.terminal .t-dim {
+  color: var(--term-muted);
+}
+
+.terminal .t-b {
+  font-weight: 700;
+}
+
+.terminal .t-crit {
+  color: var(--t-crit);
+}
+
+.terminal .t-high {
+  color: var(--t-high);
+}
+
+.terminal .t-med {
+  color: var(--t-med);
+}
+
+.terminal .t-low {
+  color: var(--t-low);
+}
+
+.terminal .t-ok {
+  color: var(--t-ok);
+}
+
+.terminal .t-bad {
+  color: var(--t-bad);
+}
+
+/* 2. Contagem de caracteres e de linhas
+ * O CSS não conta texto, e o Astro não aceita `style=` (RNF-01). Por isso o `Terminal.astro` conta no
+ * build os caracteres do comando e as linhas da saída e escolhe uma destas classes, arredondando para
+ * cima de 5 em 5; `--n` e `--l` entram nas contas da animação. Se a faixa não cobrir o valor, o build
+ * falha (nunca erra em silêncio). Faixas: comando até 120 caracteres, saída até 80 linhas. */
+.n-5 {
+  --n: 5;
+}
+.n-10 {
+  --n: 10;
+}
+.n-15 {
+  --n: 15;
+}
+.n-20 {
+  --n: 20;
+}
+.n-25 {
+  --n: 25;
+}
+.n-30 {
+  --n: 30;
+}
+.n-35 {
+  --n: 35;
+}
+.n-40 {
+  --n: 40;
+}
+.n-45 {
+  --n: 45;
+}
+.n-50 {
+  --n: 50;
+}
+.n-55 {
+  --n: 55;
+}
+.n-60 {
+  --n: 60;
+}
+.n-65 {
+  --n: 65;
+}
+.n-70 {
+  --n: 70;
+}
+.n-75 {
+  --n: 75;
+}
+.n-80 {
+  --n: 80;
+}
+.n-85 {
+  --n: 85;
+}
+.n-90 {
+  --n: 90;
+}
+.n-95 {
+  --n: 95;
+}
+.n-100 {
+  --n: 100;
+}
+.n-105 {
+  --n: 105;
+}
+.n-110 {
+  --n: 110;
+}
+.n-115 {
+  --n: 115;
+}
+.n-120 {
+  --n: 120;
+}
+
+.l-5 {
+  --l: 5;
+}
+.l-10 {
+  --l: 10;
+}
+.l-15 {
+  --l: 15;
+}
+.l-20 {
+  --l: 20;
+}
+.l-25 {
+  --l: 25;
+}
+.l-30 {
+  --l: 30;
+}
+.l-35 {
+  --l: 35;
+}
+.l-40 {
+  --l: 40;
+}
+.l-45 {
+  --l: 45;
+}
+.l-50 {
+  --l: 50;
+}
+.l-55 {
+  --l: 55;
+}
+.l-60 {
+  --l: 60;
+}
+.l-65 {
+  --l: 65;
+}
+.l-70 {
+  --l: 70;
+}
+.l-75 {
+  --l: 75;
+}
+.l-80 {
+  --l: 80;
+}
+
+/* 3. Animação
+ * O comando é "digitado": a largura do `.digita` cresce de 0 a `--n` caracteres em `--n` passos. Em
+ * seguida a saída é revelada de cima para baixo, uma linha por passo, por `clip-path`, que não muda o
+ * layout (a saída ocupa o espaço final desde o primeiro quadro, então não há CLS, RNF-03). Roda uma
+ * vez e dura no máximo cerca de 3 s no total (1,4 s de digitação + 1,6 s de saída). */
+@media (prefers-reduced-motion: no-preference) {
+  .terminal pre {
+    --tempo-digita: min(calc(var(--n) * 22ms), 1400ms);
+  }
+
+  .terminal .digita {
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: top;
+    white-space: pre;
+    animation: digitar var(--tempo-digita) steps(var(--n), end) both;
+  }
+
+  .terminal .saida {
+    animation: revelar min(calc(var(--l) * 70ms), 1600ms) steps(var(--l), end)
+      calc(var(--tempo-digita) + 150ms) both;
+  }
+
+  @keyframes digitar {
+    from {
+      width: 0;
+    }
+  }
+
+  @keyframes revelar {
+    from {
+      clip-path: inset(0 0 100% 0);
+    }
+
+    to {
+      clip-path: inset(0);
+    }
+  }
+}

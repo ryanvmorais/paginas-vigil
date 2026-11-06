@@ -1,0 +1,103 @@
+---
+/**
+ * @file Cabeçalho da página: logo e nome à esquerda, navegação no meio e seletor de idioma à direita,
+ * como no mockup aprovado.
+ *
+ * O logo chega pelo `slot="logo"` (os arquivos vêm na fase de imagens). A navegação só aparece a
+ * partir de 720 px e só se o site passar itens. Não há botão do GitHub: o cabeçalho não é fixo e o
+ * botão repetia o do topo e o da chamada final (RF-05, decisão 3 da spec 002).
+ */
+import { caminhoNoIdioma } from "../caminhos";
+import type { Idioma } from "../idiomas";
+import { textos } from "../textos";
+import SeletorIdioma from "./SeletorIdioma.astro";
+
+export interface Props {
+  /** Nome do produto, ao lado do logo. */
+  nome: string;
+  /** Caminho da página na versão atual; vai ao seletor de idioma. */
+  caminho: string;
+  idioma: Idioma;
+  /** Itens da navegação, com `href` (normalmente uma âncora da página) e `rotulo`. */
+  navegacao?: { href: string; rotulo: string }[];
+}
+
+const { nome, caminho, idioma, navegacao = [] } = Astro.props;
+---
+
+<header class="cabecalho">
+  <div class="envoltorio barra">
+    <a class="marca" href={caminhoNoIdioma("/", idioma)}>
+      <slot name="logo" />
+      <span>{nome}</span>
+    </a>
+    {navegacao.length > 0 && (
+      <nav class="navegacao" aria-label={textos[idioma].navegacao.rotulo}>
+        {navegacao.map((item) => (
+          <a href={item.href}>{item.rotulo}</a>
+        ))}
+      </nav>
+    )}
+    <SeletorIdioma idioma={idioma} caminho={caminho} />
+  </div>
+</header>
+
+<style>
+  .cabecalho {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .barra {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 64px;
+  }
+
+  /* Alvo de toque de 44 px de altura no link do nome (RNF-02). */
+  .marca {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    font-family: var(--font-title);
+    font-weight: 800;
+    font-size: 20px;
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  /* O logo do `slot` herda o acento: um SVG com `currentColor` acompanha o produto. */
+  .marca :global(svg) {
+    width: 30px;
+    height: auto;
+    color: var(--acc);
+    flex: none;
+  }
+
+  /* Navegação só no desktop (ADR-5): no celular a página é curta e o seletor basta. */
+  .navegacao {
+    display: none;
+    gap: 24px;
+  }
+
+  .navegacao a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--text-2);
+    font-weight: 500;
+    text-decoration: none;
+  }
+
+  .navegacao a:hover {
+    text-decoration: underline;
+  }
+
+  @media (min-width: 720px) {
+    .navegacao {
+      display: flex;
+    }
+  }
+</style>

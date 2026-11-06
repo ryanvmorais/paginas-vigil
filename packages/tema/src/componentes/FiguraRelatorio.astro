@@ -1,0 +1,87 @@
+---
+/**
+ * @file Figura do relatório em HTML: a captura real num quadro quieto, com legenda.
+ *
+ * Quatro variantes por captura (claro e escuro, desktop e celular), escolhidas por `<picture>` com
+ * `media`: o esquema de cor pelo `prefers-color-scheme` e a largura por `min-width: 561px`. `width` e
+ * `height` vêm do `ImageMetadata` de cada arquivo, também nos `<source>`, para o navegador reservar a
+ * proporção certa de cada variante antes de baixá-la (CLS, RNF-03). A imagem é lazy: fica abaixo da
+ * dobra (RF-09).
+ */
+import type { ImageMetadata } from "astro";
+
+export interface Props {
+  imagens: {
+    claroDesktop: ImageMetadata;
+    escuroDesktop: ImageMetadata;
+    claroCelular: ImageMetadata;
+    escuroCelular: ImageMetadata;
+  };
+  /** Descrição da captura para leitor de tela. */
+  alt: string;
+  legenda: string;
+}
+
+const { imagens, alt, legenda } = Astro.props;
+const { claroDesktop, escuroDesktop, claroCelular, escuroCelular } = imagens;
+---
+
+<figure class="figura">
+  <div class="quadro">
+    <picture>
+      <source
+        media="(prefers-color-scheme: dark) and (min-width: 561px)"
+        srcset={escuroDesktop.src}
+        width={escuroDesktop.width}
+        height={escuroDesktop.height}
+      />
+      <source
+        media="(prefers-color-scheme: dark)"
+        srcset={escuroCelular.src}
+        width={escuroCelular.width}
+        height={escuroCelular.height}
+      />
+      <source
+        media="(min-width: 561px)"
+        srcset={claroDesktop.src}
+        width={claroDesktop.width}
+        height={claroDesktop.height}
+      />
+      <img
+        src={claroCelular.src}
+        width={claroCelular.width}
+        height={claroCelular.height}
+        alt={alt}
+        loading="lazy"
+        decoding="async"
+      />
+    </picture>
+  </div>
+  <figcaption>{legenda}</figcaption>
+</figure>
+
+<style>
+  .figura {
+    display: grid;
+    gap: 10px;
+    max-width: 960px;
+  }
+
+  .quadro {
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--card);
+  }
+
+  img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  figcaption {
+    color: var(--text-3);
+    font-size: 13px;
+  }
+</style>

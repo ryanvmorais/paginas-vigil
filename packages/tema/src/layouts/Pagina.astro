@@ -1,0 +1,79 @@
+---
+/**
+ * @file Layout base das páginas: `<html>`, `<head>` bilíngue e corpo.
+ *
+ * Emite sozinho a marcação que faz uma página bilíngue ser indexada certo (RF-03): `lang`, `title`,
+ * `description`, `canonical` da própria versão, o trio `alternate` (`pt-BR`, `en` e `x-default`
+ * apontando para `/en/`) e `og:locale` com o `og:locale:alternate`. Nada redireciona por idioma do
+ * navegador: a troca é só pelo seletor. Importa os três CSS globais, então o app não os conhece.
+ *
+ * As URLs absolutas vêm de `Astro.site` (campo `site` do `astro.config.mjs` de cada app). Os dois
+ * `preload` cobrem as fontes que aparecem no topo (Sora 800 e JetBrains Mono 400), para a troca de
+ * fonte não deslocar o layout (RNF-03). Sem `<script>` nem `style=` aqui (RNF-01).
+ */
+import "../estilos/fontes.css";
+import "../estilos/tokens.css";
+import "../estilos/base.css";
+
+import { caminhoNoIdioma, outroIdioma } from "../caminhos";
+import type { Idioma } from "../idiomas";
+import jetbrainsMono400 from "../fontes/jetbrains-mono-400.woff2?url";
+import sora800 from "../fontes/sora-800.woff2?url";
+
+export interface Props {
+  /** Produto da página: escolhe o acento de cor (`data-produto`). */
+  produto: "webvigil" | "mailvigil";
+  /** Idioma da página. */
+  idioma: Idioma;
+  /** Caminho da página na versão atual (`/`, `/en/`, `/x/`); `Astro.url.pathname` serve. */
+  caminho: string;
+  titulo: string;
+  descricao: string;
+  /** Caminho ou URL da imagem de compartilhamento; sem ela, nenhuma tag `og:image` é emitida. */
+  imagemSocial?: string;
+}
+
+const { produto, idioma, caminho, titulo, descricao, imagemSocial } = Astro.props;
+
+if (Astro.site === undefined) {
+  throw new Error("Pagina.astro: defina `site` no astro.config.mjs para gerar as URLs absolutas.");
+}
+
+// Idioma da marcação: `lang` do HTML e `hreflang` usam a tag BCP 47; `og:locale` usa `ll_TT`.
+const LANG = { pt: "pt-BR", en: "en" } as const;
+const OG_LOCALE = { pt: "pt_BR", en: "en_US" } as const;
+
+const urlNoIdioma = (alvo: Idioma) => new URL(caminhoNoIdioma(caminho, alvo), Astro.site).href;
+const canonical = urlNoIdioma(idioma);
+const outro = outroIdioma(idioma);
+const urlImagem = imagemSocial === undefined ? undefined : new URL(imagemSocial, Astro.site).href;
+---
+
+<!doctype html>
+<html lang={LANG[idioma]} data-produto={produto}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{titulo}</title>
+    <meta name="description" content={descricao} />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" hreflang={LANG.pt} href={urlNoIdioma("pt")} />
+    <link rel="alternate" hreflang={LANG.en} href={urlNoIdioma("en")} />
+    <link rel="alternate" hreflang="x-default" href={urlNoIdioma("en")} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={titulo} />
+    <meta property="og:description" content={descricao} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content={OG_LOCALE[idioma]} />
+    <meta property="og:locale:alternate" content={OG_LOCALE[outro]} />
+    {urlImagem !== undefined && <meta property="og:image" content={urlImagem} />}
+    <link rel="preload" href={sora800} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={jetbrainsMono400} as="font" type="font/woff2" crossorigin />
+    {/* `data:,` evita o pedido de /favicon.ico (o servidor responderia 404) até a fase de imagens */}
+    <link rel="icon" href="data:," />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
