@@ -34,7 +34,7 @@ const { titulo } = Astro.props;
 
   .limites h2 {
     margin: 0;
-    font-size: 20px;
+    font-size: var(--fs-marca);
   }
 
   .limites :global(p) {
@@ -53,7 +53,6 @@ const { titulo } = Astro.props;
     .limites h2 {
       grid-column: 1;
       grid-row: 1 / span 3;
-      font-size: 22px;
     }
 
     .limites :global(p) {

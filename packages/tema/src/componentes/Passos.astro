@@ -46,19 +46,19 @@ const { passos, rotuloPasso } = Astro.props;
   .numero {
     color: var(--text-3);
     font-family: var(--font-code);
-    font-size: 13px;
+    font-size: var(--fs-rotulo);
     font-weight: 700;
     text-transform: uppercase;
   }
 
   h3 {
-    font-size: 18px;
+    font-size: var(--fs-abertura);
     font-weight: 700;
   }
 
   p {
     color: var(--text-2);
-    font-size: 14.5px;
+    font-size: var(--fs-corpo);
   }
 
   p :global(code) {
@@ -66,7 +66,7 @@ const { passos, rotuloPasso } = Astro.props;
     border-radius: 6px;
     background: var(--code);
     font-family: var(--font-code);
-    font-size: 0.88em;
+    font-size: 0.875em;
     white-space: nowrap;
   }
 
@@ -75,7 +75,7 @@ const { passos, rotuloPasso } = Astro.props;
     border-radius: 8px;
     background: var(--code);
     font-family: var(--font-code);
-    font-size: 13px;
+    font-size: var(--fs-codigo);
     overflow-wrap: anywhere;
     white-space: pre-wrap;
   }
