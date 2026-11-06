@@ -1,6 +1,6 @@
 ---
 feature: Página do MailVigil — revisão completa de fatos, texto, imagens, links, botões e estrutura, em português e em inglês
-status: aprovado
+status: em andamento
 date: 2026-11-06
 related: [002-tema, 003-medicao, 004-pagina-webvigil]
 origin: conception

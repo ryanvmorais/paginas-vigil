@@ -1,6 +1,6 @@
 ---
 feature: Página do MailVigil — revisão completa de fatos, texto, imagens, links, botões e estrutura, em português e em inglês
-status: rascunho
+status: em andamento
 date: 2026-11-06
 related: [002-tema, 003-medicao, 004-pagina-webvigil]
 origin: conception
@@ -25,14 +25,14 @@ código (design, "Mockup").
 
 ## Etapa 0 — Fatos e versão consultada
 
-- [ ] Registrar a versão consultada: a mais recente do MailVigil publicada no PyPI no momento, igual à tag do repositório da ferramenta, com `requires-python` e licença. Executar o pacote de forma efêmera (`uvx --from mailvigil==<versão> mailvigil …`) e conferir o `--help` de `summary`, `verdict` e `fetch`. — RF-02
-- [ ] Preparar os relatórios sintéticos: extrair a tag da versão consultada numa pasta temporária fora dos repositórios (`git archive`), rodar o gerador `docs/demo/build_demo.py` e deixar a pasta de relatórios de `example.com` (o período não pronto e o pronto) e o `mailvigil.toml` do exemplo. O repositório da ferramenta não é alterado. — RF-07, ADR-3
-- [ ] Executar cada comando copiável da página na ordem dos passos, contra a pasta sintética, e anotar o resultado: o pacote existe com esse nome, cada flag existe, o comando funciona. Incluir: o passo 2 sem `mailvigil.toml` na pasta (com `--config` e, como alternativa, com `--domain`), o código de saída de cada resposta (0, 3 e 4) e o `--html` do passo 3, com e sem `--lang pt-BR`. — RF-06, ADR-1
-- [ ] Executar o passo 2 em português e em inglês num terminal UTF-8 e anotar os rótulos reais do veredito e das colunas das regras em cada idioma, com e sem acentos (saída para terminal e para pipe). — RF-04, RF-05, ADR-2, ADR-5
-- [ ] `specs/005-pagina-mailvigil/fatos.md`: o inventário das afirmações factuais de `textos.ts` e `terminais.ts` (pré-requisito de Python, instalação, comandos e flags, formatos lidos, idioma e acentos da saída, as cinco regras e seus limites, códigos de saída, o que usa a rede, os limites contra arquivos hostis, o contrato de estabilidade, o que a ferramenta não faz, licença), cada uma com a fonte consultada e o resultado: confere, corrigida ou removida, mais a versão consultada e o resultado de cada comando. As correções propostas não entram nos textos antes da revisão. — RF-02, RF-03
-- [ ] Destinos externos: conferir cada link da página (README de cada idioma, `docs/`, o DMARC Fácil em cada idioma, o outro produto) e anotar o que ainda não existe como não verificável até o deploy. — RF-06
-- [ ] Inventário de achados de texto e de estrutura (RF-01), por leitura do código e da página, em Chrome real, a 360, 390, 430, 768 e 1280 px, claro e escuro, nos dois idiomas, comparando com a página do WebVigil: cada achado com local, combinação e classificação (falha objetiva, regra do projeto ou gosto), levado à revisão. — RF-01, RF-08
-- [ ] Impessoalidade e formatação dos arquivos da spec: `pnpm format:check` e `test/impessoalidade.test.ts`. — RNF-05 — Anotar o resultado real.
+- [x] Registrar a versão consultada: a mais recente do MailVigil publicada no PyPI no momento, igual à tag do repositório da ferramenta, com `requires-python` e licença. Executar o pacote de forma efêmera (`uvx --from mailvigil==<versão> mailvigil …`) e conferir o `--help` de `summary`, `verdict` e `fetch`. — RF-02
+- [x] Preparar os relatórios sintéticos: extrair a tag da versão consultada numa pasta temporária fora dos repositórios (`git archive`), rodar o gerador `docs/demo/build_demo.py` e deixar a pasta de relatórios de `example.com` (o período não pronto e o pronto) e o `mailvigil.toml` do exemplo. O repositório da ferramenta não é alterado. — RF-07, ADR-3
+- [x] Executar cada comando copiável da página na ordem dos passos, contra a pasta sintética, e anotar o resultado: o pacote existe com esse nome, cada flag existe, o comando funciona. Incluir: o passo 2 sem `mailvigil.toml` na pasta (com `--config` e, como alternativa, com `--domain`), o código de saída de cada resposta (0, 3 e 4) e o `--html` do passo 3, com e sem `--lang pt-BR`. — RF-06, ADR-1
+- [x] Executar o passo 2 em português e em inglês num terminal UTF-8 e anotar os rótulos reais do veredito e das colunas das regras em cada idioma, com e sem acentos (saída para terminal e para pipe). — RF-04, RF-05, ADR-2, ADR-5
+- [x] `specs/005-pagina-mailvigil/fatos.md`: o inventário das afirmações factuais de `textos.ts` e `terminais.ts` (pré-requisito de Python, instalação, comandos e flags, formatos lidos, idioma e acentos da saída, as cinco regras e seus limites, códigos de saída, o que usa a rede, os limites contra arquivos hostis, o contrato de estabilidade, o que a ferramenta não faz, licença), cada uma com a fonte consultada e o resultado: confere, corrigida ou removida, mais a versão consultada e o resultado de cada comando. As correções propostas não entram nos textos antes da revisão. — RF-02, RF-03
+- [x] Destinos externos: conferir cada link da página (README de cada idioma, `docs/`, o DMARC Fácil em cada idioma, o outro produto) e anotar o que ainda não existe como não verificável até o deploy. — RF-06
+- [x] Inventário de achados de texto e de estrutura (RF-01), por leitura do código e da página, em Chrome real, a 360, 390, 430, 768 e 1280 px, claro e escuro, nos dois idiomas, comparando com a página do WebVigil: cada achado com local, combinação e classificação (falha objetiva, regra do projeto ou gosto), levado à revisão. — RF-01, RF-08
+- [x] Impessoalidade e formatação dos arquivos da spec: `pnpm format:check` e `test/impessoalidade.test.ts`. — RNF-05 — Resultado (2026-11-06): `pnpm format:check` limpo, `pnpm lint` sem erro, `pnpm typecheck` sem erro, `pnpm test` com 11 arquivos e 132 testes passando (inclui `test/impessoalidade.test.ts`). Versão consultada: MailVigil 1.7.0. Achados em `fatos.md`: 14 de texto e estrutura (A-01 a A-14) e 44 afirmações e destinos (F-01 a F-44), levados à revisão.
 
 ## Etapa 1 — Menu
 
