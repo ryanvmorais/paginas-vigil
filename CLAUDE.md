@@ -77,7 +77,8 @@ packages/tema/        # tema e utilidades compartilhados pelos dois sites
   src/scripts/        # copiar.ts (botão de copiar), menu.ts (fecha o menu do celular) e consentimento.ts (banner,
                       # cookie e gtag.js), empacotados pelo Astro em arquivo externo
   src/estilos/        # fontes.css, tokens.css, base.css e terminal.css: estilos globais; os três primeiros
-                      # vêm pelo layout e o terminal.css pelo Terminal.astro
+                      # vêm pelo layout e o terminal.css pelo Terminal.astro. A escala tipográfica são os
+                      # cinco tokens --fs-* de tokens.css: texto novo usa um deles (os títulos têm tamanho próprio)
   src/fontes/         # woff2 em subconjunto das três fontes, a licença OFL e o LEIAME de regeração
 apps/webvigil/        # site do WebVigil
 apps/mailvigil/       # site do MailVigil
