@@ -78,10 +78,12 @@ mantenedor na hora.
 
 ## Etapa 3 — Reserva de rolagem do banner
 
-- [ ] `packages/tema/src/scripts/consentimento.ts`: com o banner aberto, medir o cartão (`ResizeObserver`) e escrever a altura em `--altura-consentimento` no `<body>`; ao fechar, remover a propriedade e a classe. Usa a decisão do spike da Etapa 0. — RF-11, ADR-6
-- [ ] `packages/tema/src/componentes/Consentimento.astro`: a reserva passa a ser `altura do cartão + margem (12 px no celular, 20 px no desktop) + 16 px`, no lugar dos 300 e 270 px fixos. — RF-11
-- [ ] Conferir em Chrome real, nos dois idiomas, no celular e no desktop: com o banner aberto, os links do rodapé (incluindo "Gerenciar cookies") ficam livres do cartão e a sobra é a folga de 16 px; depois de escolher, a reserva some e o rodapé termina rente ao fim da página. — RF-11
-- [ ] Portão de qualidade, nos dois modos (com e sem medição). — Anotar o resultado real.
+- [x] `packages/tema/src/scripts/consentimento.ts`: com o banner aberto, medir o cartão (`ResizeObserver`) e escrever a altura em `--altura-consentimento` no `<body>`; ao fechar, remover a propriedade e a classe. Usa a decisão do spike da Etapa 0. — RF-11, ADR-6
+- [x] `packages/tema/src/componentes/Consentimento.astro`: a reserva passa a ser `altura do cartão + margem (12 px no celular, 20 px no desktop) + 16 px`, no lugar dos 300 e 270 px fixos. — RF-11
+  - O CSS leva um valor de recuo na própria `var()` (272 px no celular, 234 px no desktop, a altura típica do cartão), usado só se o navegador não tiver `ResizeObserver`: sem ele a reserva fica próxima da de antes, nunca zero.
+- [x] Conferir em Chrome real, nos dois idiomas, no celular e no desktop: com o banner aberto, os links do rodapé (incluindo "Gerenciar cookies") ficam livres do cartão e a sobra é a folga de 16 px; depois de escolher, a reserva some e o rodapé termina rente ao fim da página. — RF-11
+- [x] Portão de qualidade, nos dois modos (com e sem medição). — Anotar o resultado real.
+  - **Resultado (2026-11-06):** `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test` (114 testes) e `pnpm build` verdes, e o build dos dois sites com `G-TESTE12345` também. Conferido em Chrome real (puppeteer-core) no build servido do WebVigil, em pt e en, a 360, 390, 430, 768 e 1280 px, num contexto novo (sem cookie) por combinação: a altura do cartão fica em `--altura-consentimento` (181 px a 390 px em pt, 202 px em en, que quebra uma linha a mais; 202 px a 360 px) e a reserva é a altura mais a margem e 16 px (209 px a 390 px em pt; 217 px a 768 e 1280 px). O fim do rodapé fica 16 px acima do topo do cartão, e o último link, uns 40 px (o preenchimento do próprio rodapé); a página não ganha rolagem horizontal. Ao reabrir pelo "Gerenciar cookies" o cartão cresce 31 px (linha "Sua escolha atual") e a reserva acompanha (`ResizeObserver`). Ao escolher ou fechar com Esc, a propriedade e a classe saem, o preenchimento volta a 0 e o rodapé termina rente ao fim da janela (diferença de até 0,4 px, arredondamento). Sem erro de script em nenhuma combinação. O MailVigil usa o mesmo componente e o mesmo script (build verde nos dois modos).
 
 ## Etapa 4 — Links, destinos e verificação mecânica
 
