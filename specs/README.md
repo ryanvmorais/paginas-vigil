@@ -43,6 +43,7 @@ Os sites não têm versão numerada: cada merge na `main` com o CI verde é uma 
 | ------------------------------- | ---------------------------------------------------------------------------------------------------------------- | ------- | --------- |
 | [`001-fundacao`](001-fundacao/) | workspace pnpm, tema com a paridade de idiomas, portão de qualidade, CI, cadeia de suprimentos, `main` protegida | —       | concluído |
 | [`002-tema`](002-tema/)         | tokens, fontes locais, layout bilíngue e blocos de interface compartilhados pelos dois sites                     | —       | concluído |
+| [`003-medicao`](003-medicao/)   | Google Analytics 4 com Consent Mode, banner de consentimento e política de segurança de conteúdo sem inline      | —       | aprovado  |
 
 ## Notas de manutenção
 
