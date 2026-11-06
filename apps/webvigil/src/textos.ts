@@ -68,7 +68,7 @@ const pt = {
     lead: "Um arquivo só, que você abre no navegador ou guarda junto do build. Mostra a contagem por severidade, as bibliotecas vulneráveis e, em cada achado, o local, a explicação e a correção sugerida.",
     legenda:
       "Topo do relatório de um scan ativo do app de teste que acompanha o repositório. O relatório está em inglês.",
-    alt: "Relatório HTML do WebVigil: tabela com 4 críticos, 15 altos, 9 médios, 15 baixos e 2 informativos, a biblioteca jQuery 1.7.1 vulnerável e o primeiro achado, injeção de comando no parâmetro host.",
+    alt: "Relatório HTML do WebVigil: tabela com 4 críticos, 15 altos, 9 médios, 15 baixos e 2 informativos, o primeiro achado (injeção de comando no parâmetro host) e, na versão para tela larga, a biblioteca jQuery 1.7.1 vulnerável.",
     aviso: {
       rotulo: "Opcional",
       titulo: "O WebVigil também possui um dashboard",
@@ -205,7 +205,7 @@ const en: TextosPagina = {
     lead: "A single file you open in the browser or keep alongside the build. It shows the count by severity, the vulnerable libraries and, for each finding, the location, the explanation and the suggested fix.",
     legenda:
       "Top of the report from an active scan of the test app that ships with the repository.",
-    alt: "WebVigil HTML report: table with 4 critical, 15 high, 9 medium, 15 low and 2 info findings, the vulnerable jQuery 1.7.1 library and the first finding, command injection in the host parameter.",
+    alt: "WebVigil HTML report: table with 4 critical, 15 high, 9 medium, 15 low and 2 info findings, the first finding (command injection in the host parameter) and, in the wide-screen version, the vulnerable jQuery 1.7.1 library.",
     aviso: {
       rotulo: "Optional",
       titulo: "WebVigil also has a dashboard",
