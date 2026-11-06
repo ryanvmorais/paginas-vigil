@@ -126,3 +126,138 @@ describe("verificarHtml: marcação de idioma (RF-03)", () => {
     expect(verificarHtml(html).length).toBeGreaterThan(0);
   });
 });
+
+// As três peças do modo com medição, como o Astro as emite: o banner, o controle do rodapé e o
+// script de consentimento (arquivo externo nomeado pelo componente).
+const BANNER = '<section data-consentimento data-medicao="G-ABC1234567" hidden></section>';
+const CONTROLE = '<button type="button" data-gerenciar-cookies hidden>Gerenciar cookies</button>';
+const SCRIPT_CONSENTIMENTO =
+  '<script type="module" src="/_astro/Consentimento.astro_astro_type_script_index_0_lang.AbC123.js"></script>';
+
+// Página no modo com medição (as três peças) e acréscimos opcionais na cabeça e no corpo.
+const comMedicao = ({ cabeca = "", corpo = "" } = {}) =>
+  pagina({ cabeca: SCRIPT_CONSENTIMENTO + cabeca, corpo: BANNER + CONTROLE + corpo });
+
+describe("verificarHtml: coerência do modo de medição (RF-06)", () => {
+  it("aceita o modo com medição completo: banner, controle e script", () => {
+    expect(verificarHtml(comMedicao())).toEqual([]);
+  });
+
+  it("aceita o modo sem medição: nenhuma das três peças", () => {
+    expect(verificarHtml(pagina({ corpo: "<p>oi</p>" }))).toEqual([]);
+  });
+
+  it("recusa cada meio-termo, nomeando o que sobra e o que falta", () => {
+    const pecas = { banner: BANNER, controle: CONTROLE, script: SCRIPT_CONSENTIMENTO };
+    const combinacoes = [
+      ["banner"],
+      ["controle"],
+      ["script"],
+      ["banner", "controle"],
+      ["banner", "script"],
+      ["controle", "script"],
+    ];
+    for (const presentes of combinacoes) {
+      const html = pagina({
+        cabeca: presentes.includes("script") ? pecas.script : "",
+        corpo:
+          (presentes.includes("banner") ? pecas.banner : "") +
+          (presentes.includes("controle") ? pecas.controle : ""),
+      });
+      const problemas = verificarHtml(html);
+      expect(problemas, presentes.join("+")).toEqual([expect.stringContaining("medição")]);
+      for (const nome of Object.keys(pecas)) {
+        expect(problemas[0]).toContain(nome);
+      }
+    }
+  });
+
+  it("recusa o banner sem identificador válido em data-medicao", () => {
+    for (const atributo of [
+      "",
+      'data-medicao=""',
+      'data-medicao="g-abc1234567"',
+      'data-medicao="G-ABC"',
+    ]) {
+      const banner = `<section data-consentimento ${atributo} hidden></section>`;
+      const html = pagina({ cabeca: SCRIPT_CONSENTIMENTO, corpo: banner + CONTROLE });
+      expect(verificarHtml(html), atributo).toEqual([expect.stringContaining("data-medicao")]);
+    }
+  });
+
+  it("não confunde o nome do script de consentimento com os outros scripts", () => {
+    const html = pagina({
+      cabeca: '<script type="module" src="/_astro/Comando.astro_astro_type_script.X.js"></script>',
+    });
+    expect(verificarHtml(html)).toEqual([]);
+  });
+
+  it("continua recusando inline no modo com medição", () => {
+    expect(verificarHtml(comMedicao({ corpo: "<script>x()</script>" }))).toEqual([
+      expect.stringContaining("<script>"),
+    ]);
+  });
+});
+
+describe("verificarHtml: compatibilidade com a CSP (RF-09)", () => {
+  const GTAG = '<script src="https://www.googletagmanager.com/gtag/js?id=G-ABC1234567"></script>';
+
+  it("recusa script de domínio fora da política, nos dois modos", () => {
+    const externo = '<script src="https://cdn.exemplo.test/a.js"></script>';
+    expect(verificarHtml(pagina({ cabeca: externo }))).toEqual([
+      expect.stringContaining("cdn.exemplo.test"),
+    ]);
+    expect(verificarHtml(comMedicao({ cabeca: externo }))).toEqual([
+      expect.stringContaining("cdn.exemplo.test"),
+    ]);
+  });
+
+  it("aceita o domínio do gtag.js só no modo com medição", () => {
+    expect(verificarHtml(comMedicao({ cabeca: GTAG }))).toEqual([]);
+    expect(verificarHtml(pagina({ cabeca: GTAG }))).toEqual([
+      expect.stringContaining("googletagmanager.com"),
+    ]);
+  });
+
+  it("confere cada tag que busca recurso: stylesheet, preload, modulepreload, ícone, img e source", () => {
+    const externas = [
+      '<link rel="stylesheet" href="https://cdn.exemplo.test/a.css">',
+      '<link rel="preload" as="font" href="https://cdn.exemplo.test/a.woff2" crossorigin>',
+      '<link rel="preload" as="script" href="https://cdn.exemplo.test/a.js">',
+      '<link rel="modulepreload" href="https://cdn.exemplo.test/a.js">',
+      '<link rel="icon" href="https://cdn.exemplo.test/a.ico">',
+      '<link rel="shortcut icon" href="https://cdn.exemplo.test/a.ico">',
+      '<img src="https://cdn.exemplo.test/a.png" alt="">',
+      '<img src="/a.png" srcset="/a.png 1x, https://cdn.exemplo.test/a@2x.png 2x" alt="">',
+      '<picture><source srcset="https://cdn.exemplo.test/a.webp"><img src="/a.png" alt=""></picture>',
+    ];
+    for (const tag of externas) {
+      expect(verificarHtml(pagina({ corpo: tag })), tag).toEqual([
+        expect.stringContaining("cdn.exemplo.test"),
+      ]);
+    }
+  });
+
+  it("aceita recurso do próprio site e o ícone data: da página", () => {
+    const html = pagina({
+      cabeca:
+        '<link rel="stylesheet" href="/_astro/a.css"><link rel="icon" href="data:,"><link rel="preload" as="font" href="/_astro/a.woff2" crossorigin>',
+      corpo: '<img src="/_astro/a.png" srcset="/_astro/a.png 1x, /_astro/a@2x.png 2x" alt="">',
+    });
+    expect(verificarHtml(html)).toEqual([]);
+  });
+
+  it("recusa data: onde a política não o lista", () => {
+    const html = pagina({ cabeca: '<script src="data:text/javascript,x()"></script>' });
+    expect(verificarHtml(html)).toEqual([expect.stringContaining("data:")]);
+  });
+
+  it("deixa de fora o que não busca recurso: <a>, canonical e alternate", () => {
+    const html = pagina({
+      cabeca:
+        '<link rel="canonical" href="https://exemplo.test/"><link rel="alternate" hreflang="en" href="https://exemplo.test/en/">',
+      corpo: '<a href="https://github.com/ryanvmorais/webvigil">repositório</a>',
+    });
+    expect(verificarHtml(html).filter((p) => p.includes("CSP"))).toEqual([]);
+  });
+});

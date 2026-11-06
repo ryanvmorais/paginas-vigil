@@ -1,13 +1,18 @@
 /**
- * @file Confere o HTML que o build do Astro gerou: sem código ou estilo inline e com a marcação de idioma.
+ * @file Confere o HTML que o build do Astro gerou: sem inline, com a marcação de idioma, com a medição
+ * coerente e com todo recurso dentro da política de segurança de conteúdo (CSP).
  *
- * Duas regras, ambas guardadas aqui para não dependerem de alguém lembrar (spec 002, ADR-2):
+ * Quatro regras, todas guardadas aqui para não dependerem de alguém lembrar (specs 002 e 003):
  *
  * 1. **Sem inline (RNF-01).** A política de segurança de conteúdo (CSP) do deploy não vai permitir
  *    `unsafe-inline`. O Astro decide sozinho inserir um estilo ou script pequeno direto no HTML, então
  *    o verificador falha se achar `<script>` sem `src`, `<style>` ou o atributo `style=`.
  * 2. **Marcação de idioma (RF-03).** Em página que declara `hreflang`, exige `lang` no `<html>`, o
  *    `canonical`, o trio de `alternate` (`pt-BR`, `en`, `x-default`) e o `og:locale`.
+ * 3. **Modo de medição coerente (RF-06).** A página tem o banner, o controle "Gerenciar cookies" e o
+ *    script de consentimento, ou não tem nenhum dos três; o banner leva um `data-medicao` válido.
+ * 4. **Compatível com a CSP (RF-09).** Todo `<script src>`, `<link>` que busca recurso, `<img>` e
+ *    `<source>` aponta para o próprio site ou para um domínio que `politicaCsp` do modo libera.
  *
  * Uso, a partir da pasta de um site: `node ../../scripts/verificar-dist.mjs dist`. Sai com código 1 e
  * lista cada arquivo e problema se achar algo, ou com 0 se estiver tudo certo. A função
@@ -17,6 +22,8 @@
 import { readFile, readdir } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
+
+import { politicaCsp, urlPermitida } from "./csp.mjs";
 
 // Valores de `hreflang` que toda página bilíngue precisa declarar em `<link rel="alternate">`.
 const ALTERNATES_OBRIGATORIOS = ["pt-BR", "en", "x-default"];
@@ -34,6 +41,21 @@ const COMENTARIO_OU_TAG = new RegExp(`${COMENTARIO.source}|${TAG.source}`, "gi")
 
 // Um atributo dentro do trecho de atributos de uma tag: nome e valor (aspas duplas, simples ou sem).
 const ATRIBUTO = /([^\s"'<>/=]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+)))?/g;
+
+// Formato do identificador do GA4; é o mesmo de `validarIdMedicao` (packages/tema/src/medicao.ts),
+// copiado aqui porque este script roda em Node puro, sem importar TypeScript do tema.
+const FORMATO_ID_MEDICAO = /^G-[A-Z0-9]{10}$/;
+
+// O Astro nomeia o arquivo do script pelo componente que o carrega (`Consentimento.astro_...js`).
+const SCRIPT_CONSENTIMENTO = /consentimento/i;
+
+// Diretiva da CSP que governa cada `as` de `<link rel="preload">`; o que não está aqui cai em `default-src`.
+const DIRETIVA_DO_PRELOAD = {
+  style: "style-src",
+  script: "script-src",
+  font: "font-src",
+  image: "img-src",
+};
 
 // ---------------------------------------------------------------------------
 // Leitura do HTML
@@ -97,7 +119,93 @@ const temLink = (tags, rel, hreflang) => {
 };
 
 /**
- * Confere um documento HTML contra as regras de "sem inline" e de marcação de idioma.
+ * Lista o que as tags mandam o navegador buscar, com a diretiva da CSP que governa cada busca.
+ *
+ * `<a>`, `canonical` e `alternate` não buscam nada e ficam de fora. `<source>` conta como imagem
+ * (o site só o usaria dentro de `<picture>`).
+ *
+ * @param {{ nome: string, atributos: Map<string, string> }[]} tags - tags do documento
+ * @returns {{ rotulo: string, diretiva: string, url: string }[]} um item por URL buscada
+ */
+const recursosBuscados = (tags) => {
+  const recursos = [];
+  for (const { nome, atributos } of tags) {
+    const href = atributos.get("href") ?? "";
+    const src = atributos.get("src") ?? "";
+    if (nome === "script" && src !== "") {
+      recursos.push({ rotulo: "<script src>", diretiva: "script-src", url: src });
+    }
+    if (nome === "link" && href !== "") {
+      const rels = (atributos.get("rel") ?? "").toLowerCase().split(/\s+/);
+      const alvos = [
+        [rels.includes("stylesheet"), "style-src"],
+        [rels.includes("modulepreload"), "script-src"],
+        [rels.includes("icon") || rels.includes("apple-touch-icon"), "img-src"],
+        [
+          rels.includes("preload"),
+          DIRETIVA_DO_PRELOAD[(atributos.get("as") ?? "").toLowerCase()] ?? "default-src",
+        ],
+      ];
+      for (const [vale, diretiva] of alvos) {
+        if (vale) recursos.push({ rotulo: `<link rel="${rels.join(" ")}">`, diretiva, url: href });
+      }
+    }
+    if (nome === "img" || nome === "source") {
+      const urls = [
+        src,
+        ...(atributos.get("srcset") ?? "").split(",").map((c) => c.trim().split(/\s+/)[0] ?? ""),
+      ];
+      for (const url of urls.filter((u) => u !== "")) {
+        recursos.push({ rotulo: `<${nome}>`, diretiva: "img-src", url });
+      }
+    }
+  }
+  return recursos;
+};
+
+/**
+ * Confere a coerência do modo de medição: as três peças juntas ou nenhuma.
+ *
+ * @param {{ nome: string, atributos: Map<string, string> }[]} tags - tags do documento
+ * @returns {{ comMedicao: boolean, problemas: string[] }} se a página está no modo com medição
+ *   (as três peças e um identificador válido) e o que está errado
+ */
+const conferirModoDeMedicao = (tags) => {
+  const banner = tags.find(({ atributos }) => atributos.has("data-consentimento"));
+  const pecas = {
+    banner: banner !== undefined,
+    controle: tags.some(({ atributos }) => atributos.has("data-gerenciar-cookies")),
+    script: tags.some(
+      ({ nome, atributos }) =>
+        nome === "script" &&
+        SCRIPT_CONSENTIMENTO.test((atributos.get("src") ?? "").split("/").pop() ?? ""),
+    ),
+  };
+  const presentes = Object.keys(pecas).filter((peca) => pecas[peca]);
+  const ausentes = Object.keys(pecas).filter((peca) => !pecas[peca]);
+
+  if (presentes.length === 0) {
+    return { comMedicao: false, problemas: [] };
+  }
+  if (ausentes.length > 0) {
+    return {
+      comMedicao: false,
+      problemas: [
+        `modo de medição incoerente: tem ${presentes.join(", ")}, falta ${ausentes.join(", ")} (as três peças vêm juntas ou nenhuma)`,
+      ],
+    };
+  }
+  if (!FORMATO_ID_MEDICAO.test(banner?.atributos.get("data-medicao") ?? "")) {
+    return {
+      comMedicao: false,
+      problemas: ["banner sem data-medicao válido (G- e dez maiúsculas ou dígitos)"],
+    };
+  }
+  return { comMedicao: true, problemas: [] };
+};
+
+/**
+ * Confere um documento HTML contra as regras de "sem inline", de medição, de CSP e de marcação de idioma.
  *
  * @param {string} html - documento HTML completo
  * @returns {string[]} um texto por problema encontrado; vazio se o documento está correto
@@ -119,7 +227,17 @@ export const verificarHtml = (html) => {
     }
   }
 
-  // 2. Marcação de idioma: só em página que declara `hreflang` (a 404, por exemplo, não precisa).
+  // 2. Modo de medição coerente e, com ele escolhido, todo recurso dentro da CSP do modo.
+  const modo = conferirModoDeMedicao(tags);
+  problemas.push(...modo.problemas);
+  const politica = politicaCsp({ medicao: modo.comMedicao });
+  for (const { rotulo, diretiva, url } of recursosBuscados(tags)) {
+    if (!urlPermitida(politica, diretiva, url)) {
+      problemas.push(`${rotulo} fora da CSP (${diretiva}): ${url}`);
+    }
+  }
+
+  // 3. Marcação de idioma: só em página que declara `hreflang` (a 404, por exemplo, não precisa).
   if (!tags.some(({ atributos }) => atributos.has("hreflang"))) {
     return problemas;
   }
