@@ -3,7 +3,7 @@
  * @file Banner de consentimento da medição: cartão fixo no canto da janela, com Recusar e Aceitar.
  *
  * Nasce `hidden` no HTML: o `scripts/consentimento.ts` o revela só quando o visitante ainda não
- * escolheu (ou quando ele reabre pelo "Gerenciar cookies" do rodapé), então quem já escolheu nunca
+ * escolheu (ou quando ele reabre pelo "Gerenciar Cookies" do rodapé), então quem já escolheu nunca
  * vê o banner piscar e, sem JavaScript, não há banner nem medição a consentir (ADR-4). O
  * `Pagina.astro` o renderiza como primeiro filho do `<body>` e só com identificador de medição
  * válido; o identificador vai no atributo `data-medicao`, e não no JavaScript, para o mesmo arquivo
@@ -208,26 +208,12 @@ const politica = POLITICA[idioma];
     background: var(--code);
   }
 
-  /* Com o banner aberto, a página reserva no fim da rolagem o espaço do cartão: sem isso ele cobriria
-   * os links do rodapé, inclusive o "Gerenciar cookies" que o reabre (WCAG 2.4.11). A classe e a altura
-   * medida do cartão (`--altura-consentimento`) são postas no `<body>` por `abrir()` em
-   * `scripts/consentimento.ts` e saem quando o banner fecha (design, "Reserva de rolagem"). A reserva é
-   * altura + margem do cartão + 16 px de folga; o valor de recuo (sem `ResizeObserver`) é a altura típica,
-   * para o espaço não faltar. */
-  :global(body.reserva-consentimento) {
-    padding-bottom: calc(var(--altura-consentimento, 272px) + 12px + 16px);
-  }
-
   @media (min-width: 720px) {
     .consentimento {
       left: auto;
       right: 20px;
       bottom: 20px;
       width: 392px;
-    }
-
-    :global(body.reserva-consentimento) {
-      padding-bottom: calc(var(--altura-consentimento, 234px) + 20px + 16px);
     }
   }
 </style>

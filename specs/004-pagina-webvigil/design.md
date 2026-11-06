@@ -303,6 +303,10 @@ Como `docs/` só existe em inglês, o rótulo de "Ler a documentação" em portu
 - **Porquê:** a altura do cartão muda com o idioma, o zoom e a largura do texto; medir evita o vazio e o
   corte.
 - **Trade-off:** mais um observador de tamanho no script do banner, só enquanto ele está aberto.
+- **Revisto (2026-11-06):** a reserva foi retirada por decisão do mantenedor: com o banner aberto a página
+  termina onde sempre terminou, sem espaço extra, e o cartão pode cobrir o fim do rodapé até o visitante
+  escolher ou fechar o banner (o X é sempre visível). O observador, a classe e a propriedade
+  `--altura-consentimento` saíram do script. O RF-11 passa a pedir isso.
 
 ### ADR-7 — Moldura do terminal: sem mudança
 
