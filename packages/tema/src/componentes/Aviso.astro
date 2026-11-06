@@ -4,7 +4,8 @@
  *
  * Serve a um esclarecimento que não é limite nem recurso (o dashboard do WebVigil que só vem pelo
  * repositório, por exemplo). O texto é o `slot`; o link é opcional e abre numa aba nova (RF-09). Ocupa a
- * largura da coluna e não tem margem própria: o espaço até o bloco anterior é de quem o monta.
+ * largura da coluna e não tem margem própria: o espaço até o bloco anterior é de quem o monta. É um `div`,
+ * não um `aside`: o marco "complementary" tem de ficar no nível da página, e o aviso mora dentro da seção.
  */
 export interface Props {
   /** Etiqueta curta acima do título, por exemplo "Opcional". Aparece em maiúsculas. */
@@ -16,7 +17,7 @@ export interface Props {
 const { rotulo, titulo, link } = Astro.props;
 ---
 
-<aside class="aviso">
+<div class="aviso">
   <span class="rotulo">{rotulo}</span>
   <h3>{titulo}</h3>
   <p>
@@ -27,7 +28,7 @@ const { rotulo, titulo, link } = Astro.props;
       {link.rotulo}
     </a>
   )}
-</aside>
+</div>
 
 <style>
   .aviso {
