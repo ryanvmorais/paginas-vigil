@@ -11,7 +11,7 @@ um workspace pnpm. Cada site é publicado no próprio subdomínio (`webvigil.rya
 > Cuidado: o nome do repositório (`paginas-vigil`) é exceção à regra "nome do repositório = subdomínio",
 > porque um repositório serve dois subdomínios. Não renomeie para casar com um deles.
 
-Estado: em construção. Os dois sites já têm a página inteira (português e inglês) montada com o tema; falta o deploy, a medição e a política de privacidade, e nada está no ar.
+Estado: em construção. Os dois sites já têm a página inteira (português e inglês) montada com o tema. Nada está no ar e ainda não há medição nem política de privacidade.
 
 ## Comandos comuns
 
@@ -40,14 +40,23 @@ pnpm --filter mailvigil dev
 ```text
 packages/tema/        # tema e utilidades compartilhados pelos dois sites
   src/idiomas.ts      # IDIOMAS e chavesFaltantes: confere a paridade pt/en dos dicionários
+                      # (cada módulo .ts tem o teste ao lado, em *.test.ts)
+  src/caminhos.ts     # troca o idioma e calcula o caminho da outra versão da página (links e seletor)
+  src/textos.ts       # rótulos que o próprio tema emite (seletor de idioma, navegação, botão de copiar)
   src/layouts/        # Pagina.astro: casca da página (head, SEO bilíngue, cabeçalho, rodapé)
-  src/componentes/    # blocos .astro compartilhados: Terminal, Secao, Passos, Grupos, Limites, Rodape...
+  src/componentes/    # blocos .astro compartilhados: Aviso, Botao, Cabecalho, ChamadaFinal, Comando,
+                      # FiguraRelatorio, Grupos, Limites, Passos, Rodape, Secao, SeletorIdioma, Terminal, Topo
   src/scripts/        # copiar.ts: botão de copiar, empacotado pelo Astro em arquivo externo
-  src/estilos/        # fontes.css, tokens.css e base.css: estilos globais, importados pelo layout
+  src/estilos/        # fontes.css, tokens.css, base.css e terminal.css: estilos globais; os três primeiros
+                      # vêm pelo layout e o terminal.css pelo Terminal.astro
   src/fontes/         # woff2 em subconjunto das três fontes, a licença OFL e o LEIAME de regeração
 apps/webvigil/        # site do WebVigil
 apps/mailvigil/       # site do MailVigil
   src/pages/          # (em cada app) páginas Astro: português na raiz, inglês em en/
+  src/textos.ts       # (em cada app) dicionários pt/en do site, com o teste de paridade em textos.test.ts
+  src/terminais.ts    # (em cada app) as saídas de terminal mostradas na página
+  src/componentes/    # (em cada app) Logo.astro e Vitrine.astro, a montagem das seções com o tema
+  src/assets/relatorio/ # (em cada app) capturas do relatório por idioma, tamanho e esquema de cor (webvigil só em inglês)
   dist/               # (em cada app) build estático, gerado e fora do git
 .github/workflows/    # ci, codeql, dependency-review, pnpm-audit, lighthouse
 .github/lighthouse/   # limites do Lighthouse CI por site e por formato (celular, desktop)
@@ -65,13 +74,15 @@ test/                 # testes do repositório: impessoalidade.test.ts (ver "Con
   para `/en/`, sem redirecionamento automático por idioma do navegador.
 
 > ⚠️ NÃO regredir: nenhum script inline. A política de segurança de conteúdo (CSP) do deploy não vai
-> permitir `unsafe-inline`; o script de consentimento da medição fica em arquivo externo. Quem guarda isso é
-> o `build.inlineStylesheets: "never"` dos `astro.config.mjs` e o `scripts/verificar-dist.mjs`, que roda no
-> `build` de cada site e falha se achar `<script>` sem `src`, `<style>` ou `style=` no HTML gerado.
+> permitir `unsafe-inline`; todo script, inclusive o de consentimento da medição, fica em arquivo
+> externo. Quem guarda isso é o `build.inlineStylesheets: "never"` dos `astro.config.mjs` e o
+> `scripts/verificar-dist.mjs`, que roda no `build` de cada site e falha se achar `<script>` sem `src`,
+> `<style>` ou `style=` no HTML gerado.
 
-> Cuidado: a medição é o Google Analytics 4 com Consent Mode, negado por padrão. O identificador vem de
-> `PUBLIC_GA_MEASUREMENT_ID` (ver `.env.example`); vazio significa nenhuma medição. A política de
-> privacidade e o banner de cookies fazem parte da página, não são opcionais.
+> Cuidado: a medição ainda não existe no código. Quando existir, é o Google Analytics 4 com Consent Mode,
+> negado por padrão, com o identificador em `PUBLIC_GA_MEASUREMENT_ID` (ver `.env.example`); vazio
+> significa nenhuma medição. A política de privacidade e o banner de cookies acompanham a medição e não
+> são opcionais.
 
 ## Convenções
 
@@ -100,7 +111,8 @@ test/                 # testes do repositório: impessoalidade.test.ts (ver "Con
 - **Pre-commit** (`.githooks/pre-commit`): formatação, lint, typecheck e testes.
 - **Hooks do Claude** em `.claude/` (scripts `.mjs` em `.claude/hooks/`): `proteger-gerados` (PreToolUse,
   bloqueia edição manual do `pnpm-lock.yaml`), `formatar` (PostToolUse, Prettier no arquivo editado) e
-  `validar` (Stop, ESLint + `tsc` se há `.ts`, `.astro` ou `.mjs` alterado).
+  `validar` (Stop, ESLint + `tsc` se há `.ts`, `.astro` ou `.mjs` alterado). Os três importam o utilitário
+  `ferramentas.mjs`, que acha a raiz do projeto, lê o evento e roda as ferramentas direto de `node_modules`.
 
 ## Fluxo de trabalho
 
