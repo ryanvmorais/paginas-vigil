@@ -18,6 +18,9 @@ export default defineConfig({
     inlineStylesheets: "never",
   },
   vite: {
+    // Um só `.env`, na raiz do repositório, serve os dois sites: é de lá que vem o identificador de
+    // medição (`PUBLIC_GA_MEASUREMENT_ID`), lido no tema e no `pnpm dev` (spec 003, RF-06).
+    envDir: "../..",
     build: {
       // Nenhum ativo (fonte, imagem) vira `data:` URI embutido no CSS ou no HTML.
       assetsInlineLimit: 0,
