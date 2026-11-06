@@ -1,0 +1,169 @@
+---
+/**
+ * @file Página do MailVigil montada com os blocos do tema, no idioma pedido.
+ *
+ * Segue o mockup aprovado da spec 002 (direção A, "Terminal primeiro"): cabeçalho, topo, terminal
+ * com a saída real, passos, o relatório em HTML, o que ele responde e garante, o que ele não faz, a
+ * chamada final e o rodapé. Os textos vêm de `textos.ts` e a saída do terminal de `terminais.ts`.
+ * O convite ao DMARC Fácil (no bloco de limites e no rodapé) existe nos dois idiomas, cada um
+ * apontando para a página do DMARC Fácil no mesmo idioma.
+ */
+import Botao from "@paginas-vigil/tema/componentes/Botao.astro";
+import Cabecalho from "@paginas-vigil/tema/componentes/Cabecalho.astro";
+import ChamadaFinal from "@paginas-vigil/tema/componentes/ChamadaFinal.astro";
+import Comando from "@paginas-vigil/tema/componentes/Comando.astro";
+import FiguraRelatorio from "@paginas-vigil/tema/componentes/FiguraRelatorio.astro";
+import Grupos from "@paginas-vigil/tema/componentes/Grupos.astro";
+import Limites from "@paginas-vigil/tema/componentes/Limites.astro";
+import Passos from "@paginas-vigil/tema/componentes/Passos.astro";
+import Rodape from "@paginas-vigil/tema/componentes/Rodape.astro";
+import Secao from "@paginas-vigil/tema/componentes/Secao.astro";
+import Terminal from "@paginas-vigil/tema/componentes/Terminal.astro";
+import Topo from "@paginas-vigil/tema/componentes/Topo.astro";
+import { caminhoNoIdioma } from "@paginas-vigil/tema/caminhos";
+import type { Idioma } from "@paginas-vigil/tema/idiomas";
+import Pagina from "@paginas-vigil/tema/layouts/Pagina.astro";
+
+import claroCelularEn from "../assets/relatorio/mail-en-phone-light.png";
+import claroDesktopEn from "../assets/relatorio/mail-en-wide-light.png";
+import escuroCelularEn from "../assets/relatorio/mail-en-phone-dark.png";
+import escuroDesktopEn from "../assets/relatorio/mail-en-wide-dark.png";
+import claroCelularPt from "../assets/relatorio/mail-pt-phone-light.png";
+import claroDesktopPt from "../assets/relatorio/mail-pt-wide-light.png";
+import escuroCelularPt from "../assets/relatorio/mail-pt-phone-dark.png";
+import escuroDesktopPt from "../assets/relatorio/mail-pt-wide-dark.png";
+import { saidaTerminal } from "../terminais";
+import { DMARC_FACIL, textos } from "../textos";
+import Logo from "./Logo.astro";
+
+export interface Props {
+  idioma: Idioma;
+}
+
+const { idioma } = Astro.props;
+const t = textos[idioma];
+const dmarcFacil = DMARC_FACIL[idioma];
+const caminho = Astro.url.pathname;
+
+const REPOSITORIO = "https://github.com/ryanvmorais/mailvigil";
+const OUTRO_PRODUTO = "https://webvigil.ryanmorais.com.br";
+// O README em português leva ao `README.pt-BR.md`; o de inglês, ao `README.md` (raiz do repositório).
+const leiame = idioma === "pt" ? `${REPOSITORIO}/blob/main/README.pt-BR.md` : REPOSITORIO;
+
+// A captura do relatório existe nos dois idiomas da ferramenta (`--lang pt-BR` e `--lang en`).
+const imagens = {
+  pt: {
+    claroDesktop: claroDesktopPt,
+    escuroDesktop: escuroDesktopPt,
+    claroCelular: claroCelularPt,
+    escuroCelular: escuroCelularPt,
+  },
+  en: {
+    claroDesktop: claroDesktopEn,
+    escuroDesktop: escuroDesktopEn,
+    claroCelular: claroCelularEn,
+    escuroCelular: escuroCelularEn,
+  },
+};
+
+const passos = Object.values(t.como.passos);
+const grupos = Object.values(t.faz.grupos).map((grupo) => ({
+  titulo: grupo.titulo,
+  intro: grupo.intro,
+  itens: Object.values(grupo.itens),
+}));
+---
+
+<Pagina
+  produto="mailvigil"
+  idioma={idioma}
+  caminho={caminho}
+  titulo={t.meta.titulo}
+  descricao={t.meta.descricao}
+>
+  <Cabecalho
+    nome={t.nome}
+    caminho={caminho}
+    idioma={idioma}
+    navegacao={[
+      { href: "#como-funciona", rotulo: t.navegacao.como },
+      { href: "#o-que-faz", rotulo: t.navegacao.faz },
+      { href: "#instalar", rotulo: t.navegacao.instalar },
+    ]}
+  >
+    <Logo slot="logo" />
+  </Cabecalho>
+  <main>
+    <Topo titulo={t.topo.titulo} apoio={t.topo.apoio} fina={t.topo.fina}>
+      <Fragment slot="acoes">
+        <Botao href={leiame} variante="primario" target="_blank" rel="noopener">
+          {t.topo.verGithub}
+        </Botao>
+        <Botao href="#como-funciona" variante="secundario">
+          {t.topo.comoFunciona}
+        </Botao>
+      </Fragment>
+      <Comando slot="comando" comando={t.topo.comando} idioma={idioma} />
+    </Topo>
+
+    <div class="envoltorio terminal">
+      <Terminal rotulo={t.terminal.rotulo} titulo={t.terminal.titulo} comando={t.terminal.comando}>
+        <Fragment set:html={saidaTerminal[idioma]} />
+      </Terminal>
+    </div>
+
+    <Secao id="como-funciona" titulo={t.como.titulo} lead={t.como.lead}>
+      <Passos passos={passos} rotuloPasso={t.como.rotuloPasso} />
+    </Secao>
+
+    <Secao id="relatorio" titulo={t.relatorio.titulo} lead={t.relatorio.lead}>
+      <FiguraRelatorio
+        imagens={imagens[idioma]}
+        alt={t.relatorio.alt}
+        legenda={t.relatorio.legenda}
+      />
+    </Secao>
+
+    <Secao id="o-que-faz" titulo={t.faz.titulo}>
+      <Grupos grupos={grupos} />
+    </Secao>
+
+    <Limites titulo={t.limites.titulo}>
+      <p>{t.limites.texto}</p>
+      <p>
+        {dmarcFacil.antes}
+        <a href={dmarcFacil.href} target="_blank" rel="noopener">
+          {dmarcFacil.rotulo}
+        </a>
+        {dmarcFacil.depois}
+      </p>
+    </Limites>
+
+    <ChamadaFinal titulo={t.final.titulo} texto={t.final.texto}>
+      <Botao href={leiame} variante="primario" target="_blank" rel="noopener">
+        {t.topo.verGithub}
+      </Botao>
+      <Botao href={`${REPOSITORIO}#readme`} variante="secundario" target="_blank" rel="noopener">
+        {t.final.docs}
+      </Botao>
+    </ChamadaFinal>
+  </main>
+  <Rodape
+    nome={t.nome}
+    licenca="Apache-2.0"
+    outroProduto={{ nome: "WebVigil", href: `${OUTRO_PRODUTO}${caminhoNoIdioma("/", idioma)}` }}
+    idioma={idioma}
+    caminho={caminho}
+  >
+    <a href={dmarcFacil.href} target="_blank" rel="noopener">
+      {dmarcFacil.rotulo}
+    </a>
+  </Rodape>
+</Pagina>
+
+<style>
+  /* O terminal fica logo abaixo do topo, com um respiro curto antes da primeira seção. */
+  .terminal {
+    padding-bottom: 8px;
+  }
+</style>

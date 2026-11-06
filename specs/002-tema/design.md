@@ -60,7 +60,7 @@ packages/tema/
     layouts/
       Pagina.astro        # <html>, <head> bilíngue, corpo
     componentes/
-      Cabecalho.astro  SeletorIdioma.astro  Botao.astro  Comando.astro  Terminal.astro
+      Cabecalho.astro  SeletorIdioma.astro  Botao.astro  Comando.astro  Terminal.astro  Topo.astro
       Secao.astro  Passos.astro  Grupos.astro  FiguraRelatorio.astro  Aviso.astro
       Limites.astro  ChamadaFinal.astro  Rodape.astro
     scripts/
@@ -81,9 +81,10 @@ Todos os textos que o tema emite sozinho vêm de `textos.ts`; os do site chegam 
 | `Pagina`          | `produto`, `idioma`, `caminho`, `titulo`, `descricao`, `imagemSocial?`                                    | RF-01, RF-03 |
 | `Cabecalho`       | `nome`, `caminho`, `idioma`, `navegacao?: {href, rotulo}[]`; `slot="logo"`                                | RF-05        |
 | `SeletorIdioma`   | `idioma`, `caminho`                                                                                       | RF-05        |
+| `Topo`            | `titulo`, `apoio`, `fina`; `slot="acoes"` (botões) e `slot="comando"`                                     | RF-06, RF-07 |
 | `Botao`           | `href`, `variante: "primario" \| "secundario"`                                                            | RF-06        |
 | `Comando`         | `comando`, `idioma`                                                                                       | RF-07        |
-| `Terminal`        | `rotulo`, `titulo`, `comando`, `idioma`; `slot` = a saída                                                 | RF-08        |
+| `Terminal`        | `rotulo`, `titulo`, `comando`; `slot` = a saída                                                           | RF-08        |
 | `Secao`           | `id`, `titulo`, `lead?`                                                                                   | RF-09        |
 | `Passos`          | `passos: {titulo, texto, codigo?}[]`, `rotuloPasso`                                                       | RF-09        |
 | `Grupos`          | `grupos: {titulo, intro?, itens: {titulo, texto}[]}[]`                                                    | RF-09        |
@@ -229,10 +230,12 @@ Nenhuma rota nova. Cada app continua com `/` (português) e `/en/` (inglês); a 
   página real a largura é a da janela. O `clamp` do título passa de `cqw` para `vw` com o mesmo teto de 50 px.
 - **Trade-off:** o tema não responde à largura do contêiner onde for encaixado, o que aqui nunca acontece.
 
-### ADR-6 — Vitrine provisória nos apps
+### ADR-6 — Página montada nos apps (nasceu como vitrine provisória)
 
-- **Decisão:** `index.astro` e `en/index.astro` de cada app viram uma vitrine com texto sintético usando todos
-  os blocos, até as specs de cada site trazerem as páginas reais.
+- **Decisão:** `index.astro` e `en/index.astro` de cada app montam a página com todos os blocos. Ela nasceu como
+  vitrine com texto sintético, mas passou a usar desde já os textos, a saída do terminal e as capturas do mockup
+  aprovado (`textos.ts`, `terminais.ts`, `assets/relatorio/`): a página tem de ser, no mínimo, igual ao mockup.
+  As specs `004` e `005` ficam com o que sobra: textos finais, revisão do conteúdo e do inglês, logos e imagens.
 - **Alternativas:** deixar os esqueletos e testar o tema só por teste unitário; um app de demonstração à parte.
 - **Porquê:** é o jeito de ver o tema no `pnpm dev`, de o build, o `verificar-dist` e o Lighthouse CI o medirem
   e de achar problema de contraste e de CLS antes do conteúdo real. Não cria app nem rota nova.

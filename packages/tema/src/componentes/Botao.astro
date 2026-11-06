@@ -1,0 +1,51 @@
+---
+/**
+ * @file Botão: um link (`<a>`) com aparência de botão, primário ou secundário.
+ *
+ * No celular ocupa a largura toda (até 560 px); acima disso, a largura do rótulo. Altura mínima de
+ * 48 px, o que também garante o alvo de toque de 44 px, e rótulo centralizado por `inline-flex`
+ * (RF-06). Qualquer atributo de `<a>` (`target`, `rel`) passa adiante para os links externos.
+ */
+import type { HTMLAttributes } from "astro/types";
+
+export interface Props extends Omit<HTMLAttributes<"a">, "href"> {
+  href: string;
+  variante: "primario" | "secundario";
+}
+
+const { href, variante, class: classe, ...resto } = Astro.props;
+---
+
+<a href={href} class:list={["botao", variante, classe]} {...resto}>
+  <slot />
+</a>
+
+<style>
+  .botao {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    padding: 0 22px;
+    border: 1.5px solid var(--acc);
+    border-radius: 10px;
+    background: var(--acc);
+    color: var(--on-acc);
+    font: inherit;
+    font-weight: 600;
+    line-height: 1;
+    text-decoration: none;
+  }
+
+  .secundario {
+    border-color: var(--field);
+    background: transparent;
+    color: var(--text);
+  }
+
+  @media (max-width: 560px) {
+    .botao {
+      width: 100%;
+    }
+  }
+</style>

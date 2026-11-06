@@ -1,0 +1,49 @@
+---
+/**
+ * @file Chamada final: título, frase e os botões (no `slot`), tudo centralizado.
+ *
+ * Texto curto e isolado fica ao centro; o texto de leitura das outras seções fica à esquerda (RF-09).
+ */
+export interface Props {
+  titulo: string;
+  texto: string;
+}
+
+const { titulo, texto } = Astro.props;
+---
+
+<section class="secao">
+  <div class="envoltorio final">
+    <h2>{titulo}</h2>
+    <p class="texto">{texto}</p>
+    <div class="acoes">
+      <slot />
+    </div>
+  </div>
+</section>
+
+<style>
+  .final {
+    display: grid;
+    gap: 16px;
+    justify-items: center;
+    text-align: center;
+  }
+
+  .final h2 {
+    margin: 0;
+  }
+
+  .texto {
+    max-width: 62ch;
+    color: var(--text-2);
+  }
+
+  .acoes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    width: 100%;
+  }
+</style>

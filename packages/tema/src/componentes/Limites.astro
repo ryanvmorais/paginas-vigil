@@ -1,0 +1,63 @@
+---
+/**
+ * @file Bloco "o que ele não faz": um quadro com borda, título e o texto no `slot`.
+ *
+ * Limite factual, sem promessa. No celular empilha; a partir de 720 px o título fica à esquerda e o
+ * texto à direita, em duas colunas, para usar a largura toda (RF-09). O `h2` do bloco precisa de seletor
+ * mais específico que o `h2` das seções (`.secao h2`), senão herda os 34 px.
+ */
+export interface Props {
+  titulo: string;
+}
+
+const { titulo } = Astro.props;
+---
+
+<section class="secao">
+  <div class="envoltorio">
+    <div class="limites">
+      <h2>{titulo}</h2>
+      <slot />
+    </div>
+  </div>
+</section>
+
+<style>
+  .limites {
+    display: grid;
+    gap: 10px;
+    padding: 20px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--card);
+  }
+
+  .limites h2 {
+    margin: 0;
+    font-size: 20px;
+  }
+
+  .limites :global(p) {
+    max-width: 70ch;
+    color: var(--text-2);
+  }
+
+  @media (min-width: 720px) {
+    .limites {
+      grid-template-columns: minmax(200px, 1fr) 2fr;
+      align-items: start;
+      column-gap: 40px;
+      padding: 28px 32px;
+    }
+
+    .limites h2 {
+      grid-column: 1;
+      grid-row: 1 / span 3;
+      font-size: 22px;
+    }
+
+    .limites :global(p) {
+      grid-column: 2;
+    }
+  }
+</style>

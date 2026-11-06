@@ -1,0 +1,85 @@
+---
+/**
+ * @file Grupos de itens sem cartões: título, introdução e uma lista com filetes.
+ *
+ * Dois grupos lado a lado no desktop e empilhados no celular. O texto aceita `<code>` e entra por
+ * `set:html` (texto nosso, nunca de visitante) (RF-09).
+ */
+export interface Props {
+  grupos: {
+    titulo: string;
+    intro?: string;
+    itens: { titulo: string; texto: string }[];
+  }[];
+}
+
+const { grupos } = Astro.props;
+---
+
+<div class="grupos">
+  {grupos.map((grupo) => (
+    <div class="grupo">
+      <h3>{grupo.titulo}</h3>
+      {grupo.intro !== undefined && <p class="intro" set:html={grupo.intro} />}
+      <ul>
+        {grupo.itens.map((item) => (
+          <li>
+            <strong>{item.titulo}</strong>
+            <span set:html={item.texto} />
+          </li>
+        ))}
+      </ul>
+    </div>
+  ))}
+</div>
+
+<style>
+  .grupos {
+    display: grid;
+    gap: 32px;
+  }
+
+  h3 {
+    margin-bottom: 6px;
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  .intro {
+    margin-bottom: 8px;
+    color: var(--text-2);
+    font-size: 14.5px;
+  }
+
+  li {
+    padding: 12px 0;
+    border-top: 1px solid var(--border);
+  }
+
+  strong {
+    display: block;
+    font-weight: 600;
+  }
+
+  span {
+    color: var(--text-2);
+    font-size: 14.5px;
+  }
+
+  .intro :global(code),
+  span :global(code) {
+    padding: 1px 5px;
+    border-radius: 6px;
+    background: var(--code);
+    font-family: var(--font-code);
+    font-size: 0.88em;
+    white-space: nowrap;
+  }
+
+  @media (min-width: 720px) {
+    .grupos {
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+    }
+  }
+</style>

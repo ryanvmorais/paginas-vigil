@@ -36,24 +36,24 @@ vitrine da Etapa 2 em diante é a superfície de verificação.
 
 ## Etapa 2 — Layout, cabeçalho, botão e comando (o topo da página)
 
-- [ ] `packages/tema/src/layouts/Pagina.astro`: `<html lang data-produto>`, `<head>` com `title`, `description`, `canonical`, `alternate` (`pt-BR`, `en`, `x-default` → `/en/`), `og:*`, `og:locale` e `og:locale:alternate`, `color-scheme`, `preload` das fontes do topo, `og:image` só com `imagemSocial`; importa os três CSS globais. — RF-01, RF-03, ADR-1
-- [ ] `packages/tema/src/componentes/SeletorIdioma.astro` e `Cabecalho.astro`: logo (slot) e nome, navegação só a partir de 720 px, seletor PT · EN com links reais, o atual em `aria-current="page"`, sem botão do GitHub. — RF-05, ADR-5
-- [ ] `packages/tema/src/componentes/Botao.astro`: `<a>` primário e secundário, largura total até 560 px, `min-height: 48px`, rótulo centralizado. — RF-06
-- [ ] `packages/tema/src/componentes/Comando.astro` e `packages/tema/src/scripts/copiar.ts`: `<code>` e botão `hidden`, que o script revela só com `navigator.clipboard`, copia e anuncia o resultado em `role="status"`. — RF-07, RNF-01
-- [ ] `apps/*/src/pages/index.astro` e `en/index.astro`: vitrine do topo (título, texto de apoio, dois botões, comando, linha fina) com texto sintético, nos dois idiomas e nos dois produtos. — RF-03, RF-05, RF-06, RF-07, ADR-6
-- [ ] Conferir o topo no `pnpm dev` a 390 e a 1280 px, claro e escuro, e rodar o `verificar-dist` no build. — RF-01, RNF-02
-- [ ] Portão de qualidade. — _resultado a registrar_
+- [x] `packages/tema/src/layouts/Pagina.astro`: `<html lang data-produto>`, `<head>` com `title`, `description`, `canonical`, `alternate` (`pt-BR`, `en`, `x-default` → `/en/`), `og:*`, `og:locale` e `og:locale:alternate`, `color-scheme`, `preload` das fontes do topo, `og:image` só com `imagemSocial`; importa os três CSS globais. — RF-01, RF-03, ADR-1
+- [x] `packages/tema/src/componentes/SeletorIdioma.astro` e `Cabecalho.astro`: logo (slot) e nome, navegação só a partir de 720 px, seletor PT · EN com links reais, o atual em `aria-current="page"`, sem botão do GitHub. — RF-05, ADR-5
+- [x] `packages/tema/src/componentes/Botao.astro`: `<a>` primário e secundário, largura total até 560 px, `min-height: 48px`, rótulo centralizado. — RF-06
+- [x] `packages/tema/src/componentes/Comando.astro` e `packages/tema/src/scripts/copiar.ts`: `<code>` e botão `hidden`, que o script revela só com `navigator.clipboard`, copia e anuncia o resultado em `role="status"`. — RF-07, RNF-01
+- [x] `apps/*/src/pages/index.astro` e `en/index.astro`: vitrine do topo (título, texto de apoio, dois botões, comando, linha fina) com texto sintético, nos dois idiomas e nos dois produtos. — RF-03, RF-05, RF-06, RF-07, ADR-6
+- [x] Conferir o topo no `pnpm dev` a 390 e a 1280 px, claro e escuro, e rodar o `verificar-dist` no build. — RF-01, RNF-02
+- [x] Portão de qualidade. — `format:check`, `lint`, `typecheck`, `test` (42 testes em 7 arquivos) e `build` (com o `verificar-dist` nos dois sites) verdes.
 
 ## Etapa 3 — Terminal animado e blocos de seção
 
-- [ ] `packages/tema/src/componentes/Terminal.astro` e `src/estilos/terminal.css`: `figure` com rótulo, `<pre>` que rola na horizontal, comando em `span.digita` e saída em `span.saida`; o componente conta os caracteres do comando e as linhas da saída (`Astro.slots.render`), escolhe as classes `.n-*` e `.l-*` por faixa e falha o build se o valor passar da faixa. — RF-08, ADR-4
-- [ ] `terminal.css`: digitação por `width` em `ch` com `steps()` e revelação da saída por `clip-path` com `steps()`, só em `prefers-reduced-motion: no-preference`, uma vez, no máximo cerca de 3 s, sem deslocar o layout. — RF-08, RNF-03, ADR-4
-- [ ] `packages/tema/src/componentes/Secao.astro`, `Passos.astro` e `Grupos.astro`: seção com título e `lead`, passos numerados em três colunas a partir de 720 px, dois grupos de itens sem cartões. — RF-09
-- [ ] `packages/tema/src/componentes/FiguraRelatorio.astro`: `<picture>` com `source` por esquema de cor e largura, `width` e `height` vindos de `ImageMetadata`, `alt` e legenda. — RF-09, RNF-03
-- [ ] `packages/tema/src/componentes/Aviso.astro`, `Limites.astro` e `ChamadaFinal.astro`: bloco de aviso opcional, bloco com borda em duas colunas a partir de 720 px, chamada final centralizada com botões em slot. — RF-09
-- [ ] `packages/tema/src/componentes/Rodape.astro`: nome e licença, link do outro produto, seletor de idioma e slot para o item extra. — RF-09
-- [ ] `apps/*/src/pages/index.astro` e `en/index.astro`: completar a vitrine com terminal (saída sintética com tabela de moldura), passos, relatório (imagem sintética em quatro variantes), grupos, limites, aviso, chamada final e rodapé. — RF-08, RF-09, ADR-6
-- [ ] Portão de qualidade. — _resultado a registrar_
+- [x] `packages/tema/src/componentes/Terminal.astro` e `src/estilos/terminal.css`: `figure` com rótulo, `<pre>` que rola na horizontal, comando em `span.digita` e saída em `span.saida`; o componente conta os caracteres do comando e as linhas da saída (`Astro.slots.render`), escolhe as classes `.n-*` e `.l-*` por faixa e falha o build se o valor passar da faixa. — RF-08, ADR-4
+- [x] `terminal.css`: digitação por `width` em `ch` com `steps()` e revelação da saída por `clip-path` com `steps()`, só em `prefers-reduced-motion: no-preference`, uma vez, no máximo cerca de 3 s, sem deslocar o layout. — RF-08, RNF-03, ADR-4
+- [x] `packages/tema/src/componentes/Secao.astro`, `Passos.astro` e `Grupos.astro`: seção com título e `lead`, passos numerados em três colunas a partir de 720 px, dois grupos de itens sem cartões. — RF-09
+- [x] `packages/tema/src/componentes/FiguraRelatorio.astro`: `<picture>` com `source` por esquema de cor e largura, `width` e `height` vindos de `ImageMetadata`, `alt` e legenda. — RF-09, RNF-03
+- [x] `packages/tema/src/componentes/Aviso.astro`, `Limites.astro` e `ChamadaFinal.astro`: bloco de aviso opcional, bloco com borda em duas colunas a partir de 720 px, chamada final centralizada com botões em slot. — RF-09
+- [x] `packages/tema/src/componentes/Rodape.astro`: nome e licença, link do outro produto, seletor de idioma e slot para o item extra. — RF-09
+- [x] `apps/*/src/pages/index.astro` e `en/index.astro`: completar a vitrine com terminal (saída sintética com tabela de moldura), passos, relatório (imagem sintética em quatro variantes), grupos, limites, aviso, chamada final e rodapé. — RF-08, RF-09, ADR-6
+- [x] Portão de qualidade. — `format:check`, `lint`, `typecheck`, `test` (42 testes em 7 arquivos) e `build` (com o `verificar-dist` nos dois sites) verdes. Conferido no Chrome real a 390 e 1280 px nos dois sites e idiomas: sem rolagem horizontal, terminal rolando só por dentro, animação de 1,4 s + 1,4 s. Acréscimos: `Topo.astro` e a página já com o conteúdo do mockup (ADR-6 atualizado).
 
 ## Etapa 4 — Verificação em navegador real e fechamento
 

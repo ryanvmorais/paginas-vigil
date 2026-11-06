@@ -1,0 +1,70 @@
+---
+/**
+ * @file Aviso opcional: um quadro com rótulo, título, texto e um link.
+ *
+ * Serve a um esclarecimento que não é limite nem recurso (o dashboard do WebVigil que só vem pelo
+ * repositório, por exemplo). O texto é o `slot`; o link é opcional e abre numa aba nova (RF-09).
+ */
+export interface Props {
+  /** Etiqueta curta acima do título, por exemplo "Opcional". Aparece em maiúsculas. */
+  rotulo: string;
+  titulo: string;
+  link?: { href: string; rotulo: string };
+}
+
+const { rotulo, titulo, link } = Astro.props;
+---
+
+<aside class="aviso">
+  <span class="rotulo">{rotulo}</span>
+  <h3>{titulo}</h3>
+  <p>
+    <slot />
+  </p>
+  {link !== undefined && (
+    <a href={link.href} target="_blank" rel="noopener">
+      {link.rotulo}
+    </a>
+  )}
+</aside>
+
+<style>
+  .aviso {
+    display: grid;
+    gap: 6px;
+    justify-items: start;
+    max-width: 960px;
+    margin-top: 24px;
+    padding: 18px 20px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--card);
+  }
+
+  .rotulo {
+    color: var(--text-3);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  h3 {
+    font-size: 17px;
+    font-weight: 700;
+  }
+
+  p {
+    max-width: 70ch;
+    color: var(--text-2);
+    font-size: 14.5px;
+  }
+
+  /* Alvo de toque de 44 px (RNF-02). */
+  a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-weight: 600;
+  }
+</style>

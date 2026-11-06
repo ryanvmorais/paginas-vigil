@@ -147,7 +147,7 @@ só tenham de montar texto sobre blocos prontos.
 - **Given** o rodapé
   **When** é renderizado
   **Then** traz nome e licença, link para o outro produto e o seletor de idioma, e aceita um item extra
-  opcional (o link do DMARC Fácil, só na versão em português do MailVigil).
+  opcional (o link do DMARC Fácil, no MailVigil, nos dois idiomas).
 
 ### RF-10 — Textos do próprio tema
 

@@ -9,6 +9,8 @@
  *   2. Corpo
  *   3. Foco e links
  *   4. Container
+ *   5. Só para leitor de tela
+ *   6. Seções
  */
 
 /* 1. Reset
@@ -71,9 +73,62 @@ a {
 }
 
 /* 4. Container
- * Coluna de leitura única, centralizada, com 20 px de respiro nas bordas. */
+ * Coluna de leitura única, centralizada, com 20 px de respiro nas bordas e 48 px a partir de 720 px
+ * (o ponto de quebra do desktop, ADR-5). */
 .envoltorio {
   max-width: 1120px;
   margin-inline: auto;
   padding-inline: 20px;
+}
+
+@media (min-width: 720px) {
+  .envoltorio {
+    padding-inline: 48px;
+  }
+}
+
+/* 5. Só para leitor de tela
+ * Esconde da vista sem tirar da árvore de acessibilidade (ao contrário de `display: none`): serve ao
+ * nome completo do idioma no seletor e à região que anuncia "Comando copiado" (RF-05, RF-07). */
+.so-leitor {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* 6. Seções
+ * Regras de `.secao`, usada por `Secao`, `Limites` e `ChamadaFinal`. Ficam aqui, e não no `<style>` de
+ * cada componente, porque o filete entre seções (`.secao + .secao`) cruza componentes e o escopo do
+ * Astro não enxerga irmãos de outro componente. */
+.secao {
+  padding-block: 40px;
+}
+
+.secao + .secao {
+  border-top: 1px solid var(--border);
+}
+
+.secao h2 {
+  margin-bottom: 8px;
+  font-family: var(--font-title);
+  font-weight: 800;
+  font-size: 26px;
+  line-height: 1.15;
+  text-wrap: balance;
+}
+
+@media (min-width: 720px) {
+  .secao {
+    padding-block: 64px;
+  }
+
+  .secao h2 {
+    font-size: 34px;
+  }
 }
