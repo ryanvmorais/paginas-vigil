@@ -6,7 +6,7 @@
  * `media`: o esquema de cor pelo `prefers-color-scheme` e a largura por `min-width: 561px`. `width` e
  * `height` vêm do `ImageMetadata` de cada arquivo, também nos `<source>`, para o navegador reservar a
  * proporção certa de cada variante antes de baixá-la (CLS, RNF-03). A imagem é lazy: fica abaixo da
- * dobra (RF-09).
+ * dobra (RF-09). A figura ocupa a coluna inteira, sem teto de largura.
  */
 import type { ImageMetadata } from "astro";
 
@@ -64,7 +64,6 @@ const { claroDesktop, escuroDesktop, claroCelular, escuroCelular } = imagens;
   .figura {
     display: grid;
     gap: 10px;
-    max-width: 960px;
   }
 
   .quadro {

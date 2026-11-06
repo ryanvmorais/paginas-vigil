@@ -56,14 +56,15 @@ mantenedor na hora.
 
 ## Etapa 1 — Estrutura da seção do relatório e medida dos textos
 
-- [ ] `packages/tema/src/componentes/Secao.astro`, `Topo.astro`, `Aviso.astro`, `ChamadaFinal.astro`: tirar o teto de largura em `ch` da frase de abertura, do apoio, do texto do aviso e do texto da chamada final; `text-wrap: pretty` nesses textos. — RF-08, ADR-3
-- [ ] `packages/tema/src/componentes/Limites.astro`: título em cima e texto na largura da caixa, em todas as larguras, sem a grade de duas colunas e sem o teto do texto. — RF-08, ADR-3
-- [ ] `packages/tema/src/componentes/Aviso.astro` e `FiguraRelatorio.astro`: sem o teto de 960 px; a figura e o aviso ocupam a coluna inteira. — RF-08, ADR-2
-- [ ] `apps/webvigil/src/componentes/Vitrine.astro`: a seção do relatório em três blocos irmãos (abertura, figura, aviso), um sob o outro, com espaçamento próprio, e a mesma ordem no celular. As imagens ainda são as atuais, provisórias até a Etapa 5. — RF-08, ADR-2
-- [ ] `packages/tema/src/componentes/Comando.astro`: `.comando:has(> button[hidden])` com `padding: 4px 14px` e `code` com `user-select: all`; conferir por `localhost`, `127.0.0.1` e pelo endereço de rede local, com e sem JavaScript. — RF-06, ADR-8
-- [ ] `packages/tema/src/componentes/Terminal.astro`: a pista de rolagem no celular (gradientes com `background-attachment: local` e `scroll`, abaixo de 720 px). Conferir no celular real que a sombra aparece só no lado em que há linha escondida. — RF-07
-- [ ] Conferir em Chrome real, nos dois sites e nos dois idiomas: os textos ocupam a caixa, a seção do relatório empilha em 360 a 1280 px, a caixa "O que ele não faz" empilha, e o MailVigil continua correto. — RF-08, RNF-02
-- [ ] Portão de qualidade. — Anotar o resultado real.
+- [x] `packages/tema/src/componentes/Secao.astro`, `Topo.astro`, `Aviso.astro`, `ChamadaFinal.astro`: tirar o teto de largura em `ch` da frase de abertura, do apoio, do texto do aviso e do texto da chamada final; `text-wrap: pretty` nesses textos. — RF-08, ADR-3
+- [x] `packages/tema/src/componentes/Limites.astro`: título em cima e texto na largura da caixa, em todas as larguras, sem a grade de duas colunas e sem o teto do texto. — RF-08, ADR-3
+- [x] `packages/tema/src/componentes/Aviso.astro` e `FiguraRelatorio.astro`: sem o teto de 960 px; a figura e o aviso ocupam a coluna inteira. — RF-08, ADR-2
+- [x] `apps/webvigil/src/componentes/Vitrine.astro`: a seção do relatório em três blocos irmãos (abertura, figura, aviso), um sob o outro, com espaçamento próprio, e a mesma ordem no celular. As imagens ainda são as atuais, provisórias até a Etapa 5. — RF-08, ADR-2
+- [x] `packages/tema/src/componentes/Comando.astro`: `.comando:has(> button[hidden])` com `padding: 4px 14px` e `code` com `user-select: all`; conferir por `localhost`, `127.0.0.1` e pelo endereço de rede local, com e sem JavaScript. — RF-06, ADR-8
+- [x] `packages/tema/src/componentes/Terminal.astro`: a pista de rolagem no celular (gradientes com `background-attachment: local` e `scroll`, abaixo de 720 px). Conferir no celular real que a sombra aparece só no lado em que há linha escondida. — RF-07
+- [x] Conferir em Chrome real, nos dois sites e nos dois idiomas: os textos ocupam a caixa, a seção do relatório empilha em 360 a 1280 px, a caixa "O que ele não faz" empilha, e o MailVigil continua correto. — RF-08, RNF-02
+- [x] Portão de qualidade. — Anotar o resultado real.
+  - **Resultado (2026-11-06):** `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test` (114 testes) e `pnpm build` verdes, e o build dos dois sites com `G-TESTE12345` também. Conferido em Chrome real no build servido, com a página em iframe de 360, 390, 430, 768 e 1280 px, nos dois sites e nos dois idiomas: sem rolagem horizontal; no WebVigil a abertura, a figura e o aviso ocupam a coluna inteira (305, 335, 375, 657 e 1024 px) e vêm na ordem abertura, figura, aviso; "O que ele não faz" empilha em todas as larguras (texto na largura da caixa); no MailVigil o apoio, a abertura, a figura e o limite seguem a mesma medida. Comando sem botão: preenchimento `4px 14px` e `user-select: all`; com botão, `4px 4px 4px 14px`. Terminal no celular: quatro camadas de fundo, sombra dos dois lados no meio da rolagem e só à direita no início. **Pendente no celular real (mantenedor):** ver a sombra do terminal e o comando em endereço de rede local (HTTP), que o Chrome do computador só simula.
 
 ## Etapa 2 — Menu do celular
 

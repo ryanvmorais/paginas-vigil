@@ -2,7 +2,7 @@
 /**
  * @file Seção da página: título, frase de abertura opcional e o conteúdo no `slot`.
  *
- * Texto de leitura alinhado à esquerda, com a frase de abertura limitada a 62 caracteres por linha. O
+ * Texto de leitura alinhado à esquerda, com a frase de abertura na largura da coluna (sem teto). O
  * espaçamento e o filete entre seções vêm de `.secao` em `base.css`. O `lead` aceita `<code>` e
  * entra por `set:html`: é texto nosso, nunca de visitante (RF-09).
  */
@@ -27,10 +27,10 @@ const { id, titulo, lead } = Astro.props;
 
 <style>
   .lead {
-    max-width: 62ch;
     margin-bottom: 24px;
     color: var(--text-2);
     font-size: var(--fs-abertura);
+    text-wrap: pretty;
   }
 
   .lead :global(code) {

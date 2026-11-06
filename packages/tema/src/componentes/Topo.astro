@@ -9,7 +9,7 @@
  */
 export interface Props {
   titulo: string;
-  /** Parágrafo de apoio, com até 72 caracteres por linha. */
+  /** Parágrafo de apoio, na largura da coluna. */
   apoio: string;
   /** Linha fina: requisitos e licença. */
   fina: string;
@@ -50,10 +50,10 @@ const { titulo, apoio, fina } = Astro.props;
   }
 
   .apoio {
-    max-width: 72ch;
     color: var(--text-2);
     font-size: var(--fs-abertura);
     line-height: 1.55;
+    text-wrap: pretty;
   }
 
   .acoes {

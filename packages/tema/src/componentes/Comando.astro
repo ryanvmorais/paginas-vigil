@@ -51,8 +51,15 @@ const t = textos[idioma].copiar;
     background: var(--card);
   }
 
-  /* O comando rola por dentro do bloco se for mais largo que a tela, sem empurrar a página. */
+  /* Sem o botão (página em HTTP por endereço de rede, ou sem JavaScript) o preenchimento fica simétrico. */
+  .comando:has(> button[hidden]) {
+    padding: 4px 14px;
+  }
+
+  /* O comando rola por dentro do bloco se for mais largo que a tela, sem empurrar a página. Um clique
+   * ou toque o seleciona inteiro, já que não há botão de copiar para quem não tem `navigator.clipboard`. */
   code {
+    user-select: all;
     min-width: 0;
     overflow-x: auto;
     scrollbar-width: thin;
