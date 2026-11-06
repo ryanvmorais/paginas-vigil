@@ -1,6 +1,6 @@
 ---
 feature: Tema compartilhado — tokens, fontes, layout bilíngue e componentes dos dois sites
-status: em andamento
+status: concluído
 date: 2026-11-05
 related: [001-fundacao]
 origin: conception
@@ -57,9 +57,12 @@ vitrine da Etapa 2 em diante é a superfície de verificação.
 
 ## Etapa 4 — Verificação em navegador real e fechamento
 
-- [ ] Conferir a vitrine dos dois sites a 360, 390, 430 e 1280 px, claro e escuro, com o `axe-core` e medindo o desenho: contraste, alvos de toque, proporção dos controles, rótulo centralizado, rolagem horizontal, alinhamento da tabela de moldura. — RNF-02, RF-06, RF-08
-- [ ] Conferir a leitura por leitor de tela com o NVDA: idioma, seletor, botão de copiar, rótulo do terminal. — RNF-02, RF-05, RF-07
-- [ ] Rodar o Lighthouse CI localmente (ou no PR) sobre a vitrine e ajustar até os limites de erro passarem: CLS abaixo de 0,1, sem erro no console, acessibilidade, boas práticas e SEO acima de 0,95. — RNF-03
-- [ ] `CLAUDE.md` (arquitetura do tema e o `verificar-dist`), `docs/stack.md`, `README.md` e `README.en.md` se descreverem a estrutura, e `specs/README.md` (linha da `002-tema` no roadmap e a nota de manutenção "sem inline"). — RNF-01
-- [ ] Marcar `status: concluído` nos três arquivos da spec. — RF-01 a RF-10
-- [ ] Portão de qualidade final. — _resultado a registrar_
+- [x] Conferir a vitrine dos dois sites a 360, 390, 430 e 1280 px, claro e escuro, com o `axe-core` e medindo o desenho: contraste, alvos de toque, proporção dos controles, rótulo centralizado, rolagem horizontal, alinhamento da tabela de moldura. — RNF-02, RF-06, RF-08
+      **Resultado:** `axe-core` (WCAG 2.2 AA e boas práticas) em 32 combinações (2 sites × 2 idiomas × claro/escuro × 360, 390, 430 e 1280 px): achou `landmark-unique` (seletor de idioma duplicado como `nav` no cabeçalho e no rodapé) e `aria-allowed-role` (`role="group"` no `figure` do terminal), os dois corrigidos; depois, 0 violações, sem rolagem horizontal, sem erro no console e rótulos dos botões centralizados.
+- [x] Conferir a leitura por leitor de tela com o NVDA: idioma, seletor, botão de copiar, rótulo do terminal. — RNF-02, RF-05, RF-07
+      **Resultado:** lido no WebVigil em português: marcos (banner, navegação, principal, conteúdo), seletor com "página atual" e o nome do idioma de destino com `lang` próprio, botão "Copiar" que anuncia "Comando copiado", terminal lido como figura "Exemplo de saída no terminal" com o comando e a saída.
+- [x] Rodar o Lighthouse CI localmente (ou no PR) sobre a vitrine e ajustar até os limites de erro passarem: CLS abaixo de 0,1, sem erro no console, acessibilidade, boas práticas e SEO acima de 0,95. — RNF-03
+      **Resultado:** rodado nos quatro perfis (cada site, celular e desktop), sem falha de asserção.
+- [x] `CLAUDE.md` (arquitetura do tema e o `verificar-dist`), `docs/stack.md`, `README.md` e `README.en.md` se descreverem a estrutura, e `specs/README.md` (linha da `002-tema` no roadmap e a nota de manutenção "sem inline"). — RNF-01
+- [x] Marcar `status: concluído` nos três arquivos da spec. — RF-01 a RF-10
+- [x] Portão de qualidade final. — `format:check`, `lint`, `typecheck`, `test` (42 testes em 7 arquivos) e `build` (com o `verificar-dist` nos dois sites) verdes.

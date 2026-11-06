@@ -11,7 +11,7 @@ um workspace pnpm. Cada site é publicado no próprio subdomínio (`webvigil.rya
 > Cuidado: o nome do repositório (`paginas-vigil`) é exceção à regra "nome do repositório = subdomínio",
 > porque um repositório serve dois subdomínios. Não renomeie para casar com um deles.
 
-Estado: em construção. As páginas em `apps/*/src/pages/index.astro` são esqueletos e ainda não estão no ar.
+Estado: em construção. Os dois sites já têm a página inteira (português e inglês) montada com o tema; falta o deploy, a medição e a política de privacidade, e nada está no ar.
 
 ## Comandos comuns
 
@@ -40,6 +40,9 @@ pnpm --filter mailvigil dev
 ```text
 packages/tema/        # tema e utilidades compartilhados pelos dois sites
   src/idiomas.ts      # IDIOMAS e chavesFaltantes: confere a paridade pt/en dos dicionários
+  src/layouts/        # Pagina.astro: casca da página (head, SEO bilíngue, cabeçalho, rodapé)
+  src/componentes/    # blocos .astro compartilhados: Terminal, Secao, Passos, Grupos, Limites, Rodape...
+  src/scripts/        # copiar.ts: botão de copiar, empacotado pelo Astro em arquivo externo
   src/estilos/        # fontes.css, tokens.css e base.css: estilos globais, importados pelo layout
   src/fontes/         # woff2 em subconjunto das três fontes, a licença OFL e o LEIAME de regeração
 apps/webvigil/        # site do WebVigil

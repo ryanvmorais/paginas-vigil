@@ -39,16 +39,17 @@ Nenhuma fase começa sem a aprovação explícita da anterior.
 
 Os sites não têm versão numerada: cada merge na `main` com o CI verde é uma entrega, e a coluna `entrega` fica em `—`.
 
-| Spec                            | Escopo                                                                                                           | Entrega | Status       |
-| ------------------------------- | ---------------------------------------------------------------------------------------------------------------- | ------- | ------------ |
-| [`001-fundacao`](001-fundacao/) | workspace pnpm, tema com a paridade de idiomas, portão de qualidade, CI, cadeia de suprimentos, `main` protegida | —       | concluído    |
-| [`002-tema`](002-tema/)         | tokens, fontes locais, layout bilíngue e blocos de interface compartilhados pelos dois sites                     | —       | em andamento |
+| Spec                            | Escopo                                                                                                           | Entrega | Status    |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------------------- | ------- | --------- |
+| [`001-fundacao`](001-fundacao/) | workspace pnpm, tema com a paridade de idiomas, portão de qualidade, CI, cadeia de suprimentos, `main` protegida | —       | concluído |
+| [`002-tema`](002-tema/)         | tokens, fontes locais, layout bilíngue e blocos de interface compartilhados pelos dois sites                     | —       | concluído |
 
 ## Notas de manutenção
 
 Invariantes frágeis que cruzam specs:
 
 - **Nenhum script inline nas páginas.** A política de segurança de conteúdo do deploy não vai permitir `unsafe-inline`; todo script vai em arquivo externo. Origem: [`001-fundacao`](001-fundacao/requirements.md) (RNF-02).
+- **`verificar-dist` no build.** O `scripts/verificar-dist.mjs` roda no `build` de cada site e falha se o HTML gerado tiver `<script>` sem `src`, `<style>` ou `style=`; o `build.inlineStylesheets: "never"` dos `astro.config.mjs` mantém o CSS em arquivo. Quem adicionar um componente precisa manter essas duas guardas. Origem: [`002-tema`](002-tema/design.md) (ADR-2).
 - **Paridade de idiomas.** Todo dicionário de texto tem um teste que roda `chavesFaltantes` nas duas direções (`pt` contra `en` e `en` contra `pt`). Origem: [`001-fundacao`](001-fundacao/requirements.md) (RF-01).
 
 ## Spec-ouro
