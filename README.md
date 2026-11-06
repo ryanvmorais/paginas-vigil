@@ -36,6 +36,8 @@ pnpm --filter webvigil dev
 pnpm --filter mailvigil dev
 ```
 
+A medição de audiência (Google Analytics 4 com consentimento) fica desligada por padrão. Para ligá-la, copie `.env.example` para `.env` e preencha `PUBLIC_GA_MEASUREMENT_ID`: sem ele a página não tem medição, banner de cookies nem o controle "Gerenciar cookies".
+
 O portão de qualidade, o mesmo do CI e do pre-commit:
 
 ```bash

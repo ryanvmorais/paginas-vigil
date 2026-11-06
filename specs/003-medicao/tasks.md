@@ -55,11 +55,11 @@ o build é o do modo sem medição.
 
 ## Etapa 3 — CI, Lighthouse e documentação
 
-- [ ] `.github/workflows/ci.yml`: no job `qualidade`, além do `pnpm build`, construir os dois sites com `PUBLIC_GA_MEASUREMENT_ID=G-TESTE12345` para o `verificar-dist` exercitar o modo com medição. — RF-06, RF-09
-- [ ] `.github/workflows/lighthouse.yml`: construir com o identificador de teste, para medir a primeira visita com o banner aberto. — RNF-03
-- [ ] `CLAUDE.md` e `docs/stack.md`: tirar a nota "a medição ainda não existe", acrescentar o consentimento, a CSP e o `verificar-dist` com a CSP; conferir os READMEs nos dois idiomas. — RF-09
-- [ ] `specs/README.md`: nota de manutenção da CSP e do contrato do cookie de escolha. — RF-03, RF-09
-- [ ] Portão de qualidade. — anotar o resultado real.
+- [x] `.github/workflows/ci.yml`: no job `qualidade`, além do `pnpm build`, construir os dois sites com `PUBLIC_GA_MEASUREMENT_ID=G-TESTE12345` para o `verificar-dist` exercitar o modo com medição. — RF-06, RF-09
+- [x] `.github/workflows/lighthouse.yml`: construir com o identificador de teste, para medir a primeira visita com o banner aberto. — RNF-03
+- [x] `CLAUDE.md` e `docs/stack.md`: tirar a nota "a medição ainda não existe", acrescentar o consentimento, a CSP e o `verificar-dist` com a CSP; conferir os READMEs nos dois idiomas. — RF-09
+- [x] `specs/README.md`: nota de manutenção da CSP e do contrato do cookie de escolha. — RF-03, RF-09
+- [x] Portão de qualidade. — `format:check`, `lint`, `typecheck` (0 erros nos três pacotes), `test` (114 testes em 11 arquivos) e `build` (`verificar-dist` sem problemas nos dois sites, sem medição e com `G-TESTE12345`) verdes. O CI e o Lighthouse CI com o banner aberto só se confirmam no PR.
 
 ## Etapa 4 — Verificação em navegador real e fechamento
 
