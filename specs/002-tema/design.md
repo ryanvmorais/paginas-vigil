@@ -1,6 +1,6 @@
 ---
 feature: Tema compartilhado — tokens, fontes, layout bilíngue e componentes dos dois sites
-status: em andamento
+status: concluído
 date: 2026-11-05
 related: [001-fundacao]
 origin: conception
@@ -80,7 +80,7 @@ Todos os textos que o tema emite sozinho vêm de `textos.ts`; os do site chegam 
 | ----------------- | --------------------------------------------------------------------------------------------------------- | ------------ |
 | `Pagina`          | `produto`, `idioma`, `caminho`, `titulo`, `descricao`, `imagemSocial?`                                    | RF-01, RF-03 |
 | `Cabecalho`       | `nome`, `caminho`, `idioma`, `navegacao?: {href, rotulo}[]`; `slot="logo"`                                | RF-05        |
-| `SeletorIdioma`   | `idioma`, `caminho`                                                                                       | RF-05        |
+| `SeletorIdioma`   | `idioma`, `caminho`, `marco`                                                                              | RF-05        |
 | `Topo`            | `titulo`, `apoio`, `fina`; `slot="acoes"` (botões) e `slot="comando"`                                     | RF-06, RF-07 |
 | `Botao`           | `href`, `variante: "primario" \| "secundario"`                                                            | RF-06        |
 | `Comando`         | `comando`, `idioma`                                                                                       | RF-07        |
@@ -102,14 +102,16 @@ Pontos de comportamento:
   `og:locale:alternate`, `meta name="color-scheme" content="light dark"` e o `preload` das fontes do topo.
   `og:image` só entra quando `imagemSocial` é passada (a imagem vem na fase de imagens). Sem redirecionamento.
 - **`SeletorIdioma`** é um `nav` com dois links reais; o do idioma atual vira `span aria-current="page"`.
-  Cada link leva `lang` e `hreflang`.
+  Cada link leva `lang` e `hreflang`. O seletor aparece no cabeçalho e no rodapé, e só o do cabeçalho é um
+  marco `nav`: o do rodapé (`marco={false}`) é um `div role="group"` com o mesmo rótulo, porque dois
+  marcos iguais fazem o `axe` acusar `landmark-unique`.
 - **`Botao`** é um `<a>`. Celular: largura total; a partir de 560 px: largura do rótulo. `min-height: 48px`,
   rótulo centralizado por `inline-flex` (RF-06).
 - **`Comando`** renderiza o `<code>` e um `<button hidden>`. O `copiar.ts` (script do Astro, empacotado em
   arquivo externo) tira o `hidden` só se `navigator.clipboard` existe, copia o texto do `<code>` e escreve
   o resultado num `span role="status"`, o que o leitor de tela anuncia. Sem JavaScript o botão continua
   oculto e o comando selecionável (RF-07).
-- **`Terminal`** é um `figure role="group" aria-label={rotulo}` com cabeçalho e um `<pre>` que rola na
+- **`Terminal`** é um `figure aria-label={rotulo}` (o `role="group"` foi tirado: o `axe` o rejeita num `figure`) com cabeçalho e um `<pre>` que rola na
   horizontal. O `<pre>` leva o comando (`span.digita`) e a saída (`span.saida`, o `slot`). O texto completo
   está sempre no HTML.
 - **`Limites`** e **`ChamadaFinal`** seguem o alinhamento do mockup: o primeiro em duas colunas a partir de

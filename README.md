@@ -18,7 +18,7 @@ Cada site é publicado no próprio subdomínio, em português e em inglês: o te
 
 - **`apps/webvigil`**: o site do WebVigil.
 - **`apps/mailvigil`**: o site do MailVigil.
-- **`packages/tema`**: o tema e as utilidades que os dois sites compartilham, como a conferência de que todo texto existe nos dois idiomas.
+- **`packages/tema`**: o tema que os dois sites compartilham: fontes, estilos, layout bilíngue, blocos de interface e a conferência de que todo texto existe nos dois idiomas.
 
 ## Desenvolvimento
 

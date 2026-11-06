@@ -18,7 +18,7 @@ Each site is published on its own subdomain, in Portuguese and in English: the P
 
 - **`apps/webvigil`**: the WebVigil site.
 - **`apps/mailvigil`**: the MailVigil site.
-- **`packages/tema`**: the theme and the utilities both sites share, such as the check that every text exists in both languages.
+- **`packages/tema`**: the theme both sites share: fonts, styles, the bilingual layout, interface blocks and the check that every text exists in both languages.
 
 ## Development
 

@@ -32,7 +32,7 @@ const { nome, licenca, outroProduto, idioma, caminho } = Astro.props;
         <a href={outroProduto.href}>{outroProduto.nome}</a>
         <slot />
       </nav>
-      <SeletorIdioma idioma={idioma} caminho={caminho} />
+      <SeletorIdioma idioma={idioma} caminho={caminho} marco={false} />
     </div>
   </div>
 </footer>

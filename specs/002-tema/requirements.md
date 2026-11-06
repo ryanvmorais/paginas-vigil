@@ -1,6 +1,6 @@
 ---
 feature: Tema compartilhado — tokens, fontes, layout bilíngue e componentes dos dois sites
-status: em andamento
+status: concluído
 date: 2026-11-05
 related: [001-fundacao]
 origin: conception
