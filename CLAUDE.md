@@ -74,8 +74,8 @@ packages/tema/        # tema e utilidades compartilhados pelos dois sites
   src/layouts/        # Pagina.astro: casca da página (head, SEO bilíngue, cabeçalho, rodapé)
   src/componentes/    # blocos .astro compartilhados: Aviso, Botao, Cabecalho, ChamadaFinal, Comando,
                       # Consentimento, FiguraRelatorio, Grupos, Limites, Passos, Rodape, Secao, SeletorIdioma, Terminal, Topo
-  src/scripts/        # copiar.ts (botão de copiar) e consentimento.ts (banner, cookie e gtag.js), empacotados
-                      # pelo Astro em arquivo externo
+  src/scripts/        # copiar.ts (botão de copiar), menu.ts (fecha o menu do celular) e consentimento.ts (banner,
+                      # cookie e gtag.js), empacotados pelo Astro em arquivo externo
   src/estilos/        # fontes.css, tokens.css, base.css e terminal.css: estilos globais; os três primeiros
                       # vêm pelo layout e o terminal.css pelo Terminal.astro
   src/fontes/         # woff2 em subconjunto das três fontes, a licença OFL e o LEIAME de regeração

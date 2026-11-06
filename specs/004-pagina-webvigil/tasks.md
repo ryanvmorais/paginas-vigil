@@ -68,12 +68,13 @@ mantenedor na hora.
 
 ## Etapa 2 — Menu do celular
 
-- [ ] `packages/tema/src/textos.ts`: o rótulo do menu em `pt` ("Seções") e em `en` ("Sections"); o teste de paridade existente cobre as duas direções. — RF-06, RF-05
-- [ ] `packages/tema/src/componentes/Cabecalho.astro`: abaixo de 720 px, `<nav>` com um `<details>`, o ícone de três linhas (SVG de 24 × 24 px, traço de 2 px, 44 × 44 px de alvo, a 8 px do seletor de idioma) e o painel de quatro links de 48 px sob o cabeçalho; o X no estado aberto, com `transform` e respeito a `prefers-reduced-motion`. O menu do desktop fica `display: none` abaixo de 720 px, e só um dos dois existe na árvore de acessibilidade. — RF-06, ADR-1
-- [ ] `packages/tema/src/scripts/menu.ts`: fecha o painel ao ativar um link, com Esc e ao clicar fora, em arquivo externo; sem ele o menu continua funcionando. — RF-06, RNF-01, ADR-1
-- [ ] `apps/webvigil/src/componentes/Vitrine.astro` e `apps/mailvigil/src/componentes/Vitrine.astro`: o item "Relatório" na navegação do WebVigil, na ordem da página (Como funciona, Relatório, O que ele faz, Instalar); o MailVigil só ganha o ícone. — RF-06
-- [ ] Conferir em Chrome real, a 360, 390, 430 e 768 px, nos dois idiomas e temas, com e sem JavaScript: abrir e fechar, fechar por link, Esc e clique fora, Tab e foco, alvo de 44 px, e sem marco `nav` duplicado (axe-core). — RF-06, RNF-02
-- [ ] Portão de qualidade. — Anotar o resultado real.
+- [x] `packages/tema/src/textos.ts`: o rótulo do menu em `pt` ("Seções") e em `en` ("Sections"); o teste de paridade existente cobre as duas direções. — RF-06, RF-05
+- [x] `packages/tema/src/componentes/Cabecalho.astro`: abaixo de 720 px, `<nav>` com um `<details>`, o ícone de três linhas (SVG de 24 × 24 px, traço de 2 px, 44 × 44 px de alvo, a 8 px do seletor de idioma) e o painel de quatro links de 48 px sob o cabeçalho; o X no estado aberto, com `transform` e respeito a `prefers-reduced-motion`. O menu do desktop fica `display: none` abaixo de 720 px, e só um dos dois existe na árvore de acessibilidade. — RF-06, ADR-1
+- [x] `packages/tema/src/scripts/menu.ts`: fecha o painel ao ativar um link, com Esc e ao clicar fora, em arquivo externo; sem ele o menu continua funcionando. — RF-06, RNF-01, ADR-1
+- [x] `apps/webvigil/src/componentes/Vitrine.astro` e `apps/mailvigil/src/componentes/Vitrine.astro`: o item "Relatório" na navegação do WebVigil, na ordem da página (Como funciona, Relatório, O que ele faz, Instalar); o MailVigil só ganha o ícone. — RF-06
+- [x] Conferir em Chrome real, a 360, 390, 430 e 768 px, nos dois idiomas e temas, com e sem JavaScript: abrir e fechar, fechar por link, Esc e clique fora, Tab e foco, alvo de 44 px, e sem marco `nav` duplicado (axe-core). — RF-06, RNF-02
+- [x] Portão de qualidade. — Anotar o resultado real.
+  - **Resultado (2026-11-06):** `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test` (114 testes) e `pnpm build` verdes, e o build dos dois sites com `G-TESTE12345` também. Menu conferido em Chrome real (puppeteer-core) no build servido do WebVigil, em 360, 390, 430 e 768 px, em pt e en, claro e escuro, com e sem JavaScript (scripts bloqueados): abaixo de 720 px só o menu existe e só um marco "Seções" fica visível; o botão mede 44 × 44 px, a 8 px do seletor de idioma; o painel abre com os quatro links na ordem Como funciona, Relatório, O que ele faz, Instalar, cada um com 48 px; Esc fecha e devolve o foco ao botão, Enter abre, Tab vai ao primeiro link, clique fora e clique num link fecham (e o link leva ao `#relatorio`); sem JavaScript o `<details>` abre e fecha pelo botão; a 768 px aparece só a navegação em linha. O ícone vira X aberto. `axe-core` com o menu aberto: sem violação, depois de trocar o `<aside>` do aviso por um `<div>` (`landmark-complementary-is-top-level`, defeito da Etapa 1). O MailVigil usa o mesmo cabeçalho e ganha só o ícone (build verde).
 
 ## Etapa 3 — Reserva de rolagem do banner
 
