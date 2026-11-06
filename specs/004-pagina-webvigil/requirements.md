@@ -41,8 +41,10 @@ exaustiva**; o inventário completo é o RF-01):
     bloco rola para o lado;
   - a captura do relatório para celular tem um recorte diferente da de desktop: termina antes da
     biblioteca vulnerável e do primeiro achado, que o texto alternativo descreve.
-- **Terminal:** a tabela da saída é desenhada com uma fonte substituta, porque os caracteres de moldura não
-  estão no subconjunto da fonte, e as bordas saem mais pesadas que as da ferramenta.
+- **Terminal:** a tabela da saída parecia desenhada com uma fonte substituta, com bordas mais pesadas que as
+  da ferramenta. A conferência no build (design, "Terminal") descartou a causa: os caracteres de moldura estão
+  no subconjunto da fonte da página e saem todos com a largura dela. As bordas pesadas são os traços pesados
+  (`┏ ┃ ┡`) que a própria ferramenta emite.
 
 Uma segunda inspeção, em navegador real a 1280 e a 390 px (build com medição, nos dois idiomas), achou:
 
@@ -206,8 +208,8 @@ aprovado no `design.md` antes de qualquer código.
   cada item leva à seção certa.
 - **Given** a página no celular, onde o menu do cabeçalho não aparece
   **When** o visitante procura uma seção
-  **Then** há um jeito de chegar às seções sem rolar a página inteira; a forma (menu recolhível, faixa de
-  links ou outra) é decidida no mockup do `design.md`.
+  **Then** há um jeito de chegar às seções sem rolar a página inteira; a forma (ícone de menu com painel
+  recolhível) foi decidida no mockup do `design.md`.
 - **Given** um link para fora (o repositório, a documentação, o painel, o outro produto)
   **When** ele é aberto
   **Then** chega ao destino que o rótulo promete e, quando o destino existe no idioma da página, abre
@@ -252,8 +254,9 @@ aprovado no `design.md` antes de qualquer código.
   que mudou.
 - **Given** a tabela da saída do terminal
   **When** ela é exibida
-  **Then** os caracteres de moldura são desenhados com a fonte da página, alinhados e com o peso visual da
-  saída real, ou o motivo de manter a fonte substituta fica registrado como decisão.
+  **Then** os caracteres de moldura são desenhados com a fonte da página e alinhados, e a conferência no
+  build fica registrada no design; o peso das bordas é o do traço pesado que a ferramenta emite, e manter
+  assim é decisão registrada.
 - **Given** qualquer número na página
   **When** a origem dele é perguntada
   **Then** vem da saída real da ferramenta; a página não traz contagem de verificações, versão fixa nem
@@ -273,14 +276,15 @@ aprovado no `design.md` antes de qualquer código.
 - **Given** um ajuste em bloco do tema compartilhado
   **When** ele é aplicado
   **Then** a página do MailVigil continua correta, nos dois idiomas e nos dois temas.
-- **Given** a seção do relatório no desktop
-  **When** a página é montada
-  **Then** o texto (frase de abertura e aviso do painel) e a captura ficam lado a lado, em duas colunas, e
-  empilham no celular; a proporção das colunas e a ordem no celular saem do mockup do `design.md`.
-- **Given** os blocos de texto de leitura (frase de abertura, texto do aviso e dos limites)
+- **Given** a seção do relatório
+  **When** a página é montada, no desktop e no celular
+  **Then** é formada por três blocos independentes, um sob o outro, cada um na largura inteira da coluna da
+  página: o título com a frase de abertura, a captura e o aviso do painel; a ordem é a mesma nas duas larguras.
+- **Given** os blocos de texto de leitura (apoio do topo, frase de abertura das seções, texto do aviso, dos
+  limites e da chamada final)
   **When** a página é aberta no desktop
-  **Then** a medida de linha (largura do texto) aproveita a largura do bloco que o contém, sem deixar
-  metade dele vazia, e sem passar de uma medida confortável de leitura.
+  **Then** cada texto ocupa a largura inteira da caixa que o contém, sem teto de medida e sem deixar metade
+  dela vazia; a caixa "O que ele não faz" tem o título em cima e o texto na largura dela.
 
 ### RF-09 — Metadados da página
 
@@ -375,8 +379,14 @@ Nenhuma.
   estrutura, formatação e preenchimento), não só o texto. Decisão do mantenedor, depois de ver que a
   página tem inconsistências em mais de um eixo.
 - **Estrutura (2026-11-06):** escala tipográfica com corpo de 16 px e abertura de 17 a 18 px (RF-10); seção
-  do relatório em duas colunas no desktop, com a captura regerada (RF-07, RF-08); terminal regerado com o
-  achado crítico (RF-07); reserva do banner ajustada ao cartão (RF-11).
+  do relatório com a captura regerada (RF-07, RF-08); terminal regerado com o achado crítico (RF-07); reserva
+  do banner ajustada ao cartão (RF-11).
+- **Revisão no design (2026-11-06):** depois do mockup, o mantenedor trocou a seção do relatório em duas
+  colunas por três blocos empilhados na largura inteira, com os textos de leitura também em largura inteira e
+  a caixa "O que ele não faz" empilhada (RF-08); a navegação do celular é o ícone de menu (RF-06); e o item da
+  fonte substituta do terminal saiu, porque a conferência no build mostrou que a moldura já usa a fonte da
+  página (RF-07). A escala tipográfica passa a ser de 12, 14, 16 e 18 px, com 22 para o nome do produto e o
+  título de "O que ele não faz", e a abertura fica em 18 px (RF-10).
 - **Botões e menu (2026-11-06):** os quatro botões continuam como estão, e só o destino de "Ler a
   documentação" muda, para a pasta `docs/` do repositório; "Instalar" fica no menu e "Relatório" entra
   nele; a navegação no celular sai do mockup do `design.md` (RF-06).
