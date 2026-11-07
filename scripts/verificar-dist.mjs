@@ -2,7 +2,8 @@
  * @file Confere o HTML que o build do Astro gerou: sem inline, com a marcação de idioma, com a medição
  * coerente e com todo recurso dentro da política de segurança de conteúdo (CSP).
  *
- * Sete regras, todas guardadas aqui para não dependerem de alguém lembrar (specs 002, 003 e 004):
+ * Sete regras (mais a da página `noindex`), todas guardadas aqui para não dependerem de alguém
+ * lembrar (specs 002, 003, 004 e 006):
  *
  * 1. **Sem inline (RNF-01).** A política de segurança de conteúdo (CSP) do deploy não vai permitir
  *    `unsafe-inline`. O Astro decide sozinho inserir um estilo ou script pequeno direto no HTML, então
@@ -20,6 +21,10 @@
  * 7. **Marca.** Toda página bilíngue declara `og:image`, e o favicon, o `apple-touch-icon` e a imagem
  *    social que a página cita existem na pasta do build (um link para arquivo que falta só aparece
  *    quando alguém compartilha o site).
+ *
+ * Página com `<meta name="robots" content="noindex">` (a 404, spec 006) segue o caminho oposto
+ * das regras 2 e 7: não pode ter `canonical`, `alternate` nem `og:*`; as demais regras valem como
+ * em toda página.
  *
  * Uso, a partir da pasta de um site: `node ../../scripts/verificar-dist.mjs dist`. Sai com código 1 e
  * lista cada arquivo e problema se achar algo, ou com 0 se estiver tudo certo. A função
@@ -271,6 +276,47 @@ const conferirDestinosDosBotoes = (tags) => {
 };
 
 /**
+ * Diz se a página pede aos buscadores que não a indexem (`<meta name="robots" content="noindex">`).
+ *
+ * @param {{ nome: string, atributos: Map<string, string> }[]} tags - tags do documento
+ * @returns {boolean} `true` se há um `meta robots` com `noindex`
+ */
+const ehNoindex = (tags) => {
+  return tags.some(
+    ({ nome, atributos }) =>
+      nome === "meta" &&
+      (atributos.get("name") ?? "").toLowerCase() === "robots" &&
+      (atributos.get("content") ?? "")
+        .toLowerCase()
+        .split(/[\s,]+/)
+        .includes("noindex"),
+  );
+};
+
+/**
+ * Confere que uma página `noindex` não declara `canonical`, `alternate` nem `og:*`: a 404 não tem
+ * versão oficial nem se compartilha, e essa marcação a apresentaria aos buscadores como uma.
+ *
+ * @param {{ nome: string, atributos: Map<string, string> }[]} tags - tags do documento
+ * @returns {string[]} um texto por marcação indevida
+ */
+const conferirSemIndexacao = (tags) => {
+  const problemas = [];
+  for (const rel of ["canonical", "alternate"]) {
+    if (temLink(tags, rel)) {
+      problemas.push(`página noindex com <link rel="${rel}">`);
+    }
+  }
+  const temOg = tags.some(
+    ({ nome, atributos }) => nome === "meta" && (atributos.get("property") ?? "").startsWith("og:"),
+  );
+  if (temOg) {
+    problemas.push('página noindex com <meta property="og:*">');
+  }
+  return problemas;
+};
+
+/**
  * Confere um documento HTML contra as regras de "sem inline", de medição, de CSP, de âncoras, de destinos e de marcação de idioma.
  *
  * @param {string} html - documento HTML completo
@@ -306,7 +352,14 @@ export const verificarHtml = (html) => {
   // 3. Links e botões: âncoras com alvo e destinos externos sem repetição indevida.
   problemas.push(...conferirAncoras(tags), ...conferirDestinosDosBotoes(tags));
 
-  // 4. Marcação de idioma: só em página que declara `hreflang` (a 404, por exemplo, não precisa).
+  // 4. Página fora dos buscadores (a 404): o contrário da marcação de idioma. Não pode ter versão
+  // "oficial" nem marcação de compartilhamento, e o `hreflang` do seletor de idioma não conta.
+  if (ehNoindex(tags)) {
+    problemas.push(...conferirSemIndexacao(tags));
+    return problemas;
+  }
+
+  // 5. Marcação de idioma: só em página que declara `hreflang`.
   if (!tags.some(({ atributos }) => atributos.has("hreflang"))) {
     return problemas;
   }

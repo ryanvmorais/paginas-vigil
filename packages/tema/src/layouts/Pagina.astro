@@ -14,6 +14,10 @@
  * `preload` cobrem as fontes que aparecem no topo (Sora 800 e JetBrains Mono 400), para a troca de
  * fonte não deslocar o layout (RNF-03). Sem `<script>` nem `style=` aqui (RNF-01).
  *
+ * Com `indexavel={false}` (a página 404) a página sai fora dos buscadores e não tem versão
+ * "oficial": emite `<meta name="robots" content="noindex">` e omite `canonical`, `alternate`, `og:*` e
+ * `twitter:card`, que só fazem sentido numa página que se indexa e se compartilha (spec 006, ADR-7).
+ *
  * A medição liga só com um identificador válido em `PUBLIC_GA_MEASUREMENT_ID` (lido em tempo de
  * build): então o banner de consentimento é o primeiro filho do `<body>`, para o teclado e o leitor
  * de tela o encontrarem sem atravessar a página. Sem identificador (ou inválido) nada é renderizado
@@ -39,18 +43,35 @@ export interface Props {
   caminho: string;
   titulo: string;
   descricao: string;
-  /** Texto alternativo da imagem de compartilhamento (`og:image:alt`), no idioma da página. */
-  imagemSocialAlt: string;
+  /**
+   * Texto alternativo da imagem de compartilhamento (`og:image:alt`), no idioma da página;
+   * obrigatório se a página é indexável.
+   */
+  imagemSocialAlt?: string;
   /** Caminho ou URL da imagem de compartilhamento; o padrão é `/social-<idioma>.png`, de `public/`. */
   imagemSocial?: string;
+  /** `false` tira a página dos buscadores e do compartilhamento (404); o padrão é `true`. */
+  indexavel?: boolean;
 }
 
 // A imagem de compartilhamento tem sempre 1280 x 640 (um teste confere os arquivos de cada app).
 const LARGURA_IMAGEM = 1280;
 const ALTURA_IMAGEM = 640;
 
-const { produto, idioma, caminho, titulo, descricao, imagemSocialAlt } = Astro.props;
+const {
+  produto,
+  idioma,
+  caminho,
+  titulo,
+  descricao,
+  imagemSocialAlt,
+  indexavel = true,
+} = Astro.props;
 const imagemSocial = Astro.props.imagemSocial ?? `/social-${idioma}.png`;
+
+if (indexavel && imagemSocialAlt === undefined) {
+  throw new Error("Pagina.astro: `imagemSocialAlt` é obrigatório em página indexável.");
+}
 
 if (Astro.site === undefined) {
   throw new Error("Pagina.astro: defina `site` no astro.config.mjs para gerar as URLs absolutas.");
@@ -75,22 +96,28 @@ const idMedicao = validarIdMedicao(import.meta.env.PUBLIC_GA_MEASUREMENT_ID);
     <title>{titulo}</title>
     <meta name="description" content={descricao} />
     <meta name="color-scheme" content="light dark" />
-    <link rel="canonical" href={canonical} />
-    <link rel="alternate" hreflang={LANG.pt} href={urlNoIdioma("pt")} />
-    <link rel="alternate" hreflang={LANG.en} href={urlNoIdioma("en")} />
-    <link rel="alternate" hreflang="x-default" href={urlNoIdioma("en")} />
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content={titulo} />
-    <meta property="og:description" content={descricao} />
-    <meta property="og:url" content={canonical} />
-    <meta property="og:locale" content={OG_LOCALE[idioma]} />
-    <meta property="og:locale:alternate" content={OG_LOCALE[outro]} />
-    <meta property="og:image" content={urlImagem} />
-    <meta property="og:image:type" content="image/png" />
-    <meta property="og:image:width" content={String(LARGURA_IMAGEM)} />
-    <meta property="og:image:height" content={String(ALTURA_IMAGEM)} />
-    <meta property="og:image:alt" content={imagemSocialAlt} />
-    <meta name="twitter:card" content="summary_large_image" />
+    {indexavel ? (
+      <>
+        <link rel="canonical" href={canonical} />
+        <link rel="alternate" hreflang={LANG.pt} href={urlNoIdioma("pt")} />
+        <link rel="alternate" hreflang={LANG.en} href={urlNoIdioma("en")} />
+        <link rel="alternate" hreflang="x-default" href={urlNoIdioma("en")} />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content={titulo} />
+        <meta property="og:description" content={descricao} />
+        <meta property="og:url" content={canonical} />
+        <meta property="og:locale" content={OG_LOCALE[idioma]} />
+        <meta property="og:locale:alternate" content={OG_LOCALE[outro]} />
+        <meta property="og:image" content={urlImagem} />
+        <meta property="og:image:type" content="image/png" />
+        <meta property="og:image:width" content={String(LARGURA_IMAGEM)} />
+        <meta property="og:image:height" content={String(ALTURA_IMAGEM)} />
+        <meta property="og:image:alt" content={imagemSocialAlt ?? ""} />
+        <meta name="twitter:card" content="summary_large_image" />
+      </>
+    ) : (
+      <meta name="robots" content="noindex" />
+    )}
     <link rel="preload" href={sora800} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={jetbrainsMono400} as="font" type="font/woff2" crossorigin />
     {/* O favicon é um arquivo do app (`public/favicon.svg`): declará-lo evita o pedido de /favicon.ico */}
