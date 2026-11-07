@@ -70,6 +70,7 @@ packages/tema/        # tema e utilidades compartilhados pelos dois sites
   src/consentimento.ts # núcleo puro do consentimento: escolha, cookie, Consent Mode e gtag, tudo injetado
                       # (cada módulo .ts tem o teste ao lado, em *.test.ts)
   src/caminhos.ts     # troca o idioma e calcula o caminho da outra versão da página (links e seletor)
+  src/palavras.ts     # envolve cada palavra de um comando num span, para a linha não quebrar no hífen (Passos)
   src/textos.ts       # rótulos que o próprio tema emite (seletor de idioma, navegação, botão de copiar)
   src/layouts/        # Pagina.astro: casca da página (head, SEO bilíngue, cabeçalho, rodapé)
   src/componentes/    # blocos .astro compartilhados: Aviso, Botao, Cabecalho, ChamadaFinal, Comando,

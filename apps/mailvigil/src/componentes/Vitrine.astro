@@ -5,8 +5,9 @@
  * Segue o mockup aprovado da spec 002 (direção A, "Terminal primeiro"): cabeçalho, topo, terminal
  * com a saída real, passos, o relatório em HTML, o que ele responde e garante, o que ele não faz, a
  * chamada final e o rodapé. Os textos vêm de `textos.ts` e a saída do terminal de `terminais.ts`.
- * O convite ao DMARC Fácil (no bloco de limites e no rodapé) existe nos dois idiomas, cada um
- * apontando para a página do DMARC Fácil no mesmo idioma.
+ * O convite ao DMARC Fácil fica só no bloco de limites, onde há o contexto (quem ainda não publicou
+ * DMARC). O rodapé não o repete: o destino é o mesmo e a página dele só existe em português, aviso
+ * que mora no texto do convite.
  */
 import Botao from "@paginas-vigil/tema/componentes/Botao.astro";
 import Cabecalho from "@paginas-vigil/tema/componentes/Cabecalho.astro";
@@ -160,11 +161,7 @@ const grupos = Object.values(t.faz.grupos).map((grupo) => ({
     outroProduto={{ nome: "WebVigil", href: `${OUTRO_PRODUTO}${caminhoNoIdioma("/", idioma)}` }}
     idioma={idioma}
     caminho={caminho}
-  >
-    <a href={dmarcFacil.href} target="_blank" rel="noopener">
-      {dmarcFacil.rotulo}
-    </a>
-  </Rodape>
+  />
 </Pagina>
 
 <style>

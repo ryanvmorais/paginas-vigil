@@ -5,7 +5,13 @@
  * A numeração é verdadeira (é uma ordem de execução), por isso a lista é `<ol>`. Cada passo tem
  * título, texto, e um trecho de código opcional. O texto aceita `<code>` e entra por `set:html`
  * (texto nosso). O rótulo ("Passo", "Step") vem do site (RF-09).
+ *
+ * No trecho de código a linha só quebra nos espaços: cada palavra do comando fica inteira
+ * (`palavras.ts`), senão `--html` aparece partido em `--` e `html`. Uma palavra mais larga que o
+ * bloco ainda quebra por dentro, em vez de gerar rolagem lateral.
  */
+import { palavrasEmHtml } from "../palavras";
+
 export interface Props {
   passos: { titulo: string; texto: string; codigo?: string }[];
   /** Palavra antes do número, por exemplo "Passo". Aparece em maiúsculas. */
@@ -23,7 +29,7 @@ const { passos, rotuloPasso } = Astro.props;
       </span>
       <h3>{passo.titulo}</h3>
       <p set:html={passo.texto} />
-      {passo.codigo !== undefined && <div class="codigo">{passo.codigo}</div>}
+      {passo.codigo !== undefined && <div class="codigo" set:html={palavrasEmHtml(passo.codigo)} />}
     </li>
   ))}
 </ol>
@@ -79,6 +85,14 @@ const { passos, rotuloPasso } = Astro.props;
     font-size: var(--fs-codigo);
     overflow-wrap: anywhere;
     white-space: pre-wrap;
+  }
+
+  /* Palavra inteira: bloco em linha não quebra no hífen; se não couber, `anywhere` a parte. */
+  .codigo :global(.palavra) {
+    display: inline-block;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    vertical-align: top;
   }
 
   @media (min-width: 720px) {
