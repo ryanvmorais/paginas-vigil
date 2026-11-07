@@ -2,6 +2,7 @@
   "ci": {
     "collect": {
       "staticDistDir": "./apps/mailvigil/dist",
+      "url": ["/index.html", "/en/index.html"],
       "numberOfRuns": 3,
       "settings": {
         "formFactor": "mobile",

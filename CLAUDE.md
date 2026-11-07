@@ -162,7 +162,8 @@ test/                 # testes do repositório: impessoalidade.test.ts (ver "Con
   Erro: acessibilidade, boas práticas e SEO abaixo de 0,95, contraste, imagem sem dimensão, alvo de toque
   pequeno, erro no console, CLS acima de 0,1. Aviso: desempenho abaixo de 0,9 e peso acima de 500 KB. Não é
   check obrigatório. O `@lhci/cli` entra por `npx`, nunca como dependência (a árvore dele derruba o
-  `pnpm audit`).
+  `pnpm audit`). Cada JSON lista em `collect.url` só `/index.html` e `/en/index.html`: as 404 têm `noindex`
+  de propósito, e isso reprova a auditoria `is-crawlable` (SEO cai a 0,6). Página nova indexável entra na lista.
 - **Ruleset `proteger-main`:** PR obrigatório, só squash, check `qualidade` exigido. Nada de commit direto na
   `main`.
 - **Pre-commit** (`.githooks/pre-commit`): formatação, lint, typecheck e testes.
