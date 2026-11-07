@@ -2,9 +2,9 @@
  * @file Testes de impessoalidade: o que está versionado é escrito para quem clona o repositório.
  *
  * Nenhum arquivo versionado cita o mantenedor pelo nome, a não ser os de autoria e licença, nem
- * depende de comandos (skills), pastas ou rotinas que só existem na máquina de quem mantém o
- * projeto. Instrução e operação que só o mantenedor executa (conta, token, divulgação, pendência
- * de conferência) ficam fora do repositório. O papel vem no lugar do nome: "o mantenedor".
+ * depende de comandos (skills), pastas, documentos ou rotinas que só existem na máquina de quem
+ * mantém o projeto. Instrução e operação que só o mantenedor executa (conta, token, divulgação,
+ * pendência de conferência) ficam fora do repositório. O papel vem no lugar do nome: "o mantenedor".
  */
 
 import { execFileSync } from "node:child_process";
@@ -113,6 +113,19 @@ const FLUXO_PESSOAL =
 // deploy mora na memória do projeto, não em spec, README ou comentário.
 const PENDENCIA_INTERNA = /\*\*(?:Pendente|Pendência|Depois do deploy|Só depois do deploy)\b/;
 
+// Documento ou ferramenta fora do repositório: quem clona não os alcança, então nada versionado
+// pode depender deles.
+const REFERENCIA_PRIVADA = /guia de operação|\bArtifact\b/;
+
+// Outro projeto do autor, citado como contexto de uma decisão ("no modelo do ...", "o site irmão").
+// O DMARC Fácil só aparece onde o MailVigil o apresenta de propósito, como convite com link: o
+// código do site, o item de rodapé do tema (spec 002) e a página do MailVigil (spec 005).
+const OUTRO_PROJETO = /DMARC F[áa]cil|dmarc-facil|site irmão/i;
+const PODEM_CITAR_O_DMARC_FACIL = (arquivo: string): boolean =>
+  arquivo.startsWith("apps/mailvigil/src/") ||
+  arquivo.startsWith("specs/002-tema/") ||
+  arquivo.startsWith("specs/005-pagina-mailvigil/");
+
 describe("impessoalidade: ferramentas e rotina pessoais", () => {
   it.skipIf(semGit)("nenhum arquivo cita skills pessoais", () => {
     const alvos = comTexto();
@@ -137,5 +150,18 @@ describe("impessoalidade: ferramentas e rotina pessoais", () => {
   it.skipIf(semGit)("nenhum arquivo traz marcador de pendência interna", () => {
     // Pendência e lacuna conhecida ficam na memória do projeto; documente só o limite factual.
     expect(procurar(comTexto(), PENDENCIA_INTERNA)).toEqual([]);
+  });
+
+  it.skipIf(semGit)("nenhum arquivo depende de documento ou ferramenta privada", () => {
+    // Descreva o comportamento no próprio arquivo (por exemplo, os dois caminhos de volta do
+    // deploy), em vez de apontar para um documento ou ferramenta fora do repositório.
+    expect(procurar(comTexto(), REFERENCIA_PRIVADA)).toEqual([]);
+  });
+
+  it.skipIf(semGit)("nenhum arquivo cita outro projeto do autor como contexto", () => {
+    const alvos = comTexto().filter((arquivo) => !PODEM_CITAR_O_DMARC_FACIL(arquivo));
+
+    // Diga o fato e o motivo da escolha, sem "no modelo do ..." nem a história de outro projeto.
+    expect(procurar(alvos, OUTRO_PROJETO)).toEqual([]);
   });
 });

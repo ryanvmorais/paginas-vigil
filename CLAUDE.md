@@ -165,7 +165,9 @@ test/                 # testes do repositório: impessoalidade.test.ts (ver "Con
   mantenedor (só em autoria e licença), com papéis ("o mantenedor") no lugar de pessoas, e sem apontar
   para comandos que só existem na máquina de quem mantém. `test/impessoalidade.test.ts` guarda isso em
   todo arquivo versionado: o nome do mantenedor, skills pessoais, caminhos da máquina dele, padrões do
-  fluxo pessoal dele e marcadores de pendência interna.
+  fluxo pessoal dele, marcadores de pendência interna, referências a documento ou ferramenta fora do
+  repositório e outro projeto do autor citado como contexto (o convite do MailVigil a esse projeto, com
+  link, é a exceção).
 - **Commits:** Conventional Commits. Os PRs são integrados com squash.
 
 ## Qualidade e automação

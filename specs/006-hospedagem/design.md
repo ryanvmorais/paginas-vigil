@@ -278,13 +278,14 @@ dois, e os riscos estão registrados.
 ### ADR-2 — O endereço tem uma fonte: o `site` do `astro.config.mjs`
 
 **Decisão.** O `site` de cada `astro.config.mjs` é o endereço público. O `canonical` e o `hreflang` já saem
-dele; o gerador o usa no `robots.txt` e no sitemap; um teste compara a rota do `wrangler.json`, o `deploy.yml`
-e os limites do Lighthouse de produção com ele.
+dele; o gerador o usa no `robots.txt` e no sitemap; um teste compara a rota do `wrangler.json` e os limites
+do Lighthouse de produção com ele.
 **Alternativas.** A rota do `wrangler.json` como fonte (o Astro não a lê, e o `canonical` passaria a depender
 de um arquivo que ele não conhece); repetir o texto em cada arquivo sem teste (diverge em silêncio).
 **Porquê.** O `site` já alimenta toda URL absoluta das páginas; os outros arquivos só precisam concordar. O
 teste faz esse papel.
-**Trade-off.** O `wrangler.json` e o workflow repetem o texto do domínio, e o teste é quem os liga ao `site`.
+**Trade-off.** O `wrangler.json` e os limites do Lighthouse de produção repetem o texto do domínio, e o teste é
+quem os liga ao `site`. O workflow não repete endereço: a conferência o lê da rota do `wrangler.json`.
 
 ### ADR-3 — Cabeçalhos gerados no build, com a CSP de `politicaCsp`
 
@@ -336,15 +337,15 @@ conferência espera o domínio responder antes de julgar.
 que está no ar passaria a depender de lembrar).
 **Porquê.** É o que prova RF-01 a RF-04 e RF-06 no mundo real: o `_headers` pode estar certo no arquivo e a
 plataforma não aplicá-lo na 404; o HTML pode estar certo no repositório e a zona injetar um script. A espera
-vem do primeiro deploy de um site irmão, que falhou só porque o domínio personalizado e o certificado ainda não
-estavam de pé quando a conferência rodou.
+existe porque, no primeiro deploy, o domínio personalizado e o certificado podem não estar de pé quando a
+conferência roda.
 **Trade-off.** O visitante já vê o deploy ruim enquanto o run avisa. Aceito para dois sites de uma página; o
 caminho de volta é o do ADR-9.
 
 ### ADR-6 — Nada injetado: comparar os bytes e desligar o que mexe na zona
 
 **Decisão.** A conferência compara o hash do HTML, do JavaScript, do CSS, da fonte, do `robots.txt` e do
-`sitemap.xml` servidos com o do `dist` publicado. O guia de operação do mantenedor manda conferir, para os
+`sitemap.xml` servidos com o do `dist` publicado. Na configuração da zona, ficam desligados, para os
 dois subdomínios, a Web Analytics da Cloudflare, o Rocket Loader, a ofuscação de e-mail e qualquer otimização
 que reescreva HTML ou JavaScript, sem alterar o que vale para o resto da zona.
 **Alternativas.** Confiar que o plano gratuito não injeta nada (a Web Analytics pode ser ligada pelo painel sem
@@ -352,7 +353,7 @@ commit); olhar o HTML no navegador (a injeção às vezes depende do agente).
 **Porquê.** "Sem rastreador além do GA4 consentido" é regra do projeto, e a CSP bloquearia um `<script>`
 injetado mas quebraria a página em silêncio. A comparação troca promessa por fato, a cada deploy.
 **Trade-off.** A conferência vê o que o runner do GitHub recebe, que pode diferir do que um navegador recebe. Por
-isso o guia também manda abrir cada página uma vez no navegador e olhar a rede, e o Lighthouse (que usa um
+isso convém abrir cada página uma vez no navegador e olhar a rede, e o Lighthouse (que usa um
 navegador de verdade) acusa violação de CSP no console.
 
 ### ADR-7 — Descoberta gerada no build, sem dependência nova
@@ -380,14 +381,14 @@ impede o Lighthouse de baixar o arquivo, e quem o confere é a conferência do A
 
 ### ADR-9 — Caminho de volta documentado e testado
 
-**Decisão.** Há dois caminhos de volta, descritos no guia de operação do mantenedor: **(1)** reverter o commit
+**Decisão.** Há dois caminhos de volta: **(1)** reverter o commit
 por PR e deixar o deploy automático republicar; **(2)** emergência, `wrangler rollback` (ou o botão de rollback
-do painel) para a versão anterior de um site. Um rollback real é feito e desfeito uma vez, antes de divulgar
-os endereços.
+do painel) para a versão anterior de um site. Um rollback real é feito e desfeito uma vez, antes de tornar
+os sites públicos.
 **Alternativas.** Reverter sozinho (ADR-5); nenhum caminho documentado.
 **Porquê.** Um site ruim no ar precisa de uma saída conhecida, e a saída só é confiável se já foi usada.
 **Trade-off.** O rollback pelo painel deixa o `main` e o que está no ar diferentes até alguém reverter o commit;
-o guia manda fazer o PR de reversão logo depois.
+o PR de reversão deve sair logo depois.
 
 ## Impacto
 
@@ -419,8 +420,8 @@ o guia manda fazer o PR de reversão logo depois.
   do `verificar-dist` falha se faltar. **Conferido na Etapa 2 (2026-11-07): o Astro 7 emite `en/404/index.html`**
   (e `404.html` na raiz), então o desvio vale: o gerador da Etapa 3 copia `en/404/index.html` para
   `en/404.html`, e a regra 8 exige o arquivo copiado.
-- **Token com permissão curta para criar o domínio.** Mitigação: o primeiro deploy é acompanhado; o guia diz
-  como ampliar o escopo o mínimo necessário.
+- **Token com permissão curta para criar o domínio.** Mitigação: o primeiro deploy é acompanhado, e o
+  escopo se amplia só o mínimo necessário.
 - **Zona com recursos automáticos ligados** (Rocket Loader, ofuscação de e-mail, Web Analytics). Mitigação: ADR-6.
   Já se sabe que o `robots.txt` da zona recebe na frente um bloco gerenciado da Cloudflare; a conferência o aceita.
 - **Identificador de medição vazio ou de teste no deploy.** O site sairia sem banner, ou com um identificador
@@ -430,7 +431,7 @@ o guia manda fazer o PR de reversão logo depois.
 - **`workflow_run` e segredo.** Mitigação: o filtro `push` e `head_repository`, o ambiente restrito à `main` e
   um teste que falha se o deploy aceitar `pull_request`.
 - **Deploy sem o ambiente pronto.** Se o PR do workflow for mesclado antes de o token, o ambiente e a variável
-  existirem, o primeiro run falha. Mitigação: a Etapa 5 do `tasks.md` (preparação do mantenedor) vem antes do
+  existirem, o primeiro run falha. Mitigação: a preparação do ambiente (Etapa 5 do `tasks.md`) vem antes do
   merge do PR do workflow.
 - **`wrangler` e a documentação mudam.** Mitigação: versão fixa, revisão manual mensal, conferência a cada deploy.
 - **HSTS publicado é difícil de desfazer.** Mitigação: um ano, sem `includeSubDomains` nem `preload`.
@@ -450,8 +451,8 @@ o guia manda fazer o PR de reversão logo depois.
 - `test/workflow-deploy.test.ts`: toda `uses:` por SHA; `runs-on: ubuntu-26.04`; gatilhos só `workflow_run` do
   `CI` na `main` e `workflow_dispatch` (nenhum `pull_request`); condição de sucesso, `push` e repositório;
   ambiente `producao`; `permissions` só `contents: read`; o segredo só no job de deploy; `WRANGLER_VERSION`
-  fixa; `LHCI_VERSION` igual à do `lighthouse.yml`; concorrência sem cancelamento; o domínio do workflow igual
-  ao `site`.
+  fixa; `LHCI_VERSION` igual à do `lighthouse.yml`; concorrência sem cancelamento; cada site da matriz tem
+  `wrangler.json`, `astro.config.mjs` e os dois limites de produção.
 - `test/lighthouse-producao.test.ts`: `collect.url` igual às duas URLs do `site`; as asserções iguais às dos
   limites de origem; os de origem listam só as duas páginas indexáveis.
 - `scripts/conferir-hospedagem.test.mjs`: `lerCabecalhosEsperados` e `compararCabecalhos` com `_headers`
