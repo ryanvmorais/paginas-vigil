@@ -19,8 +19,8 @@ A tela nova (a 404) só vira código depois do mockup aprovado (Etapa 1).
 
 Etapa sem código de interface: o que ela entrega é a decisão.
 
-- [ ] Montar o mockup da 404 num Artifact, em 390 e 1280 px, português e inglês, com a variação clara e escura, a partir da seção "Página 404" do `design.md` (2 ou 3 alternativas, uma recomendada). — RF-03
-- [ ] O mantenedor aprova uma alternativa; a decisão, o motivo e o rascunho final entram na seção "Página 404" do `design.md` (sem link de Artifact privado). — RF-03
+- [x] Montar o mockup da 404 num Artifact, em 390 e 1280 px, português e inglês, com a variação clara e escura, a partir da seção "Página 404" do `design.md` (2 ou 3 alternativas, uma recomendada). — RF-03
+- [x] O mantenedor aprova uma alternativa; a decisão, o motivo e o rascunho final entram na seção "Página 404" do `design.md` (sem link de Artifact privado). — RF-03
 
 ## Etapa 2 — Página 404
 
