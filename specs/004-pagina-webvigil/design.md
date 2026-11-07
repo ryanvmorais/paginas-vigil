@@ -181,8 +181,8 @@ relatório no tamanho em que a página a exibe:
   que o texto alternativo descreve.
 - Quatro arquivos, como hoje: claro e escuro, desktop e celular. O relatório vem da versão publicada mais
   recente da ferramenta, num scan ativo do app de teste do repositório (`scripts/serve-fixture-app.py`, porta
-  9100), pelo comando mostrado no terminal da página. Esse scan escreve no app de teste e só roda com a
-  autorização do mantenedor na hora.
+  9100), pelo comando mostrado no terminal da página. Esse scan escreve no app de teste, então roda só
+  contra ele.
 - A data da geração e o aviso do orçamento de requisições aparecem no relatório; ficam no recorte e são
   explicados na legenda ou saem do recorte, o que sair do texto aprovado (RF-04).
 - `width` e `height` vêm do `ImageMetadata`, como hoje, para não haver deslocamento de layout (RNF-04).

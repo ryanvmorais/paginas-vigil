@@ -242,8 +242,8 @@ Nenhuma. O desenho do banner (RF-02) é decisão de interface e passa pelo mocku
    (2026-11-05).
 2. Identificador em `PUBLIC_GA_MEASUREMENT_ID`; vazio significa nenhuma medição.
 3. Script de consentimento em arquivo externo; sem `unsafe-inline` na CSP.
-4. A medição não é ligada na zona inteira por produto de analytics da hospedagem: o MailVigil convive
-   com a promessa "sem rastreador" do DMARC Fácil, que é outro projeto e outro domínio.
+4. A medição não é ligada na zona inteira por produto de analytics da hospedagem: a zona também serve
+   projetos que prometem não rastrear o visitante, e a medição de um site não pode alcançá-los.
 5. Política de privacidade única, a do site principal, com link no banner e no rodapé; este repositório
    não tem página de política. O controlador e a retenção do GA4 são os que a política dele já declara
    (2026-11-06). Princípio DRY: toda informação sobre cookies (ferramenta, finalidade, retenção, direitos,

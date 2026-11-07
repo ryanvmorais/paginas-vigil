@@ -9,8 +9,9 @@ origin: conception
 # 005 — Página do MailVigil: inventário de fatos
 
 Registro da conferência de RF-02 e RF-03 (Etapa 0): cada afirmação factual de `apps/mailvigil/src/textos.ts` e
-`terminais.ts` contra a ferramenta publicada. As correções propostas aqui só entram nos textos depois da
-revisão bloco a bloco pelo mantenedor (RF-04); até lá, os textos da página ficam como estão.
+`terminais.ts` contra a ferramenta publicada. As correções propostas aqui foram revistas bloco a bloco
+pelo mantenedor (RF-04) e aplicadas nos textos; o que cada uma virou está no `tasks.md` (Etapa 3). As
+observações descrevem a página no momento da conferência.
 
 ## Versão consultada e método
 
@@ -29,7 +30,7 @@ revisão bloco a bloco pelo mantenedor (RF-04); até lá, os textos da página f
   fluxo UTF-8. A conferência dos acentos rodou o mesmo código com `sys.platform` tratado como não Windows, que
   é o caso de um terminal UTF-8; o texto que sai é o do catálogo acentuado da própria ferramenta.
 
-Resultado: **confere**, **corrigida** (a proposta está na coluna de observação, à espera da revisão) ou
+Resultado: **confere**, **corrigida** (a proposta está na coluna de observação e foi aplicada na revisão do texto) ou
 **removida**. Nenhuma afirmação precisou ser removida.
 
 ## Instalação e comandos

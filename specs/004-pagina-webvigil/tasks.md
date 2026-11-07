@@ -19,8 +19,8 @@ o banner.
 
 A ordem segue o acordado: a estrutura fecha primeiro (Etapas 0 a 4), depois entram as imagens e a saída do
 terminal (Etapa 5), e só então os textos são revistos e aprovados (Etapa 6), porque a escala e a largura mudam a
-quebra das linhas. A Etapa 5 roda um scan ativo no app de teste da ferramenta e só começa com a autorização do
-mantenedor na hora.
+quebra das linhas. A Etapa 5 roda um scan ativo no app de teste da ferramenta, que recebe escrita, e só contra
+ele.
 
 ## Etapa 0 — Spike e escala tipográfica
 
@@ -64,7 +64,7 @@ mantenedor na hora.
 - [x] `packages/tema/src/componentes/Terminal.astro`: a pista de rolagem no celular (gradientes com `background-attachment: local` e `scroll`, abaixo de 720 px). Conferir no celular real que a sombra aparece só no lado em que há linha escondida. — RF-07
 - [x] Conferir em Chrome real, nos dois sites e nos dois idiomas: os textos ocupam a caixa, a seção do relatório empilha em 360 a 1280 px, a caixa "O que ele não faz" empilha, e o MailVigil continua correto. — RF-08, RNF-02
 - [x] Portão de qualidade. — Anotar o resultado real.
-  - **Resultado (2026-11-06):** `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test` (114 testes) e `pnpm build` verdes, e o build dos dois sites com `G-TESTE12345` também. Conferido em Chrome real no build servido, com a página em iframe de 360, 390, 430, 768 e 1280 px, nos dois sites e nos dois idiomas: sem rolagem horizontal; no WebVigil a abertura, a figura e o aviso ocupam a coluna inteira (305, 335, 375, 657 e 1024 px) e vêm na ordem abertura, figura, aviso; "O que ele não faz" empilha em todas as larguras (texto na largura da caixa); no MailVigil o apoio, a abertura, a figura e o limite seguem a mesma medida. Comando sem botão: preenchimento `4px 14px` e `user-select: all`; com botão, `4px 4px 4px 14px`. Terminal no celular: quatro camadas de fundo, sombra dos dois lados no meio da rolagem e só à direita no início. **Pendente no celular real (mantenedor):** ver a sombra do terminal e o comando em endereço de rede local (HTTP), que o Chrome do computador só simula.
+  - **Resultado (2026-11-06):** `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test` (114 testes) e `pnpm build` verdes, e o build dos dois sites com `G-TESTE12345` também. Conferido em Chrome real no build servido, com a página em iframe de 360, 390, 430, 768 e 1280 px, nos dois sites e nos dois idiomas: sem rolagem horizontal; no WebVigil a abertura, a figura e o aviso ocupam a coluna inteira (305, 335, 375, 657 e 1024 px) e vêm na ordem abertura, figura, aviso; "O que ele não faz" empilha em todas as larguras (texto na largura da caixa); no MailVigil o apoio, a abertura, a figura e o limite seguem a mesma medida. Comando sem botão: preenchimento `4px 14px` e `user-select: all`; com botão, `4px 4px 4px 14px`. Terminal no celular: quatro camadas de fundo, sombra dos dois lados no meio da rolagem e só à direita no início. A sombra do terminal e o comando em endereço de rede local (HTTP), que o Chrome do computador só simula, foram conferidos depois no celular real (Etapa 7).
 
 ## Etapa 2 — Menu do celular
 
@@ -101,7 +101,7 @@ mantenedor na hora.
 
 ## Etapa 5 — Capturas e saída do terminal regeradas
 
-Só começa com a autorização do mantenedor na hora, porque o scan ativo escreve no app de teste.
+O scan ativo escreve no app de teste, então roda só contra ele.
 
 - [x] Preparar o ambiente: instalar a versão publicada mais recente do WebVigil (`pipx` ou `uv`), registrar o número da versão aqui, subir o app de teste do repositório da ferramenta (`scripts/serve-fixture-app.py`, porta 9100) e rodar o comando mostrado no terminal da página (`webvigil scan http://127.0.0.1:9100 --mode active --authorized-by "trying WebVigil"`), gerando o JSON e o relatório HTML. — RF-07 Feito: WebVigil 1.2.0 (publicado no PyPI), instalado num ambiente isolado; app de teste do repositório da ferramenta na porta 9100; scan ativo rodado três vezes (terminal, JSON e HTML), as três com a mesma contagem: 4 críticos, 15 altos, 9 médios, 15 baixos e 2 informativos, 50 páginas, aviso do orçamento de 650 requisições.
 - [x] `apps/webvigil/src/terminais.ts`: a saída real do scan, com a linha do achado crítico (injeção de comando) no trecho, na mesma contagem do relatório; conferir que a saída cabe nas faixas do `terminal.css` (120 caracteres de comando, 80 linhas). — RF-07, ADR-5 Feito: o trecho ganhou a linha do achado crítico (injeção de comando no parâmetro `host`), na ordem real da saída, com `…` entre os grupos; a tabela é a da saída real. Cabe nas faixas do `terminal.css`.
@@ -146,7 +146,7 @@ Só começa com a autorização do mantenedor na hora, porque o scan ativo escre
   - **Resultado (2026-11-06):** axe-core em 80 combinações (dois sites, dois idiomas, dois temas, as larguras), 0 violações. NVDA 2026.3 no Chrome, na página do WebVigil em português e em inglês: a ordem dos títulos, o Tab (links e botões do banner, cabeçalho, menu, seletor de idioma, `Copiar`, terminal, rodapé e `Gerenciar Cookies`) e o menu do celular (anunciado como botão recolhido e expandido, com a lista de quatro links) saem com nome e papel corretos.
 - [x] Lighthouse CI nos quatro perfis, dentro dos limites do projeto; peso e desempenho das imagens novas. — RNF-02, RNF-04
 - [x] `verificar-dist` com e sem medição, nos dois sites: sem inline, sem `style=`, dentro da CSP, âncoras e destinos. — RNF-01
-- [x] `/auditoria-interface` nos arquivos tocados, e conferência das regras de desenho (rótulo do botão no centro, proporção, alinhamento). — RNF-02
+- [x] Auditoria de interface nos arquivos tocados, e conferência das regras de desenho (rótulo do botão no centro, proporção, alinhamento). — RNF-02
 - [x] Documentação: `CLAUDE.md` (lista de componentes e scripts, o `menu.ts`, a escala), `docs/stack.md`, os dois READMEs, e `specs/README.md` com a linha da 004 em `concluído`. — RNF-05
   - **Resultado (2026-11-06):** `CLAUDE.md` e `docs/stack.md` descrevem a escala tipográfica (`--fs-*`); a lista de componentes e scripts e o `menu.ts` já estavam em dia; os READMEs não mudam, porque o status "em construção" segue verdadeiro; `specs/README.md` com a 004 em `concluído`.
 - [x] Marcar a spec como `concluído` (requisitos, design e tasks) e conferir o teste de impessoalidade. — RNF-05
