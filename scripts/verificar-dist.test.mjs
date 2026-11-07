@@ -10,7 +10,15 @@ import { join } from "node:path";
 
 import { afterEach, describe, expect, it } from "vitest";
 
-import { arquivosDeMarca, verificarHtml, verificarPasta } from "./verificar-dist.mjs";
+import { politicaCsp } from "./csp.mjs";
+import { montarCabecalhos, montarRobots, montarSitemap } from "./hospedagem.mjs";
+import {
+  arquivosDeMarca,
+  verificarHospedagem,
+  verificarHospedagemPasta,
+  verificarHtml,
+  verificarPasta,
+} from "./verificar-dist.mjs";
 
 // Cabeça completa de uma página bilíngue: o que o `Pagina.astro` emite.
 const CABECA_BILINGUE = `
@@ -519,5 +527,195 @@ describe("verificarHtml: destinos externos dos botões (RF-06)", () => {
       corpo: `<h2 id="a"></h2>${botao("#a")}${botao("#a")}`,
     });
     expect(verificarHtml(html)).toEqual([]);
+  });
+});
+
+describe("verificarHospedagem: regra 8 (RF-02, RF-03, RF-07)", () => {
+  const SITE = "https://exemplo.test";
+  const NOINDEX = '<meta name="robots" content="noindex">';
+
+  // As duas páginas iniciais, com o `canonical` e o trio de `hreflang` que o layout emite.
+  const inicial = (caminho, extra = {}) => {
+    const proprio = caminho === "" ? `${SITE}/` : `${SITE}/en/`;
+    const cabeca =
+      `<link rel="canonical" href="${proprio}">` +
+      `<link rel="alternate" hreflang="pt-BR" href="${SITE}/">` +
+      `<link rel="alternate" hreflang="en" href="${SITE}/en/">` +
+      `<link rel="alternate" hreflang="x-default" href="${SITE}/en/">` +
+      '<meta property="og:locale" content="pt_BR">' +
+      `<meta property="og:image" content="${SITE}/social-pt.png">`;
+    return pagina({
+      cabeca: (extra.cabeca ?? "") + cabeca,
+      corpo: extra.corpo ?? "",
+    });
+  };
+
+  // A página inicial no modo com medição: as três peças do consentimento mais a marcação de idioma.
+  const inicialComMedicao = () =>
+    inicial("", { cabeca: SCRIPT_CONSENTIMENTO, corpo: BANNER + CONTROLE });
+
+  // Um build coerente, sem medição; cada teste muda uma peça.
+  const build = (mudancas = {}) => ({
+    cabecalhos: montarCabecalhos({ medicao: false }),
+    robots: montarRobots(SITE),
+    sitemap: montarSitemap(SITE),
+    ...mudancas,
+    paginas: {
+      "index.html": inicial(""),
+      "en/index.html": inicial("en/"),
+      "404.html": pagina({ cabeca: NOINDEX }),
+      "en/404.html": pagina({ cabeca: NOINDEX }),
+      ...mudancas.paginas,
+    },
+  });
+
+  it("aceita o build coerente, sem medição", () => {
+    expect(verificarHospedagem(build())).toEqual([]);
+  });
+
+  it("aceita o build coerente, com medição", () => {
+    const coerente = build({
+      cabecalhos: montarCabecalhos({ medicao: true }),
+      paginas: { "index.html": inicialComMedicao() },
+    });
+    expect(verificarHospedagem(coerente)).toEqual([]);
+  });
+
+  it("recusa o build sem o _headers", () => {
+    expect(verificarHospedagem(build({ cabecalhos: undefined }))).toEqual(["falta _headers"]);
+  });
+
+  it("recusa o build sem robots.txt nem sitemap.xml", () => {
+    expect(verificarHospedagem(build({ robots: undefined, sitemap: undefined }))).toEqual([
+      "falta robots.txt",
+      "falta sitemap.xml",
+    ]);
+  });
+
+  it("recusa a CSP de outro modo: _headers com medição num HTML sem medição", () => {
+    const problemas = verificarHospedagem(
+      build({ cabecalhos: montarCabecalhos({ medicao: true }) }),
+    );
+    expect(problemas).toEqual([expect.stringContaining("a CSP difere")]);
+  });
+
+  it("recusa a CSP de outro modo: _headers sem medição num HTML com medição", () => {
+    const problemas = verificarHospedagem(
+      build({ paginas: { "index.html": inicialComMedicao() } }),
+    );
+    expect(problemas).toEqual([expect.stringContaining("a CSP difere")]);
+  });
+
+  it("recusa mais de uma linha de CSP", () => {
+    const linhaCsp = montarCabecalhos({ medicao: false }).split("\n")[1];
+    const cabecalhos = `${build().cabecalhos}/outra\n${linhaCsp}\n`;
+    expect(verificarHospedagem(build({ cabecalhos }))).toEqual([
+      expect.stringContaining("2 linhas de Content-Security-Policy"),
+    ]);
+  });
+
+  it("recusa unsafe-inline no _headers", () => {
+    const csp = politicaCsp({ medicao: false }).cabecalho;
+    const cabecalhos = build().cabecalhos.replace(csp, `${csp}; script-src 'unsafe-inline'`);
+    const problemas = verificarHospedagem(build({ cabecalhos }));
+    expect(problemas).toContainEqual(expect.stringContaining("unsafe-"));
+  });
+
+  it("recusa o _headers sem um cabeçalho de segurança", () => {
+    const cabecalhos = build()
+      .cabecalhos.split("\n")
+      .filter((linha) => !linha.includes("Referrer-Policy"))
+      .join("\n");
+    expect(verificarHospedagem(build({ cabecalhos }))).toEqual([
+      expect.stringContaining("Referrer-Policy"),
+    ]);
+  });
+
+  it("recusa o sitemap com uma URL a mais", () => {
+    const sitemap = montarSitemap(SITE).replace(
+      "</urlset>",
+      `<url><loc>${SITE}/outra/</loc></url></urlset>`,
+    );
+    expect(verificarHospedagem(build({ sitemap }))).toEqual([
+      expect.stringContaining(`${SITE}/outra/`),
+    ]);
+  });
+
+  it("recusa o sitemap sem uma das páginas", () => {
+    const sitemap = montarSitemap(SITE).replace(
+      /<url>\s*<loc>[^<]*\/en\/<\/loc>[\s\S]*?<\/url>/,
+      "",
+    );
+    expect(verificarHospedagem(build({ sitemap }))).toEqual([expect.stringContaining("sem a URL")]);
+  });
+
+  it("recusa o sitemap com hreflang diferente do que a página declara", () => {
+    const sitemap = montarSitemap(SITE).replaceAll(
+      `hreflang="x-default" href="${SITE}/en/"`,
+      `hreflang="x-default" href="${SITE}/"`,
+    );
+    const problemas = verificarHospedagem(build({ sitemap }));
+    expect(problemas).toHaveLength(2);
+    expect(problemas[0]).toContain("hreflang");
+  });
+
+  it("recusa o robots.txt sem a linha do sitemap ou com o domínio errado", () => {
+    expect(verificarHospedagem(build({ robots: "User-agent: *\nAllow: /\n" }))).toEqual([
+      expect.stringContaining("Sitemap"),
+    ]);
+    const outro = montarRobots("https://outro.test");
+    expect(verificarHospedagem(build({ robots: outro }))).toEqual([
+      expect.stringContaining(`${SITE}/sitemap.xml`),
+    ]);
+  });
+
+  it("recusa o robots.txt que bloqueia o site", () => {
+    const robots = `${montarRobots(SITE)}\nUser-agent: *\nDisallow: /\n`;
+    expect(verificarHospedagem(build({ robots }))).toEqual([expect.stringContaining("Disallow")]);
+  });
+
+  it("recusa o build sem 404.html ou sem en/404.html", () => {
+    expect(verificarHospedagem(build({ paginas: { "404.html": undefined } }))).toEqual([
+      "falta 404.html",
+    ]);
+    expect(verificarHospedagem(build({ paginas: { "en/404.html": undefined } }))).toEqual([
+      "falta en/404.html",
+    ]);
+  });
+
+  it("recusa a 404 sem noindex", () => {
+    const problemas = verificarHospedagem(build({ paginas: { "404.html": pagina() } }));
+    expect(problemas).toEqual([expect.stringContaining("404.html sem <meta")]);
+  });
+
+  it("recusa a 404 com canonical", () => {
+    const html = pagina({
+      cabeca: `${NOINDEX}<link rel="canonical" href="${SITE}/404.html">`,
+    });
+    const problemas = verificarHospedagem(build({ paginas: { "en/404.html": html } }));
+    expect(problemas).toEqual([expect.stringContaining("en/404.html: página noindex com")]);
+  });
+});
+
+describe("verificarHospedagemPasta", () => {
+  const pastas = [];
+  afterEach(async () => {
+    await Promise.all(pastas.splice(0).map((p) => rm(p, { recursive: true, force: true })));
+  });
+
+  it("lê os arquivos do disco e acusa o que falta", async () => {
+    const pasta = await mkdtemp(join(tmpdir(), "verificar-hospedagem-"));
+    pastas.push(pasta);
+    await writeFile(join(pasta, "_headers"), montarCabecalhos({ medicao: false }));
+    const problemas = await verificarHospedagemPasta(pasta);
+    expect(problemas).toEqual(
+      expect.arrayContaining([
+        "falta robots.txt",
+        "falta sitemap.xml",
+        "falta index.html",
+        "falta 404.html",
+      ]),
+    );
+    expect(problemas).not.toContain("falta _headers");
   });
 });

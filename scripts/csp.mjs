@@ -20,6 +20,22 @@ const CONEXAO_GOOGLE = [
   "https://*.googletagmanager.com",
 ];
 
+// Formato do identificador do GA4; é o mesmo de `validarIdMedicao` (packages/tema/src/medicao.ts),
+// repetido aqui porque estes scripts rodam em Node puro, sem importar TypeScript do tema. Um teste
+// garante que as duas definições concordam.
+const FORMATO_ID_MEDICAO = /^G-[A-Z0-9]{10}$/;
+
+/**
+ * Diz se um identificador de medição tem o formato do GA4 (`G-` e dez maiúsculas ou dígitos).
+ *
+ * É a regra que decide o modo de um build: só um identificador válido liga a medição. O gerador da
+ * hospedagem e o `verificar-dist` usam esta função, para não terem cada um a sua cópia.
+ *
+ * @param {string | undefined} id - valor lido do ambiente; vazio e ausente são aceitos como entrada
+ * @returns {boolean} `true` se o identificador liga a medição
+ */
+export const medicaoValida = (id) => typeof id === "string" && FORMATO_ID_MEDICAO.test(id);
+
 /**
  * Monta a política de um modo.
  *

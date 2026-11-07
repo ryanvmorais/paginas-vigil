@@ -8,7 +8,8 @@
 
 import { describe, expect, it } from "vitest";
 
-import { politicaCsp, urlPermitida } from "./csp.mjs";
+import { validarIdMedicao } from "../packages/tema/src/medicao";
+import { medicaoValida, politicaCsp, urlPermitida } from "./csp.mjs";
 
 const DIRETIVAS_FECHADAS = [
   "default-src",
@@ -153,5 +154,39 @@ describe("urlPermitida", () => {
 
   it("cai em default-src quando a diretiva não existe", () => {
     expect(urlPermitida(semMedicao, "frame-src", "/a")).toBe(false);
+  });
+});
+
+describe("medicaoValida", () => {
+  // O que `validarIdMedicao` do tema aceita e recusa: as duas definições do formato têm de concordar.
+  const entradas = [
+    "G-ABC1234567",
+    "G-0123456789",
+    "G-TESTE12345",
+    "G-abc1234567",
+    "G-ABC123456",
+    "G-ABC12345678",
+    "g-ABC1234567",
+    "ABC1234567",
+    " G-ABC1234567",
+    "G-ABC1234567\n",
+    "G-ABC123456-",
+    "",
+    undefined,
+  ];
+
+  it("aceita o formato G- e dez maiúsculas ou dígitos", () => {
+    expect(medicaoValida("G-ABC1234567")).toBe(true);
+    expect(medicaoValida("G-0123456789")).toBe(true);
+  });
+
+  it("recusa vazio, ausente e fora do formato", () => {
+    for (const recusada of [undefined, "", "G-abc1234567", "G-ABC123456", "G-ABC12345678"]) {
+      expect(medicaoValida(recusada)).toBe(false);
+    }
+  });
+
+  it.each(entradas)("concorda com validarIdMedicao do tema em %j", (entrada) => {
+    expect(medicaoValida(entrada)).toBe(validarIdMedicao(entrada) !== undefined);
   });
 });

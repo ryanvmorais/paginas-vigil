@@ -2,7 +2,7 @@
  * @file Confere o HTML que o build do Astro gerou: sem inline, com a marcação de idioma, com a medição
  * coerente e com todo recurso dentro da política de segurança de conteúdo (CSP).
  *
- * Sete regras (mais a da página `noindex`), todas guardadas aqui para não dependerem de alguém
+ * Oito regras (mais a da página `noindex`), todas guardadas aqui para não dependerem de alguém
  * lembrar (specs 002, 003, 004 e 006):
  *
  * 1. **Sem inline (RNF-01).** A política de segurança de conteúdo (CSP) do deploy não vai permitir
@@ -21,6 +21,10 @@
  * 7. **Marca.** Toda página bilíngue declara `og:image`, e o favicon, o `apple-touch-icon` e a imagem
  *    social que a página cita existem na pasta do build (um link para arquivo que falta só aparece
  *    quando alguém compartilha o site).
+ * 8. **Hospedagem (RF-02, RF-03, RF-07, spec 006).** Na pasta do build existem `_headers`, `robots.txt`,
+ *    `sitemap.xml`, `404.html` e `en/404.html`; a CSP do `_headers` é a de `politicaCsp` para o modo de
+ *    medição que o HTML da página inicial mostra; o `sitemap.xml` lista só as duas páginas, com os mesmos
+ *    `canonical` e `hreflang` que elas declaram; e as duas 404 levam `noindex`.
  *
  * Página com `<meta name="robots" content="noindex">` (a 404, spec 006) segue o caminho oposto
  * das regras 2 e 7: não pode ter `canonical`, `alternate` nem `og:*`; as demais regras valem como
@@ -35,7 +39,7 @@ import { readFile, readdir, stat } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
-import { politicaCsp, urlPermitida } from "./csp.mjs";
+import { medicaoValida, politicaCsp, urlPermitida } from "./csp.mjs";
 
 // Valores de `hreflang` que toda página bilíngue precisa declarar em `<link rel="alternate">`.
 const ALTERNATES_OBRIGATORIOS = ["pt-BR", "en", "x-default"];
@@ -53,10 +57,6 @@ const COMENTARIO_OU_TAG = new RegExp(`${COMENTARIO.source}|${TAG.source}`, "gi")
 
 // Um atributo dentro do trecho de atributos de uma tag: nome e valor (aspas duplas, simples ou sem).
 const ATRIBUTO = /([^\s"'<>/=]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+)))?/g;
-
-// Formato do identificador do GA4; é o mesmo de `validarIdMedicao` (packages/tema/src/medicao.ts),
-// copiado aqui porque este script roda em Node puro, sem importar TypeScript do tema.
-const FORMATO_ID_MEDICAO = /^G-[A-Z0-9]{10}$/;
 
 // O Astro nomeia o arquivo do script pelo componente que o carrega (`Consentimento.astro_...js`).
 const SCRIPT_CONSENTIMENTO = /consentimento/i;
@@ -207,7 +207,7 @@ const conferirModoDeMedicao = (tags) => {
       ],
     };
   }
-  if (!FORMATO_ID_MEDICAO.test(banner?.atributos.get("data-medicao") ?? "")) {
+  if (!medicaoValida(banner?.atributos.get("data-medicao"))) {
     return {
       comMedicao: false,
       problemas: ["banner sem data-medicao válido (G- e dez maiúsculas ou dígitos)"],
@@ -431,6 +431,234 @@ export const arquivosDeMarca = (html) => {
   return [...caminhos];
 };
 
+// ---------------------------------------------------------------------------
+// Regra 8: os arquivos da hospedagem
+// `_headers`, `robots.txt`, `sitemap.xml` e as duas 404, gerados por `hospedagem.mjs` (spec 006).
+// ---------------------------------------------------------------------------
+
+// Cabeçalhos que o `_headers` precisa trazer além da CSP, que tem conferência própria.
+const CABECALHOS_OBRIGATORIOS = [
+  "Strict-Transport-Security",
+  "X-Content-Type-Options",
+  "Referrer-Policy",
+  "Permissions-Policy",
+];
+
+// Os arquivos de página que a regra 8 lê, por caminho no build.
+const PAGINAS_INICIAIS = ["index.html", "en/index.html"];
+const PAGINAS_404 = ["404.html", "en/404.html"];
+
+/**
+ * Lê o `canonical` e as alternativas `hreflang` que uma página declara no `<head>`.
+ *
+ * Só conta `<link>`: o seletor de idioma usa `<a hreflang>`, que não é declaração para buscadores.
+ *
+ * @param {{ nome: string, atributos: Map<string, string> }[]} tags - tags do documento
+ * @returns {{ canonical: string | undefined, alternativas: Map<string, string> }} o endereço canônico
+ *   e o mapa de idioma para endereço
+ */
+const lerDeclaracoesDeIdioma = (tags) => {
+  let canonical;
+  const alternativas = new Map();
+  for (const { nome, atributos } of tags) {
+    if (nome !== "link") continue;
+    const rels = (atributos.get("rel") ?? "").toLowerCase().split(/\s+/);
+    const href = atributos.get("href") ?? "";
+    if (rels.includes("canonical") && href !== "") canonical = href;
+    const idioma = atributos.get("hreflang");
+    if (rels.includes("alternate") && idioma !== undefined && href !== "") {
+      alternativas.set(idioma, href);
+    }
+  }
+  return { canonical, alternativas };
+};
+
+/**
+ * Lê as entradas `<url>` de um `sitemap.xml`: o endereço e as alternativas `xhtml:link` de cada uma.
+ *
+ * @param {string} sitemap - texto do arquivo
+ * @returns {{ loc: string, alternativas: Map<string, string> }[]} uma entrada por `<url>`
+ */
+const lerEntradasDoSitemap = (sitemap) => {
+  const entradas = [];
+  for (const [, bloco] of sitemap.matchAll(/<url>([\s\S]*?)<\/url>/g)) {
+    const loc = bloco?.match(/<loc>\s*([^<]*?)\s*<\/loc>/)?.[1] ?? "";
+    const alternativas = new Map();
+    for (const [, trecho] of (bloco ?? "").matchAll(/<xhtml:link\b([^>]*?)\/?>/g)) {
+      const atributos = lerAtributos(trecho ?? "");
+      const idioma = atributos.get("hreflang");
+      if (idioma !== undefined) alternativas.set(idioma, atributos.get("href") ?? "");
+    }
+    entradas.push({ loc, alternativas });
+  }
+  return entradas;
+};
+
+/**
+ * Diz se dois mapas têm exatamente as mesmas chaves e valores.
+ *
+ * @param {Map<string, string>} a - primeiro mapa
+ * @param {Map<string, string>} b - segundo mapa
+ * @returns {boolean} `true` se são iguais
+ */
+const mapasIguais = (a, b) =>
+  a.size === b.size && [...a].every(([chave, valor]) => b.get(chave) === valor);
+
+/**
+ * Confere o `sitemap.xml` contra o que as duas páginas iniciais declaram no `<head>`.
+ *
+ * @param {string} sitemap - texto do `sitemap.xml`
+ * @param {Map<string, { canonical: string | undefined, alternativas: Map<string, string> }>} paginas -
+ *   as declarações de cada página inicial, por caminho no build
+ * @returns {string[]} um texto por divergência
+ */
+const conferirSitemap = (sitemap, paginas) => {
+  const problemas = [];
+  const entradas = lerEntradasDoSitemap(sitemap);
+  const esperadas = new Map(
+    [...paginas.values()].flatMap((p) => (p.canonical === undefined ? [] : [[p.canonical, p]])),
+  );
+  for (const { loc } of entradas) {
+    if (!esperadas.has(loc)) {
+      problemas.push(`sitemap.xml com URL fora das duas páginas: ${loc}`);
+    }
+  }
+  for (const [canonical, pagina] of esperadas) {
+    const entrada = entradas.find(({ loc }) => loc === canonical);
+    if (entrada === undefined) {
+      problemas.push(`sitemap.xml sem a URL ${canonical}`);
+    } else if (!mapasIguais(entrada.alternativas, pagina.alternativas)) {
+      problemas.push(
+        `sitemap.xml: as alternativas hreflang de ${canonical} divergem das que a página declara`,
+      );
+    }
+  }
+  return problemas;
+};
+
+/**
+ * Confere o `robots.txt`: libera tudo e aponta para o sitemap pelo endereço absoluto do site.
+ *
+ * @param {string} robots - texto do `robots.txt`
+ * @param {string | undefined} origemDoSite - origem do site (`https://host`), tirada do `canonical`
+ * @returns {string[]} um texto por divergência
+ */
+const conferirRobots = (robots, origemDoSite) => {
+  const linhas = robots.split(/\r?\n/).map((linha) => linha.trim());
+  const problemas = [];
+  if (!linhas.includes("User-agent: *") || !linhas.includes("Allow: /")) {
+    problemas.push("robots.txt sem `User-agent: *` e `Allow: /`");
+  }
+  if (linhas.some((linha) => /^disallow:\s*\S/i.test(linha))) {
+    problemas.push("robots.txt com Disallow: o site inteiro é indexável");
+  }
+  if (origemDoSite !== undefined && !linhas.includes(`Sitemap: ${origemDoSite}/sitemap.xml`)) {
+    problemas.push(`robots.txt sem a linha \`Sitemap: ${origemDoSite}/sitemap.xml\``);
+  }
+  return problemas;
+};
+
+/**
+ * Confere o `_headers`: a CSP é a de `politicaCsp` do modo do build, sem `unsafe-*`, e os demais
+ * cabeçalhos de segurança estão presentes.
+ *
+ * @param {string} cabecalhos - texto do `_headers`
+ * @param {boolean} medicao - modo detectado no HTML da página inicial
+ * @returns {string[]} um texto por divergência
+ */
+const conferirCabecalhos = (cabecalhos, medicao) => {
+  const problemas = [];
+  const esperada = politicaCsp({ medicao }).cabecalho;
+  const linhasCsp = [
+    ...cabecalhos.matchAll(/^[ \t]+Content-Security-Policy:[ \t]*(.*?)[ \t]*$/gim),
+  ];
+  if (linhasCsp.length !== 1) {
+    problemas.push(
+      `_headers com ${linhasCsp.length} linhas de Content-Security-Policy (deve ter 1)`,
+    );
+  } else if (linhasCsp[0]?.[1] !== esperada) {
+    problemas.push(
+      `_headers: a CSP difere da política ${medicao ? "com" : "sem"} medição que o HTML da página inicial pede`,
+    );
+  }
+  if (/unsafe-(inline|eval)/i.test(cabecalhos)) {
+    problemas.push("_headers com unsafe-inline ou unsafe-eval");
+  }
+  for (const nome of CABECALHOS_OBRIGATORIOS) {
+    if (!new RegExp(`^[ \\t]+${nome}:[ \\t]*\\S`, "im").test(cabecalhos)) {
+      problemas.push(`_headers sem o cabeçalho ${nome}`);
+    }
+  }
+  return problemas;
+};
+
+/**
+ * Tira a origem (`https://host`) de uma URL absoluta.
+ *
+ * @param {string | undefined} url - endereço absoluto, como o `canonical`
+ * @returns {string | undefined} a origem, ou `undefined` se não há URL ou ela é inválida
+ */
+const origemDe = (url) => {
+  try {
+    return url === undefined ? undefined : new URL(url).origin;
+  } catch {
+    return undefined;
+  }
+};
+
+/**
+ * Regra 8: confere os arquivos da hospedagem contra o HTML do build. Função pura, sem disco.
+ *
+ * Falha se faltar `_headers`, `robots.txt`, `sitemap.xml` ou uma das duas 404; se a CSP do `_headers`
+ * diferir de `politicaCsp` do modo detectado no HTML; se o `sitemap.xml` divergir dos `canonical` e
+ * `hreflang` das duas páginas; ou se uma 404 faltar o `noindex` ou tiver `canonical`, `alternate`
+ * ou `og:*`.
+ *
+ * @param {{ cabecalhos?: string, robots?: string, sitemap?: string, paginas: Record<string, string | undefined> }} build -
+ *   o texto de cada arquivo (ausente = `undefined`) e o HTML das páginas, por caminho no build
+ * @returns {string[]} um texto por problema; vazio se está tudo coerente
+ */
+export const verificarHospedagem = ({ cabecalhos, robots, sitemap, paginas }) => {
+  const problemas = [];
+  for (const [nome, texto] of [
+    ["_headers", cabecalhos],
+    ["robots.txt", robots],
+    ["sitemap.xml", sitemap],
+  ]) {
+    if (texto === undefined) problemas.push(`falta ${nome}`);
+  }
+  for (const nome of [...PAGINAS_INICIAIS, ...PAGINAS_404]) {
+    if (paginas[nome] === undefined) problemas.push(`falta ${nome}`);
+  }
+
+  const declaracoes = new Map();
+  for (const nome of PAGINAS_INICIAIS) {
+    const html = paginas[nome];
+    if (html !== undefined) declaracoes.set(nome, lerDeclaracoesDeIdioma(lerTags(html)));
+  }
+  const inicio = paginas["index.html"];
+  if (cabecalhos !== undefined && inicio !== undefined) {
+    const medicao = conferirModoDeMedicao(lerTags(inicio)).comMedicao;
+    problemas.push(...conferirCabecalhos(cabecalhos, medicao));
+  }
+  if (robots !== undefined) {
+    const canonical = declaracoes.get("index.html")?.canonical;
+    problemas.push(...conferirRobots(robots, origemDe(canonical)));
+  }
+  if (sitemap !== undefined) {
+    problemas.push(...conferirSitemap(sitemap, declaracoes));
+  }
+
+  for (const nome of PAGINAS_404) {
+    const html = paginas[nome];
+    if (html === undefined) continue;
+    const tags = lerTags(html);
+    if (!ehNoindex(tags)) problemas.push(`${nome} sem <meta name="robots" content="noindex">`);
+    problemas.push(...conferirSemIndexacao(tags).map((problema) => `${nome}: ${problema}`));
+  }
+  return problemas;
+};
+
 /**
  * Diz se um arquivo existe e é um arquivo comum.
  *
@@ -481,6 +709,37 @@ export const verificarPasta = async (pasta) => {
 };
 
 /**
+ * Lê um arquivo de texto, ou devolve `undefined` se ele não existe.
+ *
+ * @param {string} caminho - caminho no disco
+ * @returns {Promise<string | undefined>} o conteúdo, ou `undefined` se não existe
+ */
+const lerSeExiste = async (caminho) => {
+  try {
+    return await readFile(caminho, "utf8");
+  } catch {
+    return undefined;
+  }
+};
+
+/**
+ * Aplica a regra 8 a uma pasta de build: lê os arquivos da hospedagem e as quatro páginas.
+ *
+ * @param {string} pasta - pasta do build (por exemplo `dist`)
+ * @returns {Promise<string[]>} um texto por problema; vazio se está coerente
+ */
+export const verificarHospedagemPasta = async (pasta) => {
+  const nomes = [...PAGINAS_INICIAIS, ...PAGINAS_404];
+  const textos = await Promise.all(nomes.map((nome) => lerSeExiste(join(pasta, nome))));
+  return verificarHospedagem({
+    cabecalhos: await lerSeExiste(join(pasta, "_headers")),
+    robots: await lerSeExiste(join(pasta, "robots.txt")),
+    sitemap: await lerSeExiste(join(pasta, "sitemap.xml")),
+    paginas: Object.fromEntries(nomes.map((nome, i) => [nome, textos[i]])),
+  });
+};
+
+/**
  * Ponto de entrada da linha de comando.
  *
  * @param {string[]} argumentos - argumentos depois do nome do script; o primeiro é a pasta do build
@@ -493,6 +752,10 @@ const main = async (argumentos) => {
     return 2;
   }
   const achados = await verificarPasta(pasta);
+  const hospedagem = await verificarHospedagemPasta(pasta);
+  if (hospedagem.length > 0) {
+    achados.push({ arquivo: pasta, problemas: hospedagem });
+  }
   for (const { arquivo, problemas } of achados) {
     for (const problema of problemas) {
       console.error(`${arquivo}: ${problema}`);

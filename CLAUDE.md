@@ -99,8 +99,10 @@ apps/mailvigil/       # site do MailVigil
 .githooks/            # pre-commit: o portão de qualidade em modo verificação
 scripts/              # verificar-dist.mjs: confere o HTML gerado (sem inline, marcação de idioma, modo da medição, CSP,
                       # âncoras, destinos dos botões, marca: og:image, favicon e imagem social, e a página noindex sem
-                      # canonical, alternate nem og:*), rodado no build de cada
-                      # site; csp.mjs: a política de segurança de conteúdo, fonte única (cada .mjs tem o teste ao lado)
+                      # canonical, alternate nem og:*; e a regra 8, os arquivos da hospedagem), rodado no build de cada
+                      # site; hospedagem.mjs: gera em dist/ o _headers, o robots.txt, o sitemap.xml e a cópia
+                      # en/404.html, antes do verificar-dist; csp.mjs: a política de segurança de conteúdo, fonte
+                      # única, e medicaoValida, o formato do identificador (cada .mjs tem o teste ao lado)
 docs/images/          # social preview do repositório (1280 x 640), genérica: não cita nenhuma das ferramentas
 test/                 # testes do repositório: impessoalidade.test.ts (ver "Convenções"), marca.test.ts (o traçado do
                       # logo igual no cabeçalho e no favicon; dimensões das imagens) e csp.test.ts (a URL do gtag.js
@@ -125,6 +127,12 @@ test/                 # testes do repositório: impessoalidade.test.ts (ver "Con
 > `verificar-dist` confere cada recurso do HTML contra ela. Sem medição, nenhum domínio externo; com
 > medição, só os hosts do Google Analytics, nunca `*`, `unsafe-inline` nem `unsafe-eval`. Um domínio novo
 > entra em `csp.mjs`, no teste e no `design.md` da spec 003, nunca só num deles.
+
+> Cuidado: `_headers`, `robots.txt` e `sitemap.xml` não existem no repositório: o `build` de cada site os gera
+> em `dist/` (`scripts/hospedagem.mjs`), no modo de medição do build, e a regra 8 do `verificar-dist` falha se
+> divergirem do HTML. O endereço vem do `site` do `astro.config.mjs`, nunca repetido em outro lugar. O gerador
+> lê o modo de `PUBLIC_GA_MEASUREMENT_ID` do ambiente do processo: um identificador só no `.env` liga o banner
+> mas não o gerador, e o build falha na regra 8 (use a variável do terminal, como em "Comandos comuns").
 
 > Cuidado: a medição é o Google Analytics 4 com Consent Mode, negado por padrão, e o `gtag.js` só é
 > carregado depois do aceite. O identificador vem de `PUBLIC_GA_MEASUREMENT_ID` (ver `.env.example`; o
