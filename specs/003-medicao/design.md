@@ -214,19 +214,20 @@ lá) servir os dois sites no `pnpm dev`.
 
 `scripts/csp.mjs` exporta `politicaCsp({ medicao })`, que devolve as diretivas e o texto do cabeçalho:
 
-| Diretiva                                                   | Sem medição    | Com medição                                                                                    |
-| ---------------------------------------------------------- | -------------- | ---------------------------------------------------------------------------------------------- |
-| `default-src`                                              | `'none'`       | `'none'`                                                                                       |
-| `script-src`                                               | `'self'`       | `'self' https://www.googletagmanager.com`                                                      |
-| `style-src`                                                | `'self'`       | `'self'`                                                                                       |
-| `font-src`                                                 | `'self'`       | `'self'`                                                                                       |
-| `img-src`                                                  | `'self' data:` | `'self' data: https://*.google-analytics.com https://*.googletagmanager.com`                   |
-| `connect-src`                                              | `'none'`       | `https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com` |
-| `base-uri`, `form-action`, `object-src`, `frame-ancestors` | `'none'`       | `'none'`                                                                                       |
+| Diretiva                                                   | Sem medição | Com medição                                                                                    |
+| ---------------------------------------------------------- | ----------- | ---------------------------------------------------------------------------------------------- |
+| `default-src`                                              | `'none'`    | `'none'`                                                                                       |
+| `script-src`                                               | `'self'`    | `'self' https://www.googletagmanager.com`                                                      |
+| `style-src`                                                | `'self'`    | `'self'`                                                                                       |
+| `font-src`                                                 | `'self'`    | `'self'`                                                                                       |
+| `img-src`                                                  | `'self'`    | `'self' https://*.google-analytics.com https://*.googletagmanager.com`                         |
+| `connect-src`                                              | `'none'`    | `https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com` |
+| `base-uri`, `form-action`, `object-src`, `frame-ancestors` | `'none'`    | `'none'`                                                                                       |
 
-Sem `unsafe-inline`, sem `unsafe-eval`, sem nonce. O `data:` do `img-src` existe só por causa do
-`<link rel="icon" href="data:,">` do `Pagina`, que evita o pedido de `/favicon.ico` até a fase de imagens;
-sai junto com ele. A lista do Google segue a documentação de CSP estrita do GA4 e é **confirmada no
+Sem `unsafe-inline`, sem `unsafe-eval`, sem nonce. O `img-src` não lista `data:`: o favicon e o
+`apple-touch-icon` são arquivos do próprio site (`public/` de cada app). Até a entrada deles o `Pagina`
+usava `<link rel="icon" href="data:,">` e o `img-src` levava `data:` por causa disso; saiu junto com o
+ícone vazio. A lista do Google segue a documentação de CSP estrita do GA4 e é **confirmada no
 navegador** com consentimento concedido (nenhuma violação no console); se o Google exigir mais um domínio,
 ele entra aqui, no teste e na documentação, nunca como `*`.
 

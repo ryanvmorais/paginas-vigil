@@ -11,7 +11,7 @@ um workspace pnpm. Cada site é publicado no próprio subdomínio (`webvigil.rya
 > Cuidado: o nome do repositório (`paginas-vigil`) é exceção à regra "nome do repositório = subdomínio",
 > porque um repositório serve dois subdomínios. Não renomeie para casar com um deles.
 
-Estado: em construção. Os dois sites já têm a página inteira (português e inglês) montada com o tema. Nada está no ar. A medição (Google Analytics 4 com consentimento) já está no código, mas só liga com um identificador; a política de privacidade mora no site principal.
+Estado: em construção. Os dois sites já têm a página inteira (português e inglês) montada com o tema e a marca (favicon, ícone de tela inicial e imagem social). Nada está no ar. A medição (Google Analytics 4 com consentimento) já está no código, mas só liga com um identificador; a política de privacidade mora no site principal.
 
 ## Comandos comuns
 
@@ -88,13 +88,17 @@ apps/mailvigil/       # site do MailVigil
   src/terminais.ts    # (em cada app) as saídas de terminal mostradas na página
   src/componentes/    # (em cada app) Logo.astro e Vitrine.astro, a montagem das seções com o tema
   src/assets/relatorio/ # (em cada app) capturas do relatório por idioma, tamanho e esquema de cor (webvigil só em inglês)
+  public/             # (em cada app) a marca, servida na raiz do site: favicon.svg, apple-touch-icon.png (180 px) e
+                      # social-pt.png e social-en.png (1280 x 640, o og:image do layout)
   dist/               # (em cada app) build estático, gerado e fora do git
 .github/workflows/    # ci, codeql, dependency-review, pnpm-audit, lighthouse
 .github/lighthouse/   # limites do Lighthouse CI por site e por formato (celular, desktop)
 .githooks/            # pre-commit: o portão de qualidade em modo verificação
 scripts/              # verificar-dist.mjs: confere o HTML gerado (sem inline, modo da medição, CSP, âncoras e destinos
                       # dos botões), rodado no build de cada site; csp.mjs: a política de segurança de conteúdo, fonte única (cada .mjs tem o teste ao lado)
-test/                 # testes do repositório: impessoalidade.test.ts (ver "Convenções")
+docs/images/          # social preview do repositório (1280 x 640), genérica: não cita nenhuma das ferramentas
+test/                 # testes do repositório: impessoalidade.test.ts (ver "Convenções") e marca.test.ts (o traçado do
+                      # logo igual no cabeçalho e no favicon; dimensões das imagens)
 .claude/              # hooks do Claude Code (ver "Qualidade e automação")
 ```
 
@@ -123,6 +127,11 @@ test/                 # testes do repositório: impessoalidade.test.ts (ver "Con
 > `cookies-accepted`, de domínio, que vale também no site principal, com recuo para o `localStorage` e
 > depois para a memória. O CI constrói os dois sites com e sem medição (identificador de teste
 > `G-TESTE12345`), e o Lighthouse mede a página com o banner aberto.
+
+> Cuidado: as imagens sociais (`apps/*/public/social-*.png`) são PNG montados à mão, não gerados no build:
+> repetem o título da página e um recorte do terminal. Mudou o título, a saída do terminal ou o logo,
+> refaça a imagem dos dois idiomas. O `verificar-dist` garante só que o arquivo existe e que a página o
+> cita; o `test/marca.test.ts` garante as dimensões e o traçado do logo.
 
 ## Convenções
 
