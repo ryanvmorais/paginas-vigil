@@ -23,8 +23,8 @@ const CONEXAO_GOOGLE = [
 /**
  * Monta a política de um modo.
  *
- * O `data:` do `img-src` existe só por causa do `<link rel="icon" href="data:,">` do layout, que
- * evita o pedido de `/favicon.ico` até a fase de imagens; sai junto com ele.
+ * O `img-src` não lista `data:`: o favicon e o `apple-touch-icon` são arquivos do próprio site, e nenhuma
+ * imagem é embutida (o `build.assetsInlineLimit: 0` dos apps garante isso).
  *
  * @param {{ medicao: boolean }} modo - `medicao: true` quando o build tem identificador válido
  * @returns {{ diretivas: Record<string, string[]>, cabecalho: string }} as diretivas (nome para
@@ -36,7 +36,7 @@ export const politicaCsp = ({ medicao }) => {
     "script-src": ["'self'", ...(medicao ? SCRIPT_GOOGLE : [])],
     "style-src": ["'self'"],
     "font-src": ["'self'"],
-    "img-src": ["'self'", "data:", ...(medicao ? IMAGEM_GOOGLE : [])],
+    "img-src": ["'self'", ...(medicao ? IMAGEM_GOOGLE : [])],
     "connect-src": medicao ? CONEXAO_GOOGLE : ["'none'"],
     "base-uri": ["'none'"],
     "form-action": ["'none'"],

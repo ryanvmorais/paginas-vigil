@@ -4,9 +4,13 @@
  * Usam HTML montado aqui mesmo, sem tocar o disco do build (spec 002, seção Testes).
  */
 
-import { describe, expect, it } from "vitest";
+import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 
-import { verificarHtml } from "./verificar-dist.mjs";
+import { afterEach, describe, expect, it } from "vitest";
+
+import { arquivosDeMarca, verificarHtml, verificarPasta } from "./verificar-dist.mjs";
 
 // Cabeça completa de uma página bilíngue: o que o `Pagina.astro` emite.
 const CABECA_BILINGUE = `
@@ -15,6 +19,7 @@ const CABECA_BILINGUE = `
   <link rel="alternate" hreflang="en" href="https://exemplo.test/en/">
   <link rel="alternate" hreflang="x-default" href="https://exemplo.test/en/">
   <meta property="og:locale" content="pt_BR">
+  <meta property="og:image" content="https://exemplo.test/social-pt.png">
 `;
 
 // Monta um documento com a cabeça e o corpo dados.
@@ -124,6 +129,91 @@ describe("verificarHtml: marcação de idioma (RF-03)", () => {
   it("vê o hreflang de um link do corpo e passa a exigir a marcação da cabeça", () => {
     const html = pagina({ corpo: '<a href="/en/" hreflang="en">EN</a>' });
     expect(verificarHtml(html).length).toBeGreaterThan(0);
+  });
+});
+
+describe("verificarHtml: imagem social", () => {
+  it("exige og:image na página bilíngue", () => {
+    const html = pagina({
+      cabeca: CABECA_BILINGUE.replace(/<meta property="og:image"[^>]*>/, ""),
+    });
+    expect(verificarHtml(html)).toEqual([expect.stringContaining("og:image")]);
+  });
+
+  it("recusa og:image sem endereço", () => {
+    const html = pagina({
+      cabeca: CABECA_BILINGUE.replace(/(og:image" content=")[^"]*/, "$1"),
+    });
+    expect(verificarHtml(html)).toEqual([expect.stringContaining("og:image")]);
+  });
+});
+
+describe("arquivosDeMarca", () => {
+  it("lista favicon, apple-touch-icon e o caminho da og:image, sem repetir", () => {
+    const html = pagina({
+      cabeca:
+        '<link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/apple-touch-icon.png">' +
+        '<meta property="og:image" content="https://exemplo.test/social-pt.png">' +
+        '<meta property="og:image" content="https://exemplo.test/social-pt.png">',
+    });
+    expect(arquivosDeMarca(html)).toEqual([
+      "/favicon.svg",
+      "/apple-touch-icon.png",
+      "/social-pt.png",
+    ]);
+  });
+
+  it("deixa de fora ícone com data: ou de outro site e og:image inválida", () => {
+    const html = pagina({
+      cabeca:
+        '<link rel="icon" href="data:,"><link rel="icon" href="https://cdn.exemplo.test/a.ico"><link rel="icon" href="//cdn.exemplo.test/a.ico">' +
+        '<meta property="og:image" content="não é url">',
+    });
+    expect(arquivosDeMarca(html)).toEqual([]);
+  });
+
+  it("tira a query e o fragmento do caminho do ícone", () => {
+    const html = pagina({ cabeca: '<link rel="icon" href="/favicon.svg?v=2#a">' });
+    expect(arquivosDeMarca(html)).toEqual(["/favicon.svg"]);
+  });
+});
+
+describe("verificarPasta: arquivos da marca", () => {
+  const pastas = [];
+  afterEach(async () => {
+    await Promise.all(pastas.splice(0).map((p) => rm(p, { recursive: true, force: true })));
+  });
+
+  // Monta um build mínimo: uma página bilíngue e os arquivos pedidos.
+  const montar = async (arquivos) => {
+    const pasta = await mkdtemp(join(tmpdir(), "verificar-dist-"));
+    pastas.push(pasta);
+    const cabeca =
+      CABECA_BILINGUE +
+      '<link rel="icon" href="/favicon.svg"><link rel="apple-touch-icon" href="/a.png">';
+    await writeFile(join(pasta, "index.html"), pagina({ cabeca }));
+    for (const arquivo of arquivos) {
+      await mkdir(join(pasta, arquivo, ".."), { recursive: true });
+      await writeFile(join(pasta, arquivo), "x");
+    }
+    return pasta;
+  };
+
+  it("aceita o build com todos os arquivos citados", async () => {
+    const pasta = await montar(["favicon.svg", "a.png", "social-pt.png"]);
+    expect(await verificarPasta(pasta)).toEqual([]);
+  });
+
+  it("acusa cada arquivo citado que não existe no build", async () => {
+    const pasta = await montar(["favicon.svg"]);
+    const [achado] = await verificarPasta(pasta);
+    expect(achado?.problemas).toHaveLength(2);
+    expect(achado?.problemas).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining("/a.png"),
+        expect.stringContaining("/social-pt.png"),
+      ]),
+    );
   });
 });
 
@@ -238,18 +328,20 @@ describe("verificarHtml: compatibilidade com a CSP (RF-09)", () => {
     }
   });
 
-  it("aceita recurso do próprio site e o ícone data: da página", () => {
+  it("aceita recurso do próprio site, inclusive os ícones da marca", () => {
     const html = pagina({
       cabeca:
-        '<link rel="stylesheet" href="/_astro/a.css"><link rel="icon" href="data:,"><link rel="preload" as="font" href="/_astro/a.woff2" crossorigin>',
+        '<link rel="stylesheet" href="/_astro/a.css"><link rel="icon" href="/favicon.svg"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="preload" as="font" href="/_astro/a.woff2" crossorigin>',
       corpo: '<img src="/_astro/a.png" srcset="/_astro/a.png 1x, /_astro/a@2x.png 2x" alt="">',
     });
     expect(verificarHtml(html)).toEqual([]);
   });
 
-  it("recusa data: onde a política não o lista", () => {
-    const html = pagina({ cabeca: '<script src="data:text/javascript,x()"></script>' });
-    expect(verificarHtml(html)).toEqual([expect.stringContaining("data:")]);
+  it("recusa data: em qualquer recurso, ícone inclusive: a política não o lista", () => {
+    const script = pagina({ cabeca: '<script src="data:text/javascript,x()"></script>' });
+    expect(verificarHtml(script)).toEqual([expect.stringContaining("data:")]);
+    const icone = pagina({ cabeca: '<link rel="icon" href="data:,">' });
+    expect(verificarHtml(icone)).toEqual([expect.stringContaining("data:")]);
   });
 
   it("deixa de fora o que não busca recurso: <a>, canonical e alternate", () => {

@@ -60,8 +60,8 @@ describe("politicaCsp: sem medição", () => {
     expect(diretivas["connect-src"]).toEqual(["'none'"]);
   });
 
-  it("mantém o data: da imagem, que o ícone vazio da página usa", () => {
-    expect(diretivas["img-src"]).toEqual(["'self'", "data:"]);
+  it("deixa a imagem só do próprio site, sem data:", () => {
+    expect(diretivas["img-src"]).toEqual(["'self'"]);
   });
 });
 
@@ -111,8 +111,8 @@ describe("urlPermitida", () => {
     expect(urlPermitida(semMedicao, "frame-ancestors", "/a")).toBe(false);
   });
 
-  it("aceita data: só onde a diretiva o lista", () => {
-    expect(urlPermitida(semMedicao, "img-src", "data:,")).toBe(true);
+  it("recusa data: em toda diretiva, porque nenhuma o lista", () => {
+    expect(urlPermitida(semMedicao, "img-src", "data:,")).toBe(false);
     expect(urlPermitida(semMedicao, "script-src", "data:text/javascript,x")).toBe(false);
   });
 
