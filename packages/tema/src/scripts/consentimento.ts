@@ -23,9 +23,12 @@ import {
   lerCookie,
   lerEscolha,
   montarCookie,
+  montarRemocaoCookie,
   NOME_COOKIE,
+  nomesCookiesGoogle,
 } from "../consentimento";
 import { validarIdMedicao } from "../medicao";
+import { DOMINIO_COOKIE } from "../politica";
 
 /**
  * Armazém da escolha no cookie do domínio do site principal.
@@ -65,6 +68,21 @@ function criarArmazemLocal(): Armazem | undefined {
 }
 
 /**
+ * Remove do navegador os cookies do Google Analytics (`_ga` e `_ga_<ID>`).
+ *
+ * O `gtag.js` grava no domínio registrável, mas um cookie de nome igual pode existir só no host;
+ * tenta o host, o host com ponto e o domínio do site principal, para o navegador casar o escopo
+ * com o de quem criou o cookie (ADR-6).
+ */
+function apagarCookiesGoogle(): void {
+  const host = window.location.hostname;
+  const dominios = [undefined, host, `.${host}`, DOMINIO_COOKIE];
+  for (const nome of nomesCookiesGoogle(document.cookie)) {
+    for (const dominio of dominios) document.cookie = montarRemocaoCookie(nome, dominio);
+  }
+}
+
+/**
  * Liga o banner de consentimento da página.
  *
  * @param secao - o elemento `[data-consentimento]`, com o identificador em `data-medicao`
@@ -90,6 +108,7 @@ function ligarBanner(secao: HTMLElement): void {
       elemento.src = url;
       document.head.append(elemento);
     },
+    apagarCookies: apagarCookiesGoogle,
   });
 
   // Quem reabriu o banner, para devolver o foco a ele depois; vazio na primeira visita.
