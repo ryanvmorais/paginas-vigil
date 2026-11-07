@@ -6,8 +6,11 @@
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-6.0-3178C6?logo=typescript&logoColor=white)
 ![Astro](https://img.shields.io/badge/Astro-7-BC52EE?logo=astro&logoColor=white)
+![Node](https://img.shields.io/badge/Node-26+-5FA04E?logo=nodedotjs&logoColor=white)
 ![deps](https://img.shields.io/badge/deps-pnpm-F69220?logo=pnpm&logoColor=white)
 [![CI](https://github.com/ryanvmorais/paginas-vigil/actions/workflows/ci.yml/badge.svg)](https://github.com/ryanvmorais/paginas-vigil/actions/workflows/ci.yml)
+![lint](https://img.shields.io/badge/lint-ESLint-4B32C3?logo=eslint&logoColor=white)
+![style](https://img.shields.io/badge/style-Prettier-F7B93E?logo=prettier&logoColor=black)
 ![license](https://img.shields.io/badge/license-Apache%202.0-blue)
 
 **This repository holds the static websites, built with Astro, that present open-source tools.** Each tool has its own site, in `apps/<tool>`, published on its own subdomain:
@@ -82,8 +85,8 @@ pnpm --filter webvigil build
 pnpm --filter webvigil preview
 ```
 
-The map of every technology in the stack, with the reason behind each choice, is in [docs/stack.md](docs/stack.md) (in Portuguese). To contribute, see [CONTRIBUTING.md](CONTRIBUTING.md) (in Portuguese). To report a security problem, see [SECURITY.md](SECURITY.md) (in Portuguese).
+The map of every technology in the stack, with the reason behind each choice, is in [docs/stack.md](docs/stack.md) (in Portuguese). The third-party material (an icon and the fonts) is listed in [NOTICE](NOTICE). To contribute, see [CONTRIBUTING.md](CONTRIBUTING.md) (in Portuguese). To report a security problem, see [SECURITY.md](SECURITY.md) (in Portuguese).
 
 ## License
 
-[Apache-2.0](LICENSE). The third-party material (an icon and the fonts) is listed in [NOTICE](NOTICE).
+[Apache-2.0](LICENSE).

@@ -6,8 +6,11 @@
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-6.0-3178C6?logo=typescript&logoColor=white)
 ![Astro](https://img.shields.io/badge/Astro-7-BC52EE?logo=astro&logoColor=white)
+![Node](https://img.shields.io/badge/Node-26+-5FA04E?logo=nodedotjs&logoColor=white)
 ![deps](https://img.shields.io/badge/deps-pnpm-F69220?logo=pnpm&logoColor=white)
 [![CI](https://github.com/ryanvmorais/paginas-vigil/actions/workflows/ci.yml/badge.svg)](https://github.com/ryanvmorais/paginas-vigil/actions/workflows/ci.yml)
+![lint](https://img.shields.io/badge/lint-ESLint-4B32C3?logo=eslint&logoColor=white)
+![style](https://img.shields.io/badge/style-Prettier-F7B93E?logo=prettier&logoColor=black)
 ![license](https://img.shields.io/badge/license-Apache%202.0-blue)
 
 **Este repositório guarda os sites estáticos, feitos em Astro, que apresentam ferramentas de código aberto.** Cada ferramenta tem o próprio site, em `apps/<ferramenta>`, publicado no próprio subdomínio:
@@ -82,8 +85,8 @@ pnpm --filter webvigil build
 pnpm --filter webvigil preview
 ```
 
-O mapa de cada tecnologia da stack, com o porquê de cada escolha, está em [docs/stack.md](docs/stack.md). Para contribuir, veja o [CONTRIBUTING.md](CONTRIBUTING.md). Para relatar um problema de segurança, veja o [SECURITY.md](SECURITY.md).
+O mapa de cada tecnologia da stack, com o porquê de cada escolha, está em [docs/stack.md](docs/stack.md). O material de terceiros (um ícone e as fontes) está listado no [NOTICE](NOTICE). Para contribuir, veja o [CONTRIBUTING.md](CONTRIBUTING.md). Para relatar um problema de segurança, veja o [SECURITY.md](SECURITY.md).
 
 ## Licença
 
-[Apache-2.0](LICENSE). O material de terceiros (um ícone e as fontes) está listado no [NOTICE](NOTICE).
+[Apache-2.0](LICENSE).
