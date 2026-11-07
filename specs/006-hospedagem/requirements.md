@@ -156,7 +156,7 @@ Regras do projeto que pesam aqui:
   `main`, e nunca aparece em log, no repositório ou em `.claude/`.
 - **Given** um deploy ruim
   **When** é preciso desfazer
-  **Then** existe um caminho documentado (ADR-9) para voltar à versão anterior em minutos (reverter o commit
+  **Then** existe um caminho documentado (ADR-9 e `docs/stack.md`) para voltar à versão anterior em minutos (reverter o commit
   na `main`), testado uma vez antes de tornar o site público.
 - **Given** o workflow de deploy
   **When** é lido

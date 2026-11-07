@@ -136,9 +136,11 @@ Os cabeçalhos de segurança de cada resposta saem do `_headers`, um arquivo que
 
 O `deploy.yml` roda depois do CI verde na `main` (`workflow_run`) ou por `workflow_dispatch`, com um job por site. O job usa o ambiente `producao` do GitHub, que guarda os dois segredos da Cloudflare (`CLOUDFLARE_API_TOKEN` e `CLOUDFLARE_ACCOUNT_ID`) e a variável `PUBLIC_GA_MEASUREMENT_ID`, e só aceita a branch `main`. Depois de publicar, o job roda `scripts/conferir-hospedagem.mjs` (o que está no ar tem os mesmos bytes do `dist` e os cabeçalhos do `_headers`, inclusive na 404) e o Lighthouse de produção, com limites em `.github/lighthouse/producao-*.json`.
 
+O deploy não é desfeito sozinho. Se um site sai ruim, há dois caminhos de volta: reverter o commit por PR e deixar o deploy automático republicar, ou, numa emergência, `wrangler rollback` para a versão anterior daquele site. O segundo deixa a `main` e o que está no ar diferentes até a reversão do commit, então o PR de reversão deve sair logo depois (ADR-9 da [spec 006](../specs/006-hospedagem/design.md)).
+
 **Por que esta:** o deploy encadeia no CI em vez de repeti-lo, e PR ou fork nunca tocam o segredo. Conferir o domínio no mesmo run pega o que o build não vê, como uma otimização da zona que reescreve o HTML. O modo de medição vem do ambiente, e o passo de abertura recusa um identificador vazio, inválido ou de teste.
 
-**Estudar:** `workflow_run` e por que ele usa o arquivo da `main`, ambientes e regras de proteção do GitHub, `concurrency`, token de API com escopo mínimo.
+**Estudar:** `workflow_run` e por que ele usa o arquivo da `main`, ambientes e regras de proteção do GitHub, `concurrency`, token de API com escopo mínimo, `wrangler rollback`.
 
 **Docs:** [Ambientes de deploy](https://docs.github.com/pt/actions/deployment/targeting-different-environments/using-environments-for-deployment) · [`workflow_run`](https://docs.github.com/pt/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#workflow_run).
 
