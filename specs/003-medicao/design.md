@@ -195,8 +195,9 @@ Estrutura do `Consentimento.astro` (as classes e o visual saem do mockup):
   cartão cobriria o "Gerenciar cookies" do rodapé.
 - **Rodapé:** o link "Política de privacidade" é sempre renderizado. O `<button data-gerenciar-cookies hidden>`
   só existe com medição, e o script o revela (mesmo padrão do botão de copiar do `Comando`).
-- **Link em inglês:** `politica.ts` guarda, por idioma, `href` e `traduzida`. Enquanto `en.traduzida` for
-  falso, o rótulo diz "(in Portuguese)"; quando a política em inglês existir, troca-se o `href` e o marcador.
+- **Link em inglês:** `politica.ts` guarda, por idioma, `href` e `traduzida`. A política em inglês existe
+  (`https://ryanmorais.com.br/en/privacy-policy/`), então `en.traduzida` é verdadeiro; se um idioma voltar a
+  apontar para um texto em outro idioma, `traduzida` fica falso e o rótulo diz "(in Portuguese)".
 - **Textos:** `textos.consentimento` (título, texto, política, aceitar, recusar, fechar) e `rodape.politica`/`rodape.gerenciar`, em `pt` e `en`; o teste de paridade do tema já
   cobre as duas direções (RF-08).
 
@@ -326,8 +327,9 @@ O deploy (fase de publicação) importa `politicaCsp` para escrever o cabeçalho
 
 ## Interfaces e URLs
 
-Nenhuma rota nova e nenhuma página de política. Os dois links apontam para a política do site principal
-(`https://ryanmorais.com.br/politica-de-privacidade/`, constante em `politica.ts`). O cookie de escolha é o
+Nenhuma rota nova e nenhuma página de política. Os dois links apontam para a política do site principal, na
+versão do idioma da página (`https://ryanmorais.com.br/politica-de-privacidade/` e
+`https://ryanmorais.com.br/en/privacy-policy/`, constante em `politica.ts`). O cookie de escolha é o
 contrato acima; o `window.dataLayer` e o `gtag` são os do Google, sem evento personalizado (não-objetivo).
 
 ## Impacto
