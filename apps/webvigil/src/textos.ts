@@ -18,6 +18,8 @@ const pt = {
     titulo: "WebVigil: scanner de vulnerabilidades web de código aberto",
     descricao:
       "Scanner de vulnerabilidades web de código aberto. Roda no terminal e no CI. Por padrão só observa, então você pode apontar para produção.",
+    imagemAlt:
+      "WebVigil: terminal com o comando de varredura e a tabela de vulnerabilidades por severidade. Descubra quais vulnerabilidades seu site possui.",
   },
   nome: "WebVigil",
   navegacao: {
@@ -157,6 +159,8 @@ const en: TextosPagina = {
     titulo: "WebVigil: open-source web vulnerability scanner",
     descricao:
       "An open-source web vulnerability scanner. Runs in the terminal and in CI. By default it only observes, so you can point it at production.",
+    imagemAlt:
+      "WebVigil: a terminal showing the scan command and the table of vulnerabilities by severity. Find out which vulnerabilities your site has.",
   },
   nome: "WebVigil",
   navegacao: {

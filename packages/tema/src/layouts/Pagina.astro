@@ -7,6 +7,9 @@
  * apontando para `/en/`) e `og:locale` com o `og:locale:alternate`. Nada redireciona por idioma do
  * navegador: a troca é só pelo seletor. Importa os três CSS globais, então o app não os conhece.
  *
+ * A marca vem de arquivos da pasta `public/` de cada app: `favicon.svg`, `apple-touch-icon.png` e a
+ * imagem de compartilhamento `social-<idioma>.png` (`og:image`, com dimensões e texto alternativo).
+ *
  * As URLs absolutas vêm de `Astro.site` (campo `site` do `astro.config.mjs` de cada app). Os dois
  * `preload` cobrem as fontes que aparecem no topo (Sora 800 e JetBrains Mono 400), para a troca de
  * fonte não deslocar o layout (RNF-03). Sem `<script>` nem `style=` aqui (RNF-01).
@@ -36,11 +39,18 @@ export interface Props {
   caminho: string;
   titulo: string;
   descricao: string;
-  /** Caminho ou URL da imagem de compartilhamento; sem ela, nenhuma tag `og:image` é emitida. */
+  /** Texto alternativo da imagem de compartilhamento (`og:image:alt`), no idioma da página. */
+  imagemSocialAlt: string;
+  /** Caminho ou URL da imagem de compartilhamento; o padrão é `/social-<idioma>.png`, de `public/`. */
   imagemSocial?: string;
 }
 
-const { produto, idioma, caminho, titulo, descricao, imagemSocial } = Astro.props;
+// A imagem de compartilhamento tem sempre 1280 x 640 (um teste confere os arquivos de cada app).
+const LARGURA_IMAGEM = 1280;
+const ALTURA_IMAGEM = 640;
+
+const { produto, idioma, caminho, titulo, descricao, imagemSocialAlt } = Astro.props;
+const imagemSocial = Astro.props.imagemSocial ?? `/social-${idioma}.png`;
 
 if (Astro.site === undefined) {
   throw new Error("Pagina.astro: defina `site` no astro.config.mjs para gerar as URLs absolutas.");
@@ -53,7 +63,7 @@ const OG_LOCALE = { pt: "pt_BR", en: "en_US" } as const;
 const urlNoIdioma = (alvo: Idioma) => new URL(caminhoNoIdioma(caminho, alvo), Astro.site).href;
 const canonical = urlNoIdioma(idioma);
 const outro = outroIdioma(idioma);
-const urlImagem = imagemSocial === undefined ? undefined : new URL(imagemSocial, Astro.site).href;
+const urlImagem = new URL(imagemSocial, Astro.site).href;
 const idMedicao = validarIdMedicao(import.meta.env.PUBLIC_GA_MEASUREMENT_ID);
 ---
 
@@ -75,11 +85,17 @@ const idMedicao = validarIdMedicao(import.meta.env.PUBLIC_GA_MEASUREMENT_ID);
     <meta property="og:url" content={canonical} />
     <meta property="og:locale" content={OG_LOCALE[idioma]} />
     <meta property="og:locale:alternate" content={OG_LOCALE[outro]} />
-    {urlImagem !== undefined && <meta property="og:image" content={urlImagem} />}
+    <meta property="og:image" content={urlImagem} />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content={String(LARGURA_IMAGEM)} />
+    <meta property="og:image:height" content={String(ALTURA_IMAGEM)} />
+    <meta property="og:image:alt" content={imagemSocialAlt} />
+    <meta name="twitter:card" content="summary_large_image" />
     <link rel="preload" href={sora800} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={jetbrainsMono400} as="font" type="font/woff2" crossorigin />
-    {/* `data:,` evita o pedido de /favicon.ico (o servidor responderia 404) até a fase de imagens */}
-    <link rel="icon" href="data:," />
+    {/* O favicon é um arquivo do app (`public/favicon.svg`): declará-lo evita o pedido de /favicon.ico */}
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   </head>
   <body>
     {idMedicao !== undefined && <Consentimento id={idMedicao} idioma={idioma} />}

@@ -18,6 +18,8 @@ const pt = {
     titulo: "MailVigil: analisador de relatórios DMARC de código aberto",
     descricao:
       "Lê os relatórios agregados DMARC, agrupa o tráfego por remetente e dá um veredito sobre p=reject com o critério à mostra. Lê a pasta sem usar a rede.",
+    imagemAlt:
+      "MailVigil: terminal com o veredito NÃO PRONTO para p=reject e as cinco regras do critério. Descubra se seu domínio já está pronto para p=reject.",
   },
   nome: "MailVigil",
   navegacao: {
@@ -133,6 +135,8 @@ const en: TextosPagina = {
     titulo: "MailVigil: open-source DMARC report analyzer",
     descricao:
       "It reads DMARC aggregate reports, groups traffic by sender and gives a verdict on p=reject with the criterion in plain sight. It reads the folder offline.",
+    imagemAlt:
+      "MailVigil: a terminal showing the verdict NOT READY for p=reject and the five rules of the criterion. Find out if your domain is ready for p=reject.",
   },
   nome: "MailVigil",
   navegacao: {
