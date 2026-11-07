@@ -1,6 +1,6 @@
 ---
 feature: Hospedagem — os dois sites no ar, cada um no seu subdomínio, com cabeçalhos de segurança, 404 e descoberta
-status: aprovado
+status: concluído
 date: 2026-11-07
 related: [001-fundacao, 002-tema, 003-medicao, 004-pagina-webvigil, 005-pagina-mailvigil]
 origin: conception
@@ -101,10 +101,10 @@ Etapa sem código e sem portão: o que ela entrega são os sites no ar, conferid
       Feito: PR #49 mesclado; o deploy saiu pelo run do CI na `main` (`35d068e`), com os dois sites publicados em 2026-11-07.
 - [x] Resumo da conferência lido, nos dois sites: todas as verificações verdes, ou cada falha tratada (cabeçalhos na 404, `Cache-Control` de `/_astro/*`, `en/404.html`, permissão do token, os riscos do design) com o desvio registrado no `design.md`. — RF-02, RF-03, RF-04, RF-06, RF-08
       Feito: 13 verificações em cada site, todas verdes.
-- [ ] Lighthouse de produção verde nos dois sites e nos dois modos, com as notas e o peso registrados aqui; cada página aberta no navegador, só com o próprio site e os hosts do GA4 depois do aceite, sem violação de CSP no console. — RF-08, ADR-6
-      Resultado até aqui: Lighthouse de produção com notas de 0,98 a 1,0 nos dois sites e nos dois modos; páginas abertas no navegador sem violação de CSP, cookie de escolha compartilhado entre os três sites e `page_view` no GA4 depois do aceite.
+- [x] Lighthouse de produção verde nos dois sites e nos dois modos, com as notas e o peso registrados aqui; cada página aberta no navegador, só com o próprio site e os hosts do GA4 depois do aceite, sem violação de CSP no console. — RF-08, ADR-6
+      Resultado (3 execuções por página e modo; desempenho, acessibilidade, boas práticas e SEO em 1,0, exceto desempenho 0,99 no MailVigil celular e 0,97 no WebVigil celular em inglês): peso mediano de 260 e 254 KiB (MailVigil, desktop, `/` e `/en/`), 278 e 269 KiB (MailVigil, celular), 329 KiB nas duas páginas do WebVigil no desktop e 265 KiB nas duas no celular, todos abaixo do limite de 500 KB. Páginas abertas no navegador sem violação de CSP, cookie de escolha compartilhado entre os três sites e `page_view` no GA4 depois do aceite.
 - [x] Um rollback real feito e desfeito num dos sites, antes de divulgar os endereços. — RF-05, ADR-9
       Feito: rollback e volta conferidos num dos sites.
 - [x] `*.workers.dev` e a pré-visualização conferidos como fora do ar nos dois projetos (só o subdomínio aparece). — RF-01
       Feito: `workers.dev` desligado nos dois.
-- [ ] Os três arquivos da spec com `status: concluído` e a linha da 006 em `specs/README.md` como `concluído`. — Impacto
+- [x] Os três arquivos da spec com `status: concluído` e a linha da 006 em `specs/README.md` como `concluído`. — Impacto
