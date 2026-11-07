@@ -174,7 +174,7 @@ test/                 # testes do repositório: impessoalidade.test.ts (ver "Con
 
 - **CI** (`.github/workflows/ci.yml`): job `qualidade` (Prettier, ESLint, typecheck, testes, build) e job
   `seguranca` (`pnpm audit`). Mais CodeQL, `dependency-review` e um `pnpm audit` semanal
-  (`pnpm-audit.yml`). Toda `uses:` fixada por SHA, `runs-on: ubuntu-26.04`.
+  (`pnpm-audit.yml`). Toda `uses:` fixada por SHA, `runs-on: ubuntu-26.04`, todo `actions/checkout` com `persist-credentials: false`.
 - **Lighthouse CI** (`.github/workflows/lighthouse.yml`): mede o build de cada site, em celular e em desktop.
   Erro: acessibilidade, boas práticas e SEO abaixo de 0,95, contraste, imagem sem dimensão, alvo de toque
   pequeno, erro no console, CLS acima de 0,1. Aviso: desempenho abaixo de 0,9 e peso acima de 500 KB. Não é
