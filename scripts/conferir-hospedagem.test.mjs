@@ -380,4 +380,9 @@ describe("montarTabela", () => {
     expect(tabela).toContain("| A | ✅ | bem |");
     expect(tabela).toContain("| B | ❌ | a \\| b |");
   });
+
+  it("escapa a contrabarra antes da barra vertical, para o texto não reabrir a célula", () => {
+    const tabela = montarTabela("T", [{ nome: "C", ok: false, detalhe: "a\\|b" }]);
+    expect(tabela).toContain("| C | ❌ | a\\\\\\|b |");
+  });
 });

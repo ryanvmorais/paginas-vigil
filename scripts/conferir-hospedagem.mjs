@@ -450,7 +450,9 @@ const verificarHttp = async (endereco, buscar) => {
  * @returns {string} o Markdown, terminado em quebra de linha
  */
 export const montarTabela = (titulo, verificacoes) => {
-  const celula = (/** @type {string} */ texto) => texto.replace(/\|/g, "\\|").replace(/\n/g, " ");
+  // A contrabarra se escapa primeiro: sem isso, um `\|` do texto viraria `\\|` e reabriria a célula.
+  const celula = (/** @type {string} */ texto) =>
+    texto.replace(/\\/g, "\\\\").replace(/\|/g, "\\|").replace(/\n/g, " ");
   return [
     `### ${titulo}`,
     "",
