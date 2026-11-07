@@ -128,7 +128,7 @@ em "Dependências externas".
 - **Given** qualquer página com medição configurada
   **When** o visitante usa o controle "Gerenciar cookies" do rodapé
   **Then** o banner reabre (a linha que indicava a escolha atual saiu na spec 004; os dois botões bastam), e mudar de aceitar para recusar revoga o
-  consentimento e passa a não enviar mais medição.
+  consentimento, remove os cookies `_ga*` do navegador e passa a não enviar mais medição.
 
 ### RF-05 — Aviso curto e link para a política
 

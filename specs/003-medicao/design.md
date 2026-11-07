@@ -139,7 +139,8 @@ Regras:
   `page_view` inicial já sair concedido. O `config` leva `allow_google_signals: false` e
   `allow_ad_personalization_signals: false`. Há um único `config` por página (RF-07), garantido por uma
   marca "já carregado".
-- **Revogação:** só `consent update` com `analytics_storage: "denied"`, como no site principal (ADR-6).
+- **Recusa e revogação:** `consent update` com `analytics_storage: "denied"` e remoção dos cookies `_ga*`
+  (porta `apagarCookies`), como no site principal (ADR-6).
   Aceitar de novo na mesma página só concede de novo; não recarrega o `gtag.js` nem repete o `page_view`.
 
 ## Contrato do cookie de escolha
@@ -298,15 +299,22 @@ O deploy (fase de publicação) importa `politicaCsp` para escrever o cabeçalho
   aceita `frame-ancestors` e duplicaria o cabeçalho. `.mjs` porque o `verificar-dist` roda em Node puro.
 - **Trade-off:** a política ainda não é emitida por nada até o deploy; o teste e o verificador a protegem até lá.
 
-### ADR-6 — Revogar só pelo Consent Mode, como no site principal
+### ADR-6 — Recusar ou revogar nega o Consent Mode e apaga os cookies `_ga*`, como no site principal
 
-- **Decisão:** ao recusar depois de ter aceitado, `consent update` com `analytics_storage: "denied"` e nada
-  mais. Os cookies `_ga*` já gravados não são apagados.
-- **Alternativas:** apagar `_ga` e `_ga_*` na revogação.
-- **Porquê:** os três sites compartilham a propriedade e o cookie `_ga` do domínio; manter o mesmo
-  comportamento do site principal evita que a revogação aja diferente conforme o site em que foi feita.
-- **Trade-off:** o identificador antigo permanece no navegador até expirar, sem ser enviado nem renovado
-  enquanto o consentimento estiver negado. Se o site principal passar a apagá-lo, este design acompanha.
+- **Decisão:** ao recusar (também depois de ter aceitado), `consent update` com `analytics_storage: "denied"`
+  (só se o `gtag.js` já foi carregado na página) e remoção dos cookies `_ga` e `_ga_<ID>` do navegador. A
+  remoção roda a cada recusa e também ao restaurar uma recusa gravada, porque ela pode ter sido feita em
+  outro site, que não alcança os cookies do site atual. Como o `gtag.js` grava no domínio registrável e um
+  cookie de nome igual pode existir só no host, a remoção tenta o host, o host com ponto e o domínio
+  `.ryanmorais.com.br`.
+- **Alternativas:** só o `consent update`, deixando os cookies até expirarem (era a decisão original).
+- **Porquê:** os três sites compartilham a propriedade e o cookie `_ga` do domínio; o site principal passou a
+  apagar os cookies ao recusar e este design o acompanha, para a recusa agir igual em qualquer site. Recusar também deixa de significar "o identificador antigo continua no navegador".
+- **Trade-off:** o visitante que recusa num site perde o identificador nos três (o cookie é do domínio), o
+  que é o efeito esperado de uma recusa. A remoção é feita por uma porta injetada (`apagarCookies`), então o
+  núcleo continua puro e testável sem navegador (RNF-05).
+- **Histórico:** a primeira versão deste ADR mantinha os cookies até expirarem, "como no site principal", que
+  então não os apagava.
 
 ### ADR-7 — Identificador no HTML, não no pacote de JavaScript
 
@@ -358,8 +366,8 @@ src>` do consentimento só quando o banner existe; se nem isso fechar RF-06, o b
 - **`consentimento.test.ts`:** estado padrão negado nos quatro campos; aceitar concede só `analytics_storage`;
   recusar mantém tudo negado e não carrega o `gtag.js`; restauração a partir do cookie, do armazenamento local
   e da memória; cookie que não confirma na leitura cai para o local; local que lança cai para a memória; o
-  cookie vence o local; valor estranho no cookie é "sem escolha"; revogação só nega `analytics_storage`;
-  `criarGtag` empurra `arguments`; ordem dos comandos (`default` → `update` → `js` → `config`) e um único
+  cookie vence o local; valor estranho no cookie é "sem escolha"; recusar nega `analytics_storage` (se o `gtag.js` já foi carregado) e apaga os
+  cookies `_ga*`, também ao restaurar uma recusa; `nomesCookiesGoogle` e `montarRemocaoCookie`; `criarGtag` empurra `arguments`; ordem dos comandos (`default` → `update` → `js` → `config`) e um único
   `config` mesmo com aceitar, recusar e aceitar de novo.
 - **`medicao.test.ts`:** `G-ABC1234567` válido; vazio, `undefined`, com espaço, minúsculo, curto e longo demais
   recusados.

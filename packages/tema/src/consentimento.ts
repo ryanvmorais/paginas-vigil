@@ -8,8 +8,8 @@
  * armazenamento local e, por último, para a memória da página, sem lançar erro (RF-03, ADR-2).
  *
  * A medição segue o Consent Mode: tudo começa negado, aceitar concede só `analytics_storage` e o
- * `gtag.js` só é baixado depois do aceite (RF-01, RF-07, RNF-04, ADR-1). Revogar nega
- * `analytics_storage` por `consent update` e nada mais, como no site principal (ADR-6).
+ * `gtag.js` só é baixado depois do aceite (RF-01, RF-07, RNF-04, ADR-1). Recusar ou revogar nega
+ * `analytics_storage` por `consent update` e remove os cookies `_ga*`, como no site principal (ADR-6).
  */
 
 import { DOMINIO_COOKIE } from "./politica";
@@ -67,7 +67,7 @@ export const estadoPadrao: EstadoConsentimento = {
 /** Estado ao aceitar: só `analytics_storage`; publicidade e personalização nunca mudam (RNF-04). */
 export const estadoAceito: EstadoConsentimento = { analytics_storage: "granted" };
 
-/** Estado ao revogar: só `analytics_storage` volta a negado (ADR-6). */
+/** Estado ao revogar: só `analytics_storage` volta a negado; os cookies saem à parte (ADR-6). */
 export const estadoRevogado: EstadoConsentimento = { analytics_storage: "denied" };
 
 /**
@@ -211,6 +211,32 @@ export function lerCookie(cabecalho: string, nome = NOME_COOKIE): string | undef
 }
 
 /**
+ * Lista os cookies do Google Analytics (`_ga` e `_ga_<ID>`) presentes no texto de `document.cookie`.
+ *
+ * @param cabecalho - texto de `document.cookie`, com os cookies separados por `;`
+ * @returns os nomes, sem repetição, na ordem em que aparecem
+ */
+export function nomesCookiesGoogle(cabecalho: string): string[] {
+  const nomes = cabecalho
+    .split(";")
+    .map((parte) => (parte.split("=")[0] ?? "").trim())
+    .filter((nome) => nome.startsWith("_ga"));
+  return [...new Set(nomes)];
+}
+
+/**
+ * Monta o texto de atribuição de `document.cookie` que remove um cookie do Google Analytics.
+ *
+ * @param nome - nome do cookie a remover
+ * @param dominio - atributo `Domain` do cookie a casar; ausente remove o cookie só do host
+ * @returns texto pronto para atribuir a `document.cookie`
+ */
+export function montarRemocaoCookie(nome: string, dominio?: string): string {
+  const escopo = dominio === undefined ? "" : `; Domain=${dominio}`;
+  return `${nome}=; Path=/; Max-Age=0${escopo}`;
+}
+
+/**
  * Cria a função `gtag` ligada a um `dataLayer`.
  *
  * O `gtag.js` só reconhece o objeto `arguments`, não um array, então o comando é empurrado assim.
@@ -242,6 +268,8 @@ export interface EntradaMedicao {
   gtag: Gtag;
   /** Cria o elemento `<script>` do `gtag.js`; só é chamada depois do aceite. */
   carregarScript(url: string): void;
+  /** Remove do navegador os cookies `_ga*`; é chamada a cada recusa, mesmo sem aceite nesta página. */
+  apagarCookies(): void;
   /** Relógio injetado para o comando `js`; o padrão é a hora de agora. */
   agora?: () => Date;
 }
@@ -265,7 +293,7 @@ export interface Medicao {
  * @returns a medição, com `iniciar` e `aplicar`
  */
 export function criarMedicao(entrada: EntradaMedicao): Medicao {
-  const { id, gtag, carregarScript, agora = () => new Date() } = entrada;
+  const { id, gtag, carregarScript, apagarCookies, agora = () => new Date() } = entrada;
   let carregada = false;
 
   return {
@@ -274,8 +302,10 @@ export function criarMedicao(entrada: EntradaMedicao): Medicao {
     },
     aplicar(escolha) {
       if (escolha === "recusada") {
-        // Sem medição carregada tudo já está negado; depois do aceite, só revoga o armazenamento.
+        // Sem medição carregada tudo já está negado; depois do aceite, revoga o armazenamento.
         if (carregada) gtag("consent", "update", estadoRevogado);
+        // A recusa pode ter sido feita em outro site, que não alcança estes cookies (ADR-6).
+        apagarCookies();
         return;
       }
 

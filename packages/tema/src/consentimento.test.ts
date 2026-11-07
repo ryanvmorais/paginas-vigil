@@ -16,7 +16,9 @@ import {
   lerCookie,
   lerEscolha,
   montarCookie,
+  montarRemocaoCookie,
   NOME_COOKIE,
+  nomesCookiesGoogle,
   urlGtag,
   type Armazem,
   type Memoria,
@@ -259,6 +261,34 @@ describe("urlGtag", () => {
   });
 });
 
+describe("cookies do Google Analytics", () => {
+  it("lista os cookies que começam com _ga (como _ga e _ga_<ID>), sem repetição", () => {
+    const cabecalho =
+      "cookies-accepted=true; _ga=GA1.1.1.2; _ga_ABC1234567=GS2.1.s1; _ga=outro; _gat=1";
+
+    expect(nomesCookiesGoogle(cabecalho)).toEqual(["_ga", "_ga_ABC1234567", "_gat"]);
+  });
+
+  it("devolve lista vazia sem cookies do Google", () => {
+    expect(nomesCookiesGoogle("")).toEqual([]);
+    expect(nomesCookiesGoogle("cookies-accepted=true; tema=escuro")).toEqual([]);
+  });
+
+  it("não confunde um cookie que só contém _ga no meio do nome", () => {
+    expect(nomesCookiesGoogle("meu_ga=1; x=_ga")).toEqual([]);
+  });
+
+  it("monta a remoção do cookie do host, sem Domain", () => {
+    expect(montarRemocaoCookie("_ga")).toBe("_ga=; Path=/; Max-Age=0");
+  });
+
+  it("monta a remoção do cookie de um domínio", () => {
+    expect(montarRemocaoCookie("_ga_ABC1234567", ".ryanmorais.com.br")).toBe(
+      "_ga_ABC1234567=; Path=/; Max-Age=0; Domain=.ryanmorais.com.br",
+    );
+  });
+});
+
 describe("criarMedicao", () => {
   const ID = "G-ABC1234567";
   const AGORA = new Date("2026-01-01T00:00:00Z");
@@ -267,13 +297,15 @@ describe("criarMedicao", () => {
   function montar() {
     const chamadas: unknown[][] = [];
     const carregarScript = vi.fn<(url: string) => void>();
+    const apagarCookies = vi.fn<() => void>();
     const medicao = criarMedicao({
       id: ID,
       gtag: (...args) => chamadas.push(args),
       carregarScript,
+      apagarCookies,
       agora: () => AGORA,
     });
-    return { chamadas, carregarScript, medicao };
+    return { chamadas, carregarScript, apagarCookies, medicao };
   }
 
   it("define o estado negado ao iniciar e não carrega o gtag.js", () => {
@@ -311,14 +343,35 @@ describe("criarMedicao", () => {
     expect(carregarScript).not.toHaveBeenCalled();
   });
 
-  it("ao recusar depois de aceitar, só nega analytics_storage", () => {
-    const { chamadas, medicao } = montar();
+  it("ao recusar depois de aceitar, nega analytics_storage e apaga os cookies", () => {
+    const { chamadas, apagarCookies, medicao } = montar();
 
     medicao.iniciar();
     medicao.aplicar("aceita");
+    expect(apagarCookies).not.toHaveBeenCalled();
     medicao.aplicar("recusada");
 
     expect(chamadas.at(-1)).toEqual(["consent", "update", estadoRevogado]);
+    expect(apagarCookies).toHaveBeenCalledOnce();
+  });
+
+  it("ao restaurar uma recusa feita em outro site, apaga os cookies sem mudar o consentimento", () => {
+    const { chamadas, apagarCookies, medicao } = montar();
+
+    medicao.iniciar();
+    medicao.aplicar("recusada");
+
+    expect(chamadas).toEqual([["consent", "default", estadoPadrao]]);
+    expect(apagarCookies).toHaveBeenCalledOnce();
+  });
+
+  it("ao aceitar, não apaga os cookies", () => {
+    const { apagarCookies, medicao } = montar();
+
+    medicao.iniciar();
+    medicao.aplicar("aceita");
+
+    expect(apagarCookies).not.toHaveBeenCalled();
   });
 
   it("mantém um único config e um único carregamento com aceitar, recusar e aceitar de novo", () => {
