@@ -13,7 +13,7 @@ origin: conception
 As specs 004 e 005 fecharam as páginas do WebVigil e do MailVigil, e a 003 deixou a medição e a CSP prontas.
 Falta pô-las no ar. Cada site vira uma pasta estática (`apps/<site>/dist`) e deve responder no próprio
 subdomínio: `webvigil.ryanmorais.com.br` e `mailvigil.ryanmorais.com.br`. A zona `ryanmorais.com.br` já está
-na Cloudflare, e o site principal e o DMARC Fácil já são servidos de lá.
+na Cloudflare.
 
 O que as specs anteriores deixaram para esta:
 
@@ -27,18 +27,18 @@ O que as specs anteriores deixaram para esta:
 - **Há coisas que só se verificam no ar:** `Secure` do cookie em HTTPS, a escolha lida entre os três sites,
   a CSP como cabeçalho, `page_view` no GA4.
 
-O DMARC Fácil (repositório `dmarc-facil`, spec 007) resolveu o mesmo problema para uma pasta sem build:
-Workers Static Assets da Cloudflare, `wrangler` por `npx`, workflow de deploy depois do CI, ambiente
-`producao` com o token. Esta spec parte desse modelo e acrescenta o que muda aqui: **dois sites num
-repositório, um build antes do deploy e uma CSP que depende do modo de medição.**
+O modelo de hospedagem mais simples para uma pasta estática é: Workers Static Assets da Cloudflare,
+`wrangler` por `npx`, workflow de deploy depois do CI, ambiente `producao` com o token. Esta spec parte
+dele e acrescenta o que muda aqui: **dois sites num repositório, um build antes do deploy e uma CSP que
+depende do modo de medição.**
 
 Regras do projeto que pesam aqui:
 
 - **Nenhum script inline** (spec 001, RNF-02): a hospedagem não pode injetar script nem reescrever o HTML.
   A Web Analytics da Cloudflare injeta um _beacon_ e quebraria a CSP.
-- **Publicar é ato do mantenedor.** A configuração e o workflow ficam no repositório. Criar o token, o
-  ambiente `producao`, conectar os domínios e disparar o primeiro deploy são do mantenedor, e o passo a passo fica
-  fora do repositório.
+- **A operação com conta fica fora do repositório.** A configuração e o workflow ficam nele. O token, o
+  ambiente `producao` e a conexão dos domínios dependem do acesso do mantenedor às contas da Cloudflare e do
+  GitHub; o repositório lista só os nomes dos segredos que o workflow espera.
 - **A ferramenta de deploy não é dependência do `package.json`**: a árvore do `wrangler` derrubaria o
   `pnpm audit` obrigatório (o mesmo caso do `@lhci/cli`).
 
@@ -155,9 +155,9 @@ Regras do projeto que pesam aqui:
   **Then** tem o menor escopo possível, vive só como segredo do ambiente `producao` do GitHub, restrito à
   `main`, e nunca aparece em log, no repositório ou em `.claude/`.
 - **Given** um deploy ruim
-  **When** o mantenedor precisa desfazer
-  **Then** existe um caminho documentado para voltar à versão anterior em minutos (reverter o commit na
-  `main`), testado uma vez antes de divulgar o endereço.
+  **When** é preciso desfazer
+  **Then** existe um caminho documentado (ADR-9) para voltar à versão anterior em minutos (reverter o commit
+  na `main`), testado uma vez antes de tornar o site público.
 - **Given** o workflow de deploy
   **When** é lido
   **Then** toda `uses:` está fixada por SHA, o job roda em `ubuntu-26.04` e o `wrangler` entra por `npx`, não
@@ -173,7 +173,7 @@ Regras do projeto que pesam aqui:
   **Then** é idêntico byte a byte: a hospedagem não injetou script nem reescreveu nada (nenhuma minificação
   ou "otimização" automática da Cloudflare).
 - **Given** a configuração da conta e da zona
-  **When** o mantenedor segue o passo a passo
+  **When** é conferida
   **Then** a Web Analytics e as otimizações que mexem no conteúdo estão desligadas para os dois subdomínios,
   sem alterar o que vale para o resto da zona.
 
@@ -187,8 +187,8 @@ Regras do projeto que pesam aqui:
   **Then** devolve um sitemap válido com as duas versões de idioma da página inicial, cada uma com os
   `xhtml:link` de alternativas, nos mesmos endereços dos `canonical` e `hreflang` da página.
 - **Given** o endereço público de cada site
-  **When** aparece em `astro.config.mjs`, no `wrangler`, no `robots.txt`, no sitemap, no workflow e nos
-  limites do Lighthouse de produção
+  **When** aparece em `astro.config.mjs`, no `wrangler`, no `robots.txt`, no sitemap e nos limites do
+  Lighthouse de produção
   **Then** é o mesmo em todos, com uma fonte só e um teste que compara os demais com ela.
 
 ### RF-08 — Conferência do que está no ar
@@ -209,11 +209,6 @@ Regras do projeto que pesam aqui:
 - **Given** o `README.md`, o `README.en.md`, o `CLAUDE.md`, o `docs/stack.md` e o `specs/README.md`
   **When** a spec é concluída
   **Then** dizem onde cada site está e qual tecnologia o serve, sem prometer data de lançamento.
-- **Given** o primeiro deploy
-  **When** o mantenedor precisa fazê-lo
-  **Then** o guia de operação dele, mantido fora do repositório, traz o passo a passo em ordem (token,
-  ambiente `producao`, variável de medição, domínios, desligar `workers.dev` e Web Analytics, deploy,
-  conferência), cada passo dizendo quem faz e o que conferir.
 
 ## Requisitos não-funcionais
 
@@ -230,7 +225,8 @@ atingir, exige decisão do mantenedor antes de seguir.
 ### RNF-03 — Configuração como arquivo
 
 Tudo que dá para versionar (projetos, pasta de assets, 404, cabeçalhos, workflow) mora no repositório. O
-que só existe no painel (domínios, token, Web Analytics) é listado no guia de operação, com como conferir.
+que só existe no painel (domínios, token, Web Analytics) fica fora do repositório, e a conferência do que está
+no ar (RF-06, RF-08) cobre o resultado.
 
 ### RNF-04 — Testes sem rede
 
@@ -254,10 +250,11 @@ Nenhuma.
 
 1. Endereços `webvigil.ryanmorais.com.br` e `mailvigil.ryanmorais.com.br` (decisão do mantenedor, 2026-11-01).
 2. Plataforma: **Workers Static Assets** da Cloudflare, um `wrangler.json` por app, `deploy.yml` e ambiente
-   `producao`, no modelo do DMARC Fácil (decisão do mantenedor, 2026-11-07).
+   `producao` (decisão do mantenedor, 2026-11-07).
 3. Analytics: GA4 com Consent Mode, mesma propriedade do site principal (spec 003).
-4. Publicar, criar token e conectar domínio são atos do mantenedor.
-5. O guia de operação fica fora do repositório.
+4. Publicar, criar token e conectar domínio dependem do acesso do mantenedor às contas.
+5. A operação com conta (token, painel, domínios) fica fora do repositório, que guarda só a configuração e os
+   nomes dos segredos.
 6. O primeiro deploy já sai com o identificador real de medição, guardado como variável do ambiente
    `producao` (decisão do mantenedor, 2026-11-07).
 7. Token novo da Cloudflare, só para este repositório (decisão do mantenedor, 2026-11-07).
@@ -269,9 +266,11 @@ Nenhuma.
 
 - `test/hospedagem.test.ts`: cada `wrangler.json` aponta para o `dist` do próprio app, `not_found_handling`
   é `404-page`, `workers_dev` e `preview_urls` desligados, rota com o domínio certo.
-- `test/cabecalhos.test.ts`: o `_headers` gerado traz os cabeçalhos de RF-02 nos dois modos de medição, a CSP
-  é a de `politicaCsp`, sem `unsafe-inline`, `unsafe-eval` nem `*`.
-- `test/descoberta.test.ts`: `robots.txt` e sitemap com o endereço de `astro.config.mjs`; 404 sem `canonical`.
+- `scripts/hospedagem.test.mjs`: o `_headers` gerado traz os cabeçalhos de RF-02 nos dois modos de medição, a
+  CSP é a de `politicaCsp`, sem `unsafe-inline`, `unsafe-eval` nem `*`; `robots.txt` e sitemap com o endereço
+  de `astro.config.mjs`.
+- `scripts/verificar-dist.test.mjs`: a 404 sem `canonical` e com `noindex`; `_headers`, `robots.txt` e sitemap
+  coerentes com o HTML.
 - `test/workflow-deploy.test.ts`: toda `uses:` por SHA, `runs-on: ubuntu-26.04`, deploy só na `main`,
   segredo só no ambiente `producao`.
 - Conferência do que está no ar (RF-08): passo do workflow de deploy, com o resultado no log.

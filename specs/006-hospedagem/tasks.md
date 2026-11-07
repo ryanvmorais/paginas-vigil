@@ -10,8 +10,8 @@ origin: conception
 
 Tarefas pequenas, na ordem. Cada etapa de código fecha com o portão de qualidade (`pnpm format:check`, `pnpm lint`,
 `pnpm typecheck`, `pnpm test` e `pnpm build`) e o resultado real registrado na própria tarefa. Uma etapa, um PR.
-Nenhuma tarefa publica nada: o token, o ambiente `producao`, os domínios e o primeiro deploy são do mantenedor
-(Etapas 5 e 8), e só a Etapa 8 muda o que está no ar. Os testes não acessam a rede (RNF-04); endereços e
+Nenhuma tarefa de código publica nada: o token, o ambiente `producao` e os domínios dependem do acesso às
+contas (Etapa 5), e só a Etapa 8 muda o que está no ar. Os testes não acessam a rede (RNF-04); endereços e
 registros em teste são sintéticos, menos o endereço público de cada site, que é o `site` do `astro.config.mjs`.
 A tela nova (a 404) só vira código depois do mockup aprovado (Etapa 1).
 
@@ -19,8 +19,8 @@ A tela nova (a 404) só vira código depois do mockup aprovado (Etapa 1).
 
 Etapa sem código de interface: o que ela entrega é a decisão.
 
-- [x] Montar o mockup da 404 num Artifact, em 390 e 1280 px, português e inglês, com a variação clara e escura, a partir da seção "Página 404" do `design.md` (2 ou 3 alternativas, uma recomendada). — RF-03
-- [x] O mantenedor aprova uma alternativa; a decisão, o motivo e o rascunho final entram na seção "Página 404" do `design.md` (sem link de Artifact privado). — RF-03
+- [x] Montar o mockup da 404, em 390 e 1280 px, português e inglês, com a variação clara e escura, a partir da seção "Página 404" do `design.md` (2 ou 3 alternativas, uma recomendada). — RF-03
+- [x] O mantenedor aprova uma alternativa; a decisão, o motivo e o rascunho final entram na seção "Página 404" do `design.md` (sem link para o mockup). — RF-03
 
 ## Etapa 2 — Página 404
 
@@ -59,14 +59,14 @@ Etapa sem código de interface: o que ela entrega é a decisão.
 - [x] Portão de qualidade, com a cobertura de `conferir-hospedagem.mjs` e `hospedagem.mjs`. — registrar o resultado
       Resultado: `format:check`, `lint` e `typecheck` sem erro; `pnpm test`: 17 arquivos, 283 testes verdes; `pnpm build` dos dois sites, sem e com `G-TESTE12345`, com `verificar-dist` sem problemas. Cobertura medida à parte (o repositório não tem o provedor de cobertura e não ganha uma dependência por isso): `conferir-hospedagem.mjs` 85 % das linhas e `hospedagem.mjs` 73 %, o que sobra é só o `main` da linha de comando, e a conferência real contra o domínio só roda no deploy (RF-08). O `tsconfig.json` não existe na raiz; o `@ts-check` do script foi conferido com `tsc --checkJs` sem erro, e o ESLint já cobre `**/*.mjs`.
 
-## Etapa 5 — Preparação da publicação (o mantenedor)
+## Etapa 5 — Preparação da publicação
 
 Etapa sem código e sem portão. Vem **antes** do merge do PR da Etapa 6: o `deploy.yml` roda a partir da `main`
-e, sem o ambiente pronto, o primeiro run falharia. Cada passo é do mantenedor.
+e, sem o ambiente pronto, o primeiro run falharia.
 
-- [x] Operação da publicação definida (token da Cloudflare com o menor escopo, ambiente `producao`, conferência da zona, caminhos de volta). — RF-05, RF-06, RF-09, ADR-6, ADR-9
+- [x] Publicação definida: token da Cloudflare com o menor escopo, ambiente `producao`, conferência da zona e caminhos de volta. — RF-05, RF-06, ADR-6, ADR-9
       Feito: o que vale para quem clonou está em `docs/stack.md` e no `CLAUDE.md`.
-- [x] O token, o ambiente `producao`, os segredos e a variável criados, e a zona conferida (Web Analytics e demais otimizações que reescrevem conteúdo desligadas para os dois subdomínios). — RF-05, RF-06
+- [x] Ambiente pronto: token, ambiente `producao`, segredos e variável criados; Web Analytics e demais otimizações que reescrevem conteúdo desligadas para os dois subdomínios. — RF-05, RF-06
 
 ## Etapa 6 — Workflow de deploy e Lighthouse de produção
 
@@ -93,7 +93,7 @@ e, sem o ambiente pronto, o primeiro run falharia. Cada passo é do mantenedor.
 - [x] Portão de qualidade final, com o total de testes e a cobertura. — registrar o resultado. A spec fica `em andamento` até a Etapa 8.
       Resultado: `format:check`, `lint` e `typecheck` sem erro; `pnpm test`: 19 arquivos, 340 testes verdes; `pnpm build` dos dois sites, sem e com `G-TESTE12345`, com `verificar-dist` sem problemas. Etapa só de documentação: nenhum código mudou, então a cobertura é a da Etapa 4 (`conferir-hospedagem.mjs` 85 % e `hospedagem.mjs` 73 %).
 
-## Etapa 8 — Publicação (o mantenedor)
+## Etapa 8 — Publicação
 
 Etapa sem código e sem portão: o que ela entrega são os sites no ar, conferidos pelo `deploy.yml` (RF-08).
 
@@ -103,7 +103,7 @@ Etapa sem código e sem portão: o que ela entrega são os sites no ar, conferid
       Feito: 13 verificações em cada site, todas verdes.
 - [x] Lighthouse de produção verde nos dois sites e nos dois modos, com as notas e o peso registrados aqui; cada página aberta no navegador, só com o próprio site e os hosts do GA4 depois do aceite, sem violação de CSP no console. — RF-08, ADR-6
       Resultado (3 execuções por página e modo; desempenho, acessibilidade, boas práticas e SEO em 1,0, exceto desempenho 0,99 no MailVigil celular e 0,97 no WebVigil celular em inglês): peso mediano de 260 e 254 KiB (MailVigil, desktop, `/` e `/en/`), 278 e 269 KiB (MailVigil, celular), 329 KiB nas duas páginas do WebVigil no desktop e 265 KiB nas duas no celular, todos abaixo do limite de 500 KB. Páginas abertas no navegador sem violação de CSP, cookie de escolha compartilhado entre os três sites e `page_view` no GA4 depois do aceite.
-- [x] Um rollback real feito e desfeito num dos sites, antes de divulgar os endereços. — RF-05, ADR-9
+- [x] Um rollback real feito e desfeito num dos sites, antes de tornar os sites públicos. — RF-05, ADR-9
       Feito: rollback e volta conferidos num dos sites.
 - [x] `*.workers.dev` e a pré-visualização conferidos como fora do ar nos dois projetos (só o subdomínio aparece). — RF-01
       Feito: `workers.dev` desligado nos dois.
