@@ -16,6 +16,12 @@ describe("textos do tema", () => {
     expect(chavesFaltantes(textos.en, textos.pt)).toEqual([]);
   });
 
+  it("leva o nome do produto na frase da 404, nos dois idiomas", () => {
+    for (const idioma of ["pt", "en"] as const) {
+      expect(textos[idioma].naoEncontrada.frase).toContain("{produto}");
+    }
+  });
+
   it("não deixa nenhum texto vazio", () => {
     for (const idioma of ["pt", "en"] as const) {
       const vazios = JSON.stringify(textos[idioma]).includes('""');

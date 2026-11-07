@@ -132,6 +132,42 @@ describe("verificarHtml: marcação de idioma (RF-03)", () => {
   });
 });
 
+describe("verificarHtml: página noindex (404)", () => {
+  const NOINDEX = '<meta name="robots" content="noindex">';
+  const SELETOR = '<a href="/" hreflang="pt-BR">PT</a>';
+
+  it("aceita a página sem a marcação de idioma e de compartilhamento, mesmo com o seletor de idioma", () => {
+    const html = pagina({ cabeca: NOINDEX, corpo: SELETOR });
+    expect(verificarHtml(html)).toEqual([]);
+  });
+
+  it("recusa canonical, alternate e og:* numa página noindex", () => {
+    const problemas = verificarHtml(pagina({ cabeca: NOINDEX + CABECA_BILINGUE }));
+    expect(problemas).toEqual([
+      expect.stringContaining("canonical"),
+      expect.stringContaining("alternate"),
+      expect.stringContaining("og:"),
+    ]);
+  });
+
+  it("reconhece noindex entre outras diretivas e sem diferença de caixa", () => {
+    const html = pagina({
+      cabeca: '<meta name="Robots" content="NOFOLLOW, NoIndex">' + CABECA_BILINGUE,
+    });
+    expect(verificarHtml(html).length).toBe(3);
+  });
+
+  it("não trata como noindex um meta robots que permite indexar", () => {
+    const html = pagina({ cabeca: '<meta name="robots" content="index, follow">', corpo: SELETOR });
+    expect(verificarHtml(html).length).toBeGreaterThan(0);
+  });
+
+  it("continua conferindo as outras regras (sem inline)", () => {
+    const html = pagina({ cabeca: NOINDEX, corpo: "<script>x()</script>" });
+    expect(verificarHtml(html)).toEqual([expect.stringContaining("script")]);
+  });
+});
+
 describe("verificarHtml: imagem social", () => {
   it("exige og:image na página bilíngue", () => {
     const html = pagina({

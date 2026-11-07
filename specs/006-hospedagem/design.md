@@ -416,7 +416,9 @@ o guia manda fazer o PR de reversão logo depois.
 - **O Astro pode não emitir `en/404.html`.** Para `404.astro` ele emite `404.html`; para `en/404.astro` o
   arquivo pode sair como `en/404/index.html`, que a hospedagem não escolhe como "404 mais próxima". Mitigação:
   a Etapa 2 confere o arquivo gerado e, se for o caso, o gerador copia a página para `en/404.html`; a regra 8
-  do `verificar-dist` falha se faltar.
+  do `verificar-dist` falha se faltar. **Conferido na Etapa 2 (2026-11-07): o Astro 7 emite `en/404/index.html`**
+  (e `404.html` na raiz), então o desvio vale: o gerador da Etapa 3 copia `en/404/index.html` para
+  `en/404.html`, e a regra 8 exige o arquivo copiado.
 - **Token com permissão curta para criar o domínio.** Mitigação: o primeiro deploy é acompanhado; o guia diz
   como ampliar o escopo o mínimo necessário.
 - **Zona com recursos automáticos ligados** (Rocket Loader, ofuscação de e-mail, Web Analytics). Mitigação: ADR-6.

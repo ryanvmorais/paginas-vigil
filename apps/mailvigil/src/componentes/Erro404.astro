@@ -1,0 +1,55 @@
+---
+/**
+ * @file Página 404 do MailVigil, no idioma pedido: cabeçalho sem menu, o bloco central e o rodapé.
+ *
+ * Fica fora dos buscadores (`indexavel={false}`) e sem menu, porque não há seção para onde ir. Os dois
+ * seletores de idioma levam às páginas iniciais (`/` e `/en/`), já que uma 404 não tem "mesma página"
+ * no outro idioma: por isso o `caminho` passado a eles é sempre a raiz. As duas páginas (`404.astro`
+ * e `en/404.astro`) só diferem no idioma que passam para cá; a hospedagem serve a 404 mais próxima do
+ * caminho pedido (spec 006, ADR-3).
+ */
+import Cabecalho from "@paginas-vigil/tema/componentes/Cabecalho.astro";
+import NaoEncontrada from "@paginas-vigil/tema/componentes/NaoEncontrada.astro";
+import Rodape from "@paginas-vigil/tema/componentes/Rodape.astro";
+import { caminhoNoIdioma } from "@paginas-vigil/tema/caminhos";
+import type { Idioma } from "@paginas-vigil/tema/idiomas";
+import Pagina from "@paginas-vigil/tema/layouts/Pagina.astro";
+import { textos as textosTema } from "@paginas-vigil/tema/textos";
+
+import { textos } from "../textos";
+import Logo from "./Logo.astro";
+
+export interface Props {
+  idioma: Idioma;
+}
+
+const { idioma } = Astro.props;
+const t = textos[idioma];
+const tema = textosTema[idioma].naoEncontrada;
+const inicio = caminhoNoIdioma("/", idioma);
+
+const OUTRO_PRODUTO = "https://webvigil.ryanmorais.com.br";
+---
+
+<Pagina
+  produto="mailvigil"
+  idioma={idioma}
+  caminho={inicio}
+  titulo={`${tema.titulo} · ${t.nome}`}
+  descricao={tema.frase.replace("{produto}", t.nome)}
+  indexavel={false}
+>
+  <Cabecalho nome={t.nome} caminho={inicio} idioma={idioma}>
+    <Logo slot="logo" />
+  </Cabecalho>
+  <main>
+    <NaoEncontrada nome={t.nome} idioma={idioma} />
+  </main>
+  <Rodape
+    nome={t.nome}
+    licenca="Apache-2.0"
+    outroProduto={{ nome: "WebVigil", href: `${OUTRO_PRODUTO}${inicio}` }}
+    idioma={idioma}
+    caminho={inicio}
+  />
+</Pagina>

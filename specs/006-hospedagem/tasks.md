@@ -24,12 +24,16 @@ Etapa sem código de interface: o que ela entrega é a decisão.
 
 ## Etapa 2 — Página 404
 
-- [ ] `packages/tema/src/textos.ts`: os rótulos da 404 (título, frase, botão de volta) em português e em inglês, como no mockup aprovado. O teste de paridade de idiomas cobre as chaves novas. — RF-03
-- [ ] `packages/tema/src/layouts/Pagina.astro`: propriedade `indexavel` (padrão `true`); com `false` emite `<meta name="robots" content="noindex">` e omite `canonical`, `alternate` e `og:*`. Teste da propriedade. — RF-03, ADR-7
-- [ ] `packages/tema/src/componentes/NaoEncontrada.astro`: bloco central da 404, com o botão de volta à página inicial do idioma. — RF-03
-- [ ] `apps/webvigil/src/pages/404.astro` e `en/404.astro`, e o mesmo em `apps/mailvigil/`: `Pagina` com `indexavel={false}`, cabeçalho sem menu, seletor de idioma levando às páginas iniciais, rodapé. Conferir qual arquivo o Astro emite para `en/404.astro` (`en/404.html` ou `en/404/index.html`); se não for `en/404.html`, registrar o desvio e tratá-lo no gerador da Etapa 3. — RF-03, ADR-3
-- [ ] Conferir as quatro 404 no build servido, no celular e no desktop, claro e escuro, e rodar o axe sobre elas (acessibilidade sem violações, contraste incluído). — RF-03, ADR-8
-- [ ] Portão de qualidade. — registrar o resultado
+- [x] `packages/tema/src/textos.ts`: os rótulos da 404 (título, frase, botão de volta) em português e em inglês, como no mockup aprovado. O teste de paridade de idiomas cobre as chaves novas. — RF-03
+- [x] `packages/tema/src/layouts/Pagina.astro`: propriedade `indexavel` (padrão `true`); com `false` emite `<meta name="robots" content="noindex">` e omite `canonical`, `alternate` e `og:*`. Teste da propriedade. — RF-03, ADR-7
+      Desvio: o projeto não tem como renderizar um `.astro` no Vitest (o `astro` não resolve da raiz e não há `vitest.config` com o plugin do Astro). A propriedade é testada no HTML que ela gera: a regra da página `noindex` do `verificar-dist` (sem `canonical`, `alternate` nem `og:*`; o `hreflang` do seletor de idioma não conta), com testes em `verificar-dist.test.mjs`, e roda em todo build. Também omite `twitter:card`. `imagemSocialAlt` passou a opcional, e o layout falha no build se faltar numa página indexável.
+- [x] `packages/tema/src/componentes/NaoEncontrada.astro`: bloco central da 404, com o botão de volta à página inicial do idioma. — RF-03
+- [x] `apps/webvigil/src/pages/404.astro` e `en/404.astro`, e o mesmo em `apps/mailvigil/`: `Pagina` com `indexavel={false}`, cabeçalho sem menu, seletor de idioma levando às páginas iniciais, rodapé. Conferir qual arquivo o Astro emite para `en/404.astro` (`en/404.html` ou `en/404/index.html`); se não for `en/404.html`, registrar o desvio e tratá-lo no gerador da Etapa 3. — RF-03, ADR-3
+      Feito: a montagem fica em `apps/<site>/src/componentes/Erro404.astro` (como a `Vitrine`), e as duas páginas só passam o idioma. Desvio registrado no `design.md`: o Astro emite `en/404/index.html`, não `en/404.html`; o gerador da Etapa 3 copia o arquivo.
+- [x] Conferir as quatro 404 no build servido, no celular e no desktop, claro e escuro, e rodar o axe sobre elas (acessibilidade sem violações, contraste incluído). — RF-03, ADR-8
+      Resultado: build com medição servido como a hospedagem (caminho inexistente responde 404 com a página mais próxima, com a CSP de `csp.mjs`); axe em 80 combinações (2 sites, 2 idiomas, claro e escuro, 360 a 1280 px, banner aberto e fechado): 0 violações, 0 rolagem horizontal, 0 erro de console além do 404 do próprio documento. Capturas conferidas em 390 e 1280 px. Botão de volta e seletor levam a `/` e `/en/`.
+- [x] Portão de qualidade. — registrar o resultado
+      Resultado: `format:check`, `lint` e `typecheck` sem erro; `pnpm test`: 14 arquivos, 179 testes verdes; `pnpm build` dos dois sites, sem e com `G-TESTE12345`, com `verificar-dist` sem problemas.
 
 ## Etapa 3 — Arquivos da hospedagem gerados no build
 

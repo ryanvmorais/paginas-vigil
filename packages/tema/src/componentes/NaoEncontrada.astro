@@ -1,0 +1,97 @@
+---
+/**
+ * @file Bloco central da página 404: o número, o título, uma frase e o botão de volta à página inicial.
+ *
+ * Segue a alternativa A do mockup aprovado (spec 006, Etapa 1): o "404" em fonte de código e na cor do
+ * produto é só decoração (`aria-hidden`); o `h1` é o título. Tudo vai centralizado, porque é uma
+ * mensagem isolada. A frase traz o nome do produto no lugar de `{produto}`. O botão leva à página
+ * inicial do idioma da página (`/` ou `/en/`), já que uma 404 não tem "mesma página" no outro idioma.
+ * Os textos vêm de `textos.ts` do tema; a página que usa este bloco põe o `<main>` em volta.
+ */
+import { caminhoNoIdioma } from "../caminhos";
+import type { Idioma } from "../idiomas";
+import { textos } from "../textos";
+import Botao from "./Botao.astro";
+
+export interface Props {
+  /** Nome do produto, escrito na frase (WebVigil ou MailVigil). */
+  nome: string;
+  idioma: Idioma;
+}
+
+const { nome, idioma } = Astro.props;
+const t = textos[idioma].naoEncontrada;
+---
+
+<section class="envoltorio nao-encontrada">
+  <p class="numero" aria-hidden="true">
+    404
+  </p>
+  <h1>{t.titulo}</h1>
+  <p class="frase">{t.frase.replace("{produto}", nome)}</p>
+  <div class="acao">
+    <Botao href={caminhoNoIdioma("/", idioma)} variante="primario">
+      {t.voltar}
+    </Botao>
+  </div>
+</section>
+
+<style>
+  /* A coluna centralizada fica estreita (a frase não passa de ~34 caracteres por linha no desktop). */
+  .nao-encontrada {
+    display: grid;
+    justify-items: center;
+    gap: 16px;
+    padding-block: 64px 80px;
+    text-align: center;
+  }
+
+  /* O número é o único destaque. Fonte de código, na cor do produto, e fora do foco de leitura. */
+  .numero {
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: clamp(88px, 26vw, 144px);
+    line-height: 1;
+    color: var(--acc);
+  }
+
+  /* Mesmo tamanho do título do topo das páginas. */
+  h1 {
+    font-family: var(--font-title);
+    font-weight: 800;
+    font-size: clamp(30px, 7.2vw, 50px);
+    line-height: 1.1;
+    text-wrap: balance;
+  }
+
+  .frase {
+    max-width: 34em;
+    color: var(--text-2);
+    font-size: var(--fs-abertura);
+    line-height: 1.55;
+    text-wrap: pretty;
+  }
+
+  /* No celular o botão ocupa a largura toda (regra do `Botao`); acima disso, o tamanho do rótulo
+   * com uma largura mínima, centralizado na coluna. */
+  .acao {
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  .acao :global(a) {
+    min-width: 240px;
+  }
+
+  @media (min-width: 561px) {
+    .acao {
+      width: auto;
+    }
+  }
+
+  @media (min-width: 720px) {
+    .nao-encontrada {
+      padding-block: 96px 120px;
+    }
+  }
+</style>

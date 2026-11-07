@@ -2,9 +2,9 @@
  * @file Textos que o próprio tema emite, em português e em inglês.
  *
  * São os rótulos de acessibilidade e de controle que os blocos do tema escrevem sozinhos (seletor
- * de idioma, navegação, botão de copiar, banner de consentimento e links do rodapé). O texto de
- * cada site chega por prop ou `slot` e vive no dicionário do app. Os dois idiomas têm o mesmo
- * formato por tipo (`en` é `TextosTema`) e o teste de paridade confere as chaves nas duas
+ * de idioma, navegação, botão de copiar, banner de consentimento, links do rodapé e a página 404).
+ * O texto de cada site chega por prop ou `slot` e vive no dicionário do app. Os dois idiomas têm o
+ * mesmo formato por tipo (`en` é `TextosTema`) e o teste de paridade confere as chaves nas duas
  * direções (RF-10).
  */
 
@@ -33,6 +33,12 @@ const pt = {
     copiado: "Copiado",
     anuncio: "Comando copiado",
     falhou: "Não foi possível copiar o comando",
+  },
+  naoEncontrada: {
+    titulo: "Página não encontrada",
+    // `{produto}` é trocado pelo nome do produto do site (WebVigil ou MailVigil).
+    frase: "Este endereço não existe ou mudou de lugar. Volte à página inicial do {produto}.",
+    voltar: "Voltar à página inicial",
   },
   consentimento: {
     titulo: "Privacidade & Cookies",
@@ -67,6 +73,11 @@ const en: TextosTema = {
     copiado: "Copied",
     anuncio: "Command copied",
     falhou: "Could not copy the command",
+  },
+  naoEncontrada: {
+    titulo: "Page not found",
+    frase: "This address doesn't exist or has moved. Go back to the {produto} home page.",
+    voltar: "Back to home page",
   },
   consentimento: {
     titulo: "Privacy & Cookies",

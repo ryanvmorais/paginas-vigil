@@ -72,9 +72,11 @@ packages/tema/        # tema e utilidades compartilhados pelos dois sites
   src/caminhos.ts     # troca o idioma e calcula o caminho da outra versão da página (links e seletor)
   src/palavras.ts     # envolve cada palavra de um comando num span, para a linha não quebrar no hífen (Passos)
   src/textos.ts       # rótulos que o próprio tema emite (seletor de idioma, navegação, botão de copiar)
-  src/layouts/        # Pagina.astro: casca da página (head, SEO bilíngue, cabeçalho, rodapé)
+  src/layouts/        # Pagina.astro: casca da página (head, SEO bilíngue, cabeçalho, rodapé); `indexavel={false}` (a 404)
+                      # emite noindex e tira canonical, alternate e og:*
   src/componentes/    # blocos .astro compartilhados: Aviso, Botao, Cabecalho, ChamadaFinal, Comando,
-                      # Consentimento, FiguraRelatorio, Grupos, Limites, Passos, Rodape, Secao, SeletorIdioma, Terminal, Topo
+                      # Consentimento, FiguraRelatorio, Grupos, Limites, NaoEncontrada (a 404), Passos, Rodape, Secao,
+                      # SeletorIdioma, Terminal, Topo
   src/scripts/        # copiar.ts (botão de copiar), menu.ts (fecha o menu do celular) e consentimento.ts (banner,
                       # cookie e gtag.js), empacotados pelo Astro em arquivo externo
   src/estilos/        # fontes.css, tokens.css, base.css e terminal.css: estilos globais; os três primeiros
@@ -83,10 +85,10 @@ packages/tema/        # tema e utilidades compartilhados pelos dois sites
   src/fontes/         # woff2 em subconjunto das três fontes, a licença OFL e o LEIAME de regeração
 apps/webvigil/        # site do WebVigil
 apps/mailvigil/       # site do MailVigil
-  src/pages/          # (em cada app) páginas Astro: português na raiz, inglês em en/
+  src/pages/          # (em cada app) páginas Astro: português na raiz, inglês em en/ (index e 404)
   src/textos.ts       # (em cada app) dicionários pt/en do site, com o teste de paridade em textos.test.ts
   src/terminais.ts    # (em cada app) as saídas de terminal mostradas na página
-  src/componentes/    # (em cada app) Logo.astro e Vitrine.astro, a montagem das seções com o tema
+  src/componentes/    # (em cada app) Logo.astro, Vitrine.astro (a montagem das seções com o tema) e Erro404.astro
   src/assets/relatorio/ # (em cada app) capturas do relatório por idioma, tamanho e esquema de cor (webvigil só em inglês)
   public/             # (em cada app) a marca, servida na raiz do site: favicon.svg, apple-touch-icon.png (180 px) e
                       # social-pt.png e social-en.png (1280 x 640, o og:image do layout)
@@ -96,7 +98,8 @@ apps/mailvigil/       # site do MailVigil
 .github/              # também dependabot.yml, ISSUE_TEMPLATE/ (bug e funcionalidade) e pull_request_template.md
 .githooks/            # pre-commit: o portão de qualidade em modo verificação
 scripts/              # verificar-dist.mjs: confere o HTML gerado (sem inline, marcação de idioma, modo da medição, CSP,
-                      # âncoras, destinos dos botões e marca: og:image, favicon e imagem social), rodado no build de cada
+                      # âncoras, destinos dos botões, marca: og:image, favicon e imagem social, e a página noindex sem
+                      # canonical, alternate nem og:*), rodado no build de cada
                       # site; csp.mjs: a política de segurança de conteúdo, fonte única (cada .mjs tem o teste ao lado)
 docs/images/          # social preview do repositório (1280 x 640), genérica: não cita nenhuma das ferramentas
 test/                 # testes do repositório: impessoalidade.test.ts (ver "Convenções"), marca.test.ts (o traçado do
@@ -159,7 +162,8 @@ test/                 # testes do repositório: impessoalidade.test.ts (ver "Con
   Erro: acessibilidade, boas práticas e SEO abaixo de 0,95, contraste, imagem sem dimensão, alvo de toque
   pequeno, erro no console, CLS acima de 0,1. Aviso: desempenho abaixo de 0,9 e peso acima de 500 KB. Não é
   check obrigatório. O `@lhci/cli` entra por `npx`, nunca como dependência (a árvore dele derruba o
-  `pnpm audit`).
+  `pnpm audit`). Cada JSON lista em `collect.url` só `/index.html` e `/en/index.html`: as 404 têm `noindex`
+  de propósito, e isso reprova a auditoria `is-crawlable` (SEO cai a 0,6). Página nova indexável entra na lista.
 - **Ruleset `proteger-main`:** PR obrigatório, só squash, check `qualidade` exigido. Nada de commit direto na
   `main`.
 - **Pre-commit** (`.githooks/pre-commit`): formatação, lint, typecheck e testes.
