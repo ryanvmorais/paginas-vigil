@@ -51,12 +51,13 @@ Etapa sem código de interface: o que ela entrega é a decisão.
 
 ## Etapa 4 — Configuração dos projetos e conferência do que está no ar
 
-- [ ] `apps/webvigil/wrangler.json` e `apps/mailvigil/wrangler.json`: JSON estrito, sem `main`; `name`, `compatibility_date` (o dia da implementação), `workers_dev` e `preview_urls` `false`, rota `custom_domain` para o subdomínio, `assets` com `./dist`, `404-page` e `auto-trailing-slash`, `observability` desligada. — RF-01, RF-03, ADR-1
-- [ ] `test/hospedagem.test.ts`: cada chave dos `wrangler.json` conforme o ADR-1; rota igual ao `site` do `astro.config.mjs` (ADR-2); `package.json` sem `wrangler` entre as dependências. — RF-01, RF-07, RNF-03, RNF-04, ADR-2
-- [ ] `scripts/conferir-hospedagem.mjs`: `@ts-check`, JSDoc; `lerCabecalhosEsperados`, `compararCabecalhos` e `conferirHospedagem` com a espera pelo domínio e as nove verificações do design; o endereço vem da rota do `wrangler.json` do app e os bytes esperados, do `dist`; tabela em `$GITHUB_STEP_SUMMARY` quando existir; código de saída 1 se algo falhar; executa só quando chamado direto. — RF-06, RF-08, ADR-5, ADR-6
-- [ ] `package.json` da raiz: script `hospedagem:conferir`. `tsconfig.json` e `eslint.config.mjs` cobrem os scripts novos, se ainda não cobrem. — RF-08
-- [ ] `scripts/conferir-hospedagem.test.mjs`: os testes listados no design, com `buscar` e `esperar` falsos. — RF-06, RF-08, RNF-04, ADR-5, ADR-6
-- [ ] Portão de qualidade, com a cobertura de `conferir-hospedagem.mjs` e `hospedagem.mjs`. — registrar o resultado
+- [x] `apps/webvigil/wrangler.json` e `apps/mailvigil/wrangler.json`: JSON estrito, sem `main`; `name`, `compatibility_date` (o dia da implementação), `workers_dev` e `preview_urls` `false`, rota `custom_domain` para o subdomínio, `assets` com `./dist`, `404-page` e `auto-trailing-slash`, `observability` desligada. — RF-01, RF-03, ADR-1
+- [x] `test/hospedagem.test.ts`: cada chave dos `wrangler.json` conforme o ADR-1; rota igual ao `site` do `astro.config.mjs` (ADR-2); `package.json` sem `wrangler` entre as dependências. — RF-01, RF-07, RNF-03, RNF-04, ADR-2
+- [x] `scripts/conferir-hospedagem.mjs`: `@ts-check`, JSDoc; `lerCabecalhosEsperados`, `compararCabecalhos` e `conferirHospedagem` com a espera pelo domínio e as nove verificações do design; o endereço vem da rota do `wrangler.json` do app e os bytes esperados, do `dist`; tabela em `$GITHUB_STEP_SUMMARY` quando existir; código de saída 1 se algo falhar; executa só quando chamado direto. — RF-06, RF-08, ADR-5, ADR-6
+- [x] `package.json` da raiz: script `hospedagem:conferir`. `tsconfig.json` e `eslint.config.mjs` cobrem os scripts novos, se ainda não cobrem. — RF-08
+- [x] `scripts/conferir-hospedagem.test.mjs`: os testes listados no design, com `buscar` e `esperar` falsos. — RF-06, RF-08, RNF-04, ADR-5, ADR-6
+- [x] Portão de qualidade, com a cobertura de `conferir-hospedagem.mjs` e `hospedagem.mjs`. — registrar o resultado
+      Resultado: `format:check`, `lint` e `typecheck` sem erro; `pnpm test`: 17 arquivos, 283 testes verdes; `pnpm build` dos dois sites, sem e com `G-TESTE12345`, com `verificar-dist` sem problemas. Cobertura medida à parte (o repositório não tem o provedor de cobertura e não ganha uma dependência por isso): `conferir-hospedagem.mjs` 85 % das linhas e `hospedagem.mjs` 73 %, o que sobra é só o `main` da linha de comando, e a conferência real contra o domínio só roda no deploy (RF-08). O `tsconfig.json` não existe na raiz; o `@ts-check` do script foi conferido com `tsc --checkJs` sem erro, e o ESLint já cobre `**/*.mjs`.
 
 ## Etapa 5 — Preparação da publicação (o mantenedor)
 

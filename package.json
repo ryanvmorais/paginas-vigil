@@ -15,7 +15,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "pnpm -r --if-present typecheck",
-    "test": "vitest run"
+    "test": "vitest run",
+    "hospedagem:conferir": "node scripts/conferir-hospedagem.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
