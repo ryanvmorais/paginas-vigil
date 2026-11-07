@@ -248,13 +248,7 @@ O cabeçalho publicado, a conferência do `verificar-dist` e o teste de CSP leem
 
 ## Perguntas em aberto
 
-1. **Medição no primeiro deploy.** O primeiro deploy já sai com `PUBLIC_GA_MEASUREMENT_ID` real (banner
-   ligado, `page_view` verificável logo) ou sai sem medição e liga depois? Recomendação: já com medição,
-   porque a política e o cookie de domínio estão prontos e a verificação do que só se vê no ar depende dela.
-2. **Token.** Um token novo, só para este repositório (alcance mínimo, recomendado), ou reaproveitar o do
-   DMARC Fácil?
-3. **HSTS.** Repetir o do DMARC Fácil (só `max-age`, sem `includeSubDomains` nem `preload`)?
-   Recomendação: sim.
+Nenhuma.
 
 ## Decisões resolvidas
 
@@ -264,6 +258,12 @@ O cabeçalho publicado, a conferência do `verificar-dist` e o teste de CSP leem
 3. Analytics: GA4 com Consent Mode, mesma propriedade do site principal (spec 003).
 4. Publicar, criar token e conectar domínio são atos do mantenedor.
 5. O guia de operação fica fora do repositório.
+6. O primeiro deploy já sai com o identificador real de medição, guardado como variável do ambiente
+   `producao` (decisão do mantenedor, 2026-11-07).
+7. Token novo da Cloudflare, só para este repositório (decisão do mantenedor, 2026-11-07).
+8. HSTS só com `max-age`, sem `includeSubDomains` e sem `preload` (decisão do mantenedor, 2026-11-07).
+9. A 404 é tela nova: segue o fluxo de interface do projeto, com o mockup aprovado antes de qualquer código
+   (regra do projeto).
 
 ## Testes
 
