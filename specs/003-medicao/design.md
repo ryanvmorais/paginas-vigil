@@ -45,8 +45,7 @@ spec `002-tema`, com o rodapé novo. Amarras que o código segue:
 
 - cartão fixo no canto inferior (no desktop à direita, 392 px de largura; no celular com 12 px de margem),
   como o do site principal;
-- título "Privacidade & Cookies" com o ícone de cookie, texto curto com o link da política, escolha atual (só
-  quando reaberto), "Recusar" e "Aceitar", e o X; título, ícone e texto são os do banner do site principal;
+- título "Privacidade & Cookies" com o ícone de cookie, texto curto com o link da política, "Recusar" e "Aceitar", e o X; título, ícone e texto são os do banner do site principal;
 - "Recusar" e "Aceitar" **com a mesma regra de CSS** (mesma altura, largura, peso, borda e tipografia); a
   única diferença é o rótulo. É o que RF-02 exige, e a verificação em navegador compara os estilos
   calculados dos dois botões (no mockup, 160 × 44 px cada a 390 px);
@@ -63,7 +62,8 @@ identifica.
 **Reserva de rolagem.** O mockup mostrou que, no desktop, o cartão do canto inferior direito cobre os links
 do rodapé, inclusive o "Gerenciar cookies" que o reabre. Enquanto o banner está aberto, a página reserva no fim
 da rolagem o espaço dele (uma classe no `<body>` posta pelo script, com `padding-bottom` fixo por faixa de
-largura), para o rodapé poder ser rolado para fora do cartão (WCAG 2.4.11, foco não encoberto).
+largura), para o rodapé poder ser rolado para fora do cartão (WCAG 2.4.11, foco não encoberto). **Revisto na spec [`004`](../004-pagina-webvigil/design.md) (ADR-6):
+a reserva foi retirada; o cartão pode cobrir o fim do rodapé até o visitante escolher ou fechar.**
 
 **Texto e ícone.** O banner repete o título, o texto e o ícone do banner do site principal: "Utilizo cookies
 para entender quais conteúdos são mais acessados e melhorar o site. Eles só são ativados se você aceitar.
@@ -189,15 +189,14 @@ Estrutura do `Consentimento.astro` (as classes e o visual saem do mockup):
   fechar com Esc (que mantém a escolha atual), volta ao botão que abriu.
 - **Escolha atual:** o banner reaberto não repete a escolha anterior em texto (a linha "Sua escolha: …"
   saiu na spec 004, por ser desnecessária); os dois botões bastam.
-- **Reserva de rolagem:** com o banner aberto o script põe uma classe no `<body>` que reserva, no fim da
+- **Reserva de rolagem (retirada na spec 004, ADR-6):** com o banner aberto o script põe uma classe no `<body>` que reserva, no fim da
   página, o espaço do cartão (valor fixo por faixa de largura); a classe sai quando o banner fecha. Sem isso o
   cartão cobriria o "Gerenciar cookies" do rodapé.
 - **Rodapé:** o link "Política de privacidade" é sempre renderizado. O `<button data-gerenciar-cookies hidden>`
   só existe com medição, e o script o revela (mesmo padrão do botão de copiar do `Comando`).
 - **Link em inglês:** `politica.ts` guarda, por idioma, `href` e `traduzida`. Enquanto `en.traduzida` for
   falso, o rótulo diz "(in Portuguese)"; quando a política em inglês existir, troca-se o `href` e o marcador.
-- **Textos:** `textos.consentimento` (título, texto, política, aceitar, recusar, fechar, escolha atual,
-  rótulo da região) e `rodape.politica`/`rodape.gerenciar`, em `pt` e `en`; o teste de paridade do tema já
+- **Textos:** `textos.consentimento` (título, texto, política, aceitar, recusar, fechar) e `rodape.politica`/`rodape.gerenciar`, em `pt` e `en`; o teste de paridade do tema já
   cobre as duas direções (RF-08).
 
 ## Identificador e ambiente

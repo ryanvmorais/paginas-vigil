@@ -127,7 +127,7 @@ em "Dependências externas".
 
 - **Given** qualquer página com medição configurada
   **When** o visitante usa o controle "Gerenciar cookies" do rodapé
-  **Then** o banner reabre com a escolha atual indicada, e mudar de aceitar para recusar revoga o
+  **Then** o banner reabre (a linha que indicava a escolha atual saiu na spec 004; os dois botões bastam), e mudar de aceitar para recusar revoga o
   consentimento e passa a não enviar mais medição.
 
 ### RF-05 — Aviso curto e link para a política
@@ -221,15 +221,12 @@ build, pelo `verificar-dist` e pela verificação em navegador.
 
 ## Dependências externas
 
-Quatro tarefas no repositório do site principal precisam estar concluídas
-**antes do deploy** dos dois sites. Nenhuma bloqueia o desenvolvimento desta spec:
+A política de privacidade e o cookie de escolha pertencem ao site principal, que este repositório não
+contém. Nada disso bloqueia o desenvolvimento desta spec:
 
-- Ajustar a política para cobrir os subdomínios e descrever o cookie de escolha.
-- Criar a versão em inglês da política (até lá, vale o rótulo do RF-05).
-- Guardar a escolha em cookie de domínio no próprio site principal (o contrato do RF-03 é a proposta
-  que o `design.md` desta spec fecha).
-- Dar o mesmo peso visual a "Aceitar" e "Recusar" no banner do site principal, trocando o rótulo
-  "Rejeitar" por "Recusar".
+- A política é a do site principal; enquanto ela só existir em português, vale o rótulo do RF-05.
+- A escolha vale nos três sites porque o cookie `cookies-accepted` é de domínio; o contrato dele é o do
+  RF-03, que o `design.md` desta spec fecha.
 
 ## Perguntas em aberto
 
@@ -253,8 +250,7 @@ Nenhuma. O desenho do banner (RF-02) é decisão de interface e passa pelo mocku
 7. A escolha vale para o domínio e os subdomínios, por cookie de domínio; o cookie `_ga` já é
    compartilhado pelo mesmo motivo (2026-11-06).
 8. O banner reaproveita a estrutura do site principal (cartão fixo, fechar como recusa, "Gerenciar
-   cookies" no rodapé), com "Aceitar" e "Recusar" de mesmo peso; o site principal passa a ter o mesmo
-   desenho e o rótulo "Recusar" (2026-11-06). O título, o ícone e o texto do banner são os do site
+   cookies" no rodapé), com "Aceitar" e "Recusar" de mesmo peso (2026-11-06). O título, o ícone e o texto do banner são os do site
    principal (2026-11-06).
 
 ## Testes

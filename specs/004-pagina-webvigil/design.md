@@ -29,6 +29,10 @@ nos dois sites. As peças:
 A ordem do trabalho é a dos requisitos: a estrutura fecha primeiro (itens 1 a 7), e os textos são revistos e
 aprovados depois, com a estrutura aplicada, porque a escala e a largura mudam a quebra das linhas.
 
+> **Revisto em 2026-11-06:** a reserva de rolagem do banner foi retirada (ADR-6, RF-11). Onde este documento
+> a descreve (visão geral, detalhes, estrutura, "Reserva de rolagem do banner", impacto, riscos e testes),
+> leia o histórico do que foi desenhado antes da revisão.
+
 ## Mockup aprovado
 
 Mockup aprovado em 2026-11-06, a 390 e a 1280 px, claro e escuro, com o CSS e os textos reais do tema, cada

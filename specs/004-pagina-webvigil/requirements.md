@@ -382,7 +382,7 @@ Nenhuma.
   página tem inconsistências em mais de um eixo.
 - **Estrutura (2026-11-06):** escala tipográfica com corpo de 16 px e abertura de 17 a 18 px (RF-10); seção
   do relatório com a captura regerada (RF-07, RF-08); terminal regerado com o achado crítico (RF-07); reserva
-  do banner ajustada ao cartão (RF-11).
+  do banner ajustada ao cartão, depois retirada (RF-11).
 - **Revisão no design (2026-11-06):** depois do mockup, o mantenedor trocou a seção do relatório em duas
   colunas por três blocos empilhados na largura inteira, com os textos de leitura também em largura inteira e
   a caixa "O que ele não faz" empilhada (RF-08); a navegação do celular é o ícone de menu (RF-06); e o item da
