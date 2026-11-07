@@ -1,6 +1,6 @@
 ---
 feature: Hospedagem — os dois sites no ar, cada um no seu subdomínio, com cabeçalhos de segurança, 404 e descoberta
-status: aprovado
+status: concluído
 date: 2026-11-07
 related: [001-fundacao, 002-tema, 003-medicao, 004-pagina-webvigil, 005-pagina-mailvigil]
 origin: conception
