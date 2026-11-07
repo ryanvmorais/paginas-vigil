@@ -129,11 +129,38 @@ Sem `<lastmod>`: uma data à mão envelhece sozinha. As duas URLs e o trio de `h
 
 ## Página 404
 
-Ponto de partida do mockup (a decisão final é da Etapa 1 do `tasks.md`):
+**Decisão de projeto (2026-11-07), na Etapa 1 do mockup.** O mockup apresentou três alternativas para o bloco central, a
+390 e a 1280 px, em português e inglês, nos dois produtos e nos dois esquemas de cor. Cada uma mudava só a
+composição do bloco; cabeçalho, rodapé, botão, tokens e fontes eram os do site. Escolhida a **A**:
+
+- **A (escolhida): "404" grande em fonte de código, na cor do produto, e o bloco centralizado.** O número é o
+  único destaque; abaixo vêm o título, a frase e o botão. Motivo: mensagem curta e isolada vai ao centro (regra
+  de alinhamento de mensagem isolada), o número diz de relance o que aconteceu e funciona igual nos dois idiomas.
+- **B (descartada): terminal com `curl -I` e `HTTP/2 404 Not Found` no lugar do número.** Combina com as
+  ferramentas de linha de comando, mas o terminal fica em inglês também na página em português, ocupa mais altura
+  no celular e disputa o olhar com o botão.
+- **C (descartada): texto à esquerda, com o rótulo "Erro 404".** Parece mais uma página do site, mas no desktop
+  o bloco fica colado à esquerda de uma tela vazia.
+
+Rascunho final da alternativa A:
+
+|                                    | Português                                                                       | Inglês                                                                      |
+| ---------------------------------- | ------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| Número (decorativo, `aria-hidden`) | 404                                                                             | 404                                                                         |
+| Título (`h1`)                      | Página não encontrada                                                           | Page not found                                                              |
+| Frase                              | Este endereço não existe ou mudou de lugar. Volte à página inicial do WebVigil. | This address doesn't exist or has moved. Go back to the WebVigil home page. |
+| Botão                              | Voltar à página inicial                                                         | Back to home page                                                           |
+
+Na frase, o nome do produto (WebVigil ou MailVigil) vem do site. O número usa `--font-code` e `--acc`; o título
+e a frase seguem a escala tipográfica do tema (`h1` com o tamanho do topo, frase em `--fs-abertura`). O botão é o
+`Botao` primário do tema: largura total no celular e, no desktop, o tamanho do rótulo com largura mínima de
+240 px, centralizado na coluna.
+
+Composição, valendo para a implementação:
 
 - **Composição.** `Pagina` com `indexavel={false}`, o `Cabecalho` sem itens de menu (só logo, nome e seletor
-  de idioma), um bloco central com o título, uma frase e o botão de volta à página inicial do idioma, e o
-  `Rodape` que as páginas já usam. Nenhum componente novo além do bloco central (`NaoEncontrada.astro`).
+  de idioma), um bloco central com o número, o título, uma frase e o botão de volta à página inicial do idioma, e
+  o `Rodape` que as páginas já usam. Nenhum componente novo além do bloco central (`NaoEncontrada.astro`).
 - **Idioma.** `404.astro` em português e `en/404.astro` em inglês, porque a hospedagem serve a 404 mais
   próxima do caminho pedido: `/en/nada` cai em `en/404.html`, o resto em `404.html`. O seletor de idioma da 404
   leva às páginas iniciais (`/` e `/en/`), já que a 404 não tem "mesma página no outro idioma".
