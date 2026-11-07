@@ -2,7 +2,7 @@
  * @file Confere o HTML que o build do Astro gerou: sem inline, com a marcação de idioma, com a medição
  * coerente e com todo recurso dentro da política de segurança de conteúdo (CSP).
  *
- * Seis regras, todas guardadas aqui para não dependerem de alguém lembrar (specs 002, 003 e 004):
+ * Sete regras, todas guardadas aqui para não dependerem de alguém lembrar (specs 002, 003 e 004):
  *
  * 1. **Sem inline (RNF-01).** A política de segurança de conteúdo (CSP) do deploy não vai permitir
  *    `unsafe-inline`. O Astro decide sozinho inserir um estilo ou script pequeno direto no HTML, então
@@ -17,13 +17,16 @@
  * 6. **Destinos dos botões (RF-06, spec 004).** Dois botões da mesma página não levam ao mesmo destino
  *    externo, salvo o par de botões primários (o "Ver no GitHub" do topo e o do fim), que repete de
  *    propósito.
+ * 7. **Marca.** Toda página bilíngue declara `og:image`, e o favicon, o `apple-touch-icon` e a imagem
+ *    social que a página cita existem na pasta do build (um link para arquivo que falta só aparece
+ *    quando alguém compartilha o site).
  *
  * Uso, a partir da pasta de um site: `node ../../scripts/verificar-dist.mjs dist`. Sai com código 1 e
  * lista cada arquivo e problema se achar algo, ou com 0 se estiver tudo certo. A função
  * `verificarHtml` é pura (recebe o HTML, devolve os problemas) para poder ser testada sem disco.
  */
 
-import { readFile, readdir } from "node:fs/promises";
+import { readFile, readdir, stat } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
@@ -329,7 +332,64 @@ export const verificarHtml = (html) => {
   if (!temOgLocale) {
     problemas.push('falta <meta property="og:locale">');
   }
+  // 7. Marca: sem `og:image` o link do site compartilhado aparece sem imagem.
+  const temOgImage = tags.some(
+    ({ nome, atributos }) =>
+      nome === "meta" &&
+      atributos.get("property") === "og:image" &&
+      (atributos.get("content") ?? "") !== "",
+  );
+  if (!temOgImage) {
+    problemas.push('falta <meta property="og:image">');
+  }
   return problemas;
+};
+
+/**
+ * Lista os arquivos do próprio site que a marca da página cita: favicon, `apple-touch-icon` e a imagem
+ * social (`og:image`, que é uma URL absoluta; só o caminho dela importa para achar o arquivo no build).
+ *
+ * Ícone com `data:` ou com endereço de outro site fica de fora: não há arquivo local a conferir.
+ *
+ * @param {string} html - documento HTML
+ * @returns {string[]} caminhos a partir da raiz do site (`/favicon.svg`), sem repetição
+ */
+export const arquivosDeMarca = (html) => {
+  const caminhos = new Set();
+  for (const { nome, atributos } of lerTags(html)) {
+    const rels = (atributos.get("rel") ?? "").toLowerCase().split(/\s+/);
+    const href = atributos.get("href") ?? "";
+    if (
+      nome === "link" &&
+      (rels.includes("icon") || rels.includes("apple-touch-icon")) &&
+      href.startsWith("/") &&
+      !href.startsWith("//")
+    ) {
+      caminhos.add(href.split(/[?#]/)[0] ?? href);
+    }
+    if (nome === "meta" && atributos.get("property") === "og:image") {
+      try {
+        caminhos.add(new URL(atributos.get("content") ?? "").pathname);
+      } catch {
+        // URL inválida: quem acusa é a regra de `og:image` vazio, não esta.
+      }
+    }
+  }
+  return [...caminhos];
+};
+
+/**
+ * Diz se um arquivo existe e é um arquivo comum.
+ *
+ * @param {string} caminho - caminho no disco
+ * @returns {Promise<boolean>} `true` se existe e é arquivo
+ */
+const arquivoExiste = async (caminho) => {
+  try {
+    return (await stat(caminho)).isFile();
+  } catch {
+    return false;
+  }
 };
 
 // ---------------------------------------------------------------------------
@@ -353,7 +413,13 @@ export const verificarPasta = async (pasta) => {
   }
   const achados = [];
   for (const arquivo of arquivos) {
-    const problemas = verificarHtml(await readFile(join(pasta, arquivo), "utf8"));
+    const html = await readFile(join(pasta, arquivo), "utf8");
+    const problemas = verificarHtml(html);
+    for (const caminho of arquivosDeMarca(html)) {
+      if (!(await arquivoExiste(join(pasta, caminho)))) {
+        problemas.push(`a página cita ${caminho}, que não existe no build`);
+      }
+    }
     if (problemas.length > 0) {
       achados.push({ arquivo: join(pasta, arquivo), problemas });
     }
