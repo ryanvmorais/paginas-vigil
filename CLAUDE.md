@@ -11,7 +11,7 @@ um workspace pnpm. Cada site é publicado no próprio subdomínio (`webvigil.rya
 > Cuidado: o nome do repositório (`paginas-vigil`) é exceção à regra "nome do repositório = subdomínio",
 > porque um repositório serve dois subdomínios. Não renomeie para casar com um deles.
 
-Estado: em construção. Os dois sites já têm a página inteira (português e inglês) montada com o tema e a marca (favicon, ícone de tela inicial e imagem social). Nada está no ar. A medição (Google Analytics 4 com consentimento) já está no código, mas só liga com um identificador; a política de privacidade mora no site principal.
+Estado: os dois sites estão no ar, cada um no seu subdomínio, com a página inteira (português e inglês), o tema e a marca (favicon, ícone de tela inicial e imagem social). Cada merge na `main` com o CI verde publica os dois (`deploy.yml`) e confere o que ficou no ar. A medição (Google Analytics 4 com consentimento) liga com o identificador do ambiente `producao`; a política de privacidade mora no site principal.
 
 ## Comandos comuns
 
@@ -92,17 +92,20 @@ apps/mailvigil/       # site do MailVigil
   src/assets/relatorio/ # (em cada app) capturas do relatório por idioma, tamanho e esquema de cor (webvigil só em inglês)
   public/             # (em cada app) a marca, servida na raiz do site: favicon.svg, apple-touch-icon.png (180 px) e
                       # social-pt.png e social-en.png (1280 x 640, o og:image do layout)
+  wrangler.json       # (em cada app) o projeto na Cloudflare: domínio próprio, `dist/` como ativos, 404, sem `workers.dev`
   dist/               # (em cada app) build estático, gerado e fora do git
-.github/workflows/    # ci, codeql, dependency-review, pnpm-audit, lighthouse
-.github/lighthouse/   # limites do Lighthouse CI por site e por formato (celular, desktop)
+.github/workflows/    # ci, codeql, dependency-review, pnpm-audit, lighthouse e deploy (publica e confere o que está no ar)
+.github/lighthouse/   # limites do Lighthouse CI por site e por formato (celular, desktop); producao-*.json medem o domínio no ar
 .github/              # também dependabot.yml, ISSUE_TEMPLATE/ (bug e funcionalidade) e pull_request_template.md
 .githooks/            # pre-commit: o portão de qualidade em modo verificação
 scripts/              # verificar-dist.mjs: confere o HTML gerado (sem inline, marcação de idioma, modo da medição, CSP,
                       # âncoras, destinos dos botões, marca: og:image, favicon e imagem social, e a página noindex sem
                       # canonical, alternate nem og:*; e a regra 8, os arquivos da hospedagem), rodado no build de cada
                       # site; hospedagem.mjs: gera em dist/ o _headers, o robots.txt, o sitemap.xml e a cópia
-                      # en/404.html, antes do verificar-dist; csp.mjs: a política de segurança de conteúdo, fonte
-                      # única, e medicaoValida, o formato do identificador (cada .mjs tem o teste ao lado)
+                      # en/404.html, antes do verificar-dist; conferir-hospedagem.mjs: confere o domínio no ar
+                      # contra o `dist` (corpo, cabeçalhos, 404, descoberta), rodado pelo deploy; csp.mjs: a
+                      # política de segurança de conteúdo, fonte única, e medicaoValida, o formato do
+                      # identificador (cada .mjs tem o teste ao lado)
 docs/images/          # social preview do repositório (1280 x 640), genérica: não cita nenhuma das ferramentas
 test/                 # testes do repositório: impessoalidade.test.ts (ver "Convenções"), marca.test.ts (o traçado do
                       # logo igual no cabeçalho e no favicon; dimensões das imagens) e csp.test.ts (a URL do gtag.js
@@ -128,11 +131,15 @@ test/                 # testes do repositório: impessoalidade.test.ts (ver "Con
 > medição, só os hosts do Google Analytics, nunca `*`, `unsafe-inline` nem `unsafe-eval`. Um domínio novo
 > entra em `csp.mjs`, no teste e no `design.md` da spec 003, nunca só num deles.
 
-> Cuidado: `_headers`, `robots.txt` e `sitemap.xml` não existem no repositório: o `build` de cada site os gera
-> em `dist/` (`scripts/hospedagem.mjs`), no modo de medição do build, e a regra 8 do `verificar-dist` falha se
-> divergirem do HTML. O endereço vem do `site` do `astro.config.mjs`, nunca repetido em outro lugar. O gerador
-> lê o modo de `PUBLIC_GA_MEASUREMENT_ID` do ambiente do processo: um identificador só no `.env` liga o banner
-> mas não o gerador, e o build falha na regra 8 (use a variável do terminal, como em "Comandos comuns").
+> ⚠️ NÃO regredir: `_headers`, `robots.txt` e `sitemap.xml` são gerados no build e nunca escritos à mão. Não
+> existem no repositório: o `build` de cada site os gera em `dist/` (`scripts/hospedagem.mjs`), no modo de
+> medição do build, e a regra 8 do `verificar-dist` falha se divergirem do HTML. Mudar um cabeçalho é mudar
+> `scripts/csp.mjs` ou `scripts/hospedagem.mjs`, nunca criar um desses arquivos em `public/`.
+
+> Cuidado: o endereço de cada site vem do `site` do `astro.config.mjs`, nunca repetido em outro lugar. O
+> gerador da hospedagem lê o modo de `PUBLIC_GA_MEASUREMENT_ID` do ambiente do processo: um identificador só
+> no `.env` liga o banner mas não o gerador, e o build falha na regra 8 (use a variável do terminal, como em
+> "Comandos comuns").
 
 > Cuidado: a medição é o Google Analytics 4 com Consent Mode, negado por padrão, e o `gtag.js` só é
 > carregado depois do aceite. O identificador vem de `PUBLIC_GA_MEASUREMENT_ID` (ver `.env.example`; o
@@ -172,6 +179,15 @@ test/                 # testes do repositório: impessoalidade.test.ts (ver "Con
   check obrigatório. O `@lhci/cli` entra por `npx`, nunca como dependência (a árvore dele derruba o
   `pnpm audit`). Cada JSON lista em `collect.url` só `/index.html` e `/en/index.html`: as 404 têm `noindex`
   de propósito, e isso reprova a auditoria `is-crawlable` (SEO cai a 0,6). Página nova indexável entra na lista.
+- **Deploy** (`.github/workflows/deploy.yml`): roda depois do CI verde na `main` (`workflow_run`) ou por
+  `workflow_dispatch`, uma matriz com um job por site, no ambiente `producao` (segredos da Cloudflare e o
+  identificador de medição vêm dele). Constrói o site, publica com `wrangler` por `npx` (nunca dependência, pela
+  mesma razão do `@lhci/cli`) e termina com `scripts/conferir-hospedagem.mjs` (o domínio no ar tem os mesmos bytes
+  e os cabeçalhos do build) e o Lighthouse de produção (`.github/lighthouse/producao-*.json`). As versões do
+  `wrangler` e do `@lhci/cli` ficam em variáveis do workflow e são revistas à mão: o Dependabot não vê `npx`.
+  `workflow_run` usa o arquivo da `main`, então mexer no workflow só vale depois do merge.
+  `pnpm hospedagem:conferir <site>` repete a conferência à mão, mas só é fiel se o `dist` foi construído com
+  o identificador real (a conferência compara o domínio com o `dist` local).
 - **Ruleset `proteger-main`:** PR obrigatório, só squash, check `qualidade` exigido. Nada de commit direto na
   `main`.
 - **Pre-commit** (`.githooks/pre-commit`): formatação, lint, typecheck e testes.

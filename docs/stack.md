@@ -9,8 +9,11 @@ O projeto gera dois sites estáticos a partir de um workspace, e a mesma sequên
 ```text
 packages/tema  ──►  apps/webvigil  ──┐
   (compartilhado)   apps/mailvigil ──┴──►  astro build  ──►  apps/<site>/dist (HTML estático)
-                                                    ▲
-Prettier · ESLint · astro check · Vitest ───────────┘  pre-commit local e job `qualidade` do CI
+                                                    ▲                  │
+Prettier · ESLint · astro check · Vitest ───────────┘                  ▼
+  pre-commit local e job `qualidade` do CI            deploy.yml ──► Cloudflare (Workers Static Assets)
+                                                                      │
+                                                  conferir-hospedagem · Lighthouse de produção
 ```
 
 ---
@@ -109,9 +112,39 @@ O CI. O job `qualidade` roda formatação, lint, tipos, testes e build; o job `s
 
 **Docs:** [GitHub Actions](https://docs.github.com/pt/actions).
 
+### Cloudflare Workers Static Assets e `wrangler`
+
+A hospedagem. Cada site é um projeto próprio na Cloudflare, descrito pelo `apps/<site>/wrangler.json`: o domínio personalizado (`webvigil.ryanmorais.com.br` ou `mailvigil.ryanmorais.com.br`), a pasta `dist/` como ativos, a página 404 do próprio site e o `workers.dev` e a pré-visualização desligados, para o site ter um endereço só. Não há código de servidor: a Cloudflare serve os arquivos como estão. O `wrangler` publica, e entra por `npx` numa versão fixada no `deploy.yml`, nunca como dependência.
+
+**Por que esta:** serve HTML estático com domínio, certificado e cache sem servidor para cuidar, e dois projetos separados deixam um deploy falhar sem derrubar o outro site. O `wrangler` fora do `package.json` evita que a árvore dele derrube o `pnpm audit`, como a do `@lhci/cli`.
+
+**Estudar:** `wrangler.json` (`assets`, `routes` com `custom_domain`, `not_found_handling`, `html_handling`), o que é um Worker só de ativos, rota de domínio personalizado.
+
+**Docs:** [Workers Static Assets](https://developers.cloudflare.com/workers/static-assets/) · [Wrangler](https://developers.cloudflare.com/workers/wrangler/).
+
+### `_headers`, HSTS e a CSP no ar
+
+Os cabeçalhos de segurança de cada resposta saem do `_headers`, um arquivo que o build gera em `dist/` (`scripts/hospedagem.mjs`), junto com o `robots.txt`, o `sitemap.xml` e a cópia da 404 em inglês. A CSP vem de `scripts/csp.mjs`, a mesma que o `verificar-dist` usa para conferir o HTML. O HSTS vale um ano e fica sem `includeSubDomains` e sem `preload`, porque estes sites dividem o domínio com outras páginas e o HSTS publicado é difícil de desfazer. Além deles, `Referrer-Policy: no-referrer`, uma `Permissions-Policy` que desliga os recursos de hardware que as páginas não usam e `Cache-Control` longo e `immutable` só em `/_astro/*`, cujos nomes levam o hash do conteúdo.
+
+**Por que esta:** a mesma política testada no build é a que chega ao visitante, sem um segundo lugar para ela divergir. Gerar o arquivo no build impede que alguém o escreva à mão e o deixe desatualizado em relação ao HTML.
+
+**Estudar:** `Content-Security-Policy`, `Strict-Transport-Security` (`max-age`, `includeSubDomains`, `preload`), `Cache-Control: immutable`, a sintaxe do `_headers`.
+
+**Docs:** [Headers do Workers Static Assets](https://developers.cloudflare.com/workers/static-assets/headers/) · [MDN: Strict-Transport-Security](https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Reference/Headers/Strict-Transport-Security).
+
+### Deploy e ambiente `producao`
+
+O `deploy.yml` roda depois do CI verde na `main` (`workflow_run`) ou por `workflow_dispatch`, com um job por site. O job usa o ambiente `producao` do GitHub, que guarda os dois segredos da Cloudflare (`CLOUDFLARE_API_TOKEN` e `CLOUDFLARE_ACCOUNT_ID`) e a variável `PUBLIC_GA_MEASUREMENT_ID`, e só aceita a branch `main`. Depois de publicar, o job roda `scripts/conferir-hospedagem.mjs` (o que está no ar tem os mesmos bytes do `dist` e os cabeçalhos do `_headers`, inclusive na 404) e o Lighthouse de produção, com limites em `.github/lighthouse/producao-*.json`.
+
+**Por que esta:** o deploy encadeia no CI em vez de repeti-lo, e PR ou fork nunca tocam o segredo. Conferir o domínio no mesmo run pega o que o build não vê, como uma otimização da zona que reescreve o HTML. O modo de medição vem do ambiente, e o passo de abertura recusa um identificador vazio, inválido ou de teste.
+
+**Estudar:** `workflow_run` e por que ele usa o arquivo da `main`, ambientes e regras de proteção do GitHub, `concurrency`, token de API com escopo mínimo.
+
+**Docs:** [Ambientes de deploy](https://docs.github.com/pt/actions/deployment/targeting-different-environments/using-environments-for-deployment) · [`workflow_run`](https://docs.github.com/pt/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#workflow_run).
+
 ### Lighthouse CI
 
-Mede cada site já construído, em celular e em desktop, e falha quando acessibilidade, boas práticas ou SEO caem abaixo de 0,95, ou quando há erro de contraste, imagem sem dimensão ou erro no console. Desempenho e peso só avisam. Os limites ficam em `.github/lighthouse/`.
+Mede cada site já construído, em celular e em desktop, e falha quando acessibilidade, boas práticas ou SEO caem abaixo de 0,95, ou quando há erro de contraste, imagem sem dimensão ou erro no console. Desempenho e peso só avisam. Os limites ficam em `.github/lighthouse/`: os de origem medem o build, e os `producao-*.json` medem o domínio já no ar, depois do deploy.
 
 **Por que esta:** pega regressão de acessibilidade e de estrutura antes da publicação. O `@lhci/cli` entra por `npx`, e não como dependência, porque a árvore dele traz vulnerabilidades que derrubariam o `pnpm audit`.
 
@@ -133,22 +166,24 @@ O Dependabot abre PRs de atualização por semana, agrupando minor e patch, com 
 
 ## Peças menores
 
-| Peça                         | Para que serve                                                                                                                                                                                                                                                                           |
-| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `@astrojs/check`             | Faz o `tsc` entender os arquivos `.astro` (o `pnpm typecheck` dos sites).                                                                                                                                                                                                                |
-| `eslint-plugin-astro`        | Regras de lint (e de acessibilidade) para `.astro`.                                                                                                                                                                                                                                      |
-| `globals`                    | Lista dos globais de cada ambiente (navegador, Node) para o ESLint.                                                                                                                                                                                                                      |
-| `@types/node`                | Tipos do Node para os scripts e os hooks de desenvolvimento.                                                                                                                                                                                                                             |
-| `.githooks/pre-commit`       | Roda formatação, lint, tipos e testes antes de cada commit, o mesmo portão do CI.                                                                                                                                                                                                        |
-| Fontes locais                | Sora (800) e JetBrains Mono (400 e 700) em woff2 em subconjunto, com a licença OFL, em `packages/tema/src/fontes`. Servidas do próprio site: sem CDN de fontes e sem origem externa para a política de segurança de conteúdo.                                                            |
-| `copiar.ts`                  | O botão de copiar comando; o Astro o empacota em arquivo externo, o que mantém a página sem script inline.                                                                                                                                                                               |
-| `menu.ts`                    | O acabamento do menu do celular (um `<details>` que já funciona sem JavaScript): fecha o painel ao ativar um link, com Esc e ao clicar fora; também em arquivo externo.                                                                                                                  |
-| Escala tipográfica           | Cinco tamanhos nomeados (`--fs-rotulo`, `--fs-codigo`, `--fs-corpo`, `--fs-abertura`, `--fs-marca`) em `tokens.css`; o texto corrido, o código e os rótulos usam só esses; ficam de fora os títulos (fluidos, em `Topo` e `base.css`) e o código em linha (`0.875em` do texto ao redor). |
-| Consentimento                | `consentimento.ts` (núcleo puro, testado) e o script do banner ligam o Google Analytics 4 em Consent Mode, negado por padrão: o `gtag.js` só é buscado depois do aceite, e a escolha fica em cookie de domínio.                                                                          |
-| `scripts/csp.mjs`            | A política de segurança de conteúdo, em um lugar só: o `verificar-dist` confere o HTML do build contra ela e o deploy a escreverá como cabeçalho.                                                                                                                                        |
-| `scripts/verificar-dist.mjs` | A guarda do build: roda no `build` de cada site e falha se o HTML gerado tiver script ou estilo inline, marcação de idioma incompleta, medição incoerente, recurso fora da CSP, âncora quebrada, botões com o mesmo destino ou marca (`og:image`, favicon, imagem social) ausente.       |
-| `palavras.ts`                | Envolve cada palavra de um comando num `span`, para a linha do terminal não quebrar no meio de um hífen (o bloco `Passos`).                                                                                                                                                              |
-| Marca                        | `favicon.svg`, `apple-touch-icon.png` e as imagens sociais (`social-pt.png`, `social-en.png`) de cada site, em `apps/<site>/public`. São montados à mão, não gerados no build: o `verificar-dist` confere que existem e o `test/marca.test.ts` confere dimensões e traçado do logo.      |
+| Peça                              | Para que serve                                                                                                                                                                                                                                                                           |
+| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `@astrojs/check`                  | Faz o `tsc` entender os arquivos `.astro` (o `pnpm typecheck` dos sites).                                                                                                                                                                                                                |
+| `eslint-plugin-astro`             | Regras de lint (e de acessibilidade) para `.astro`.                                                                                                                                                                                                                                      |
+| `globals`                         | Lista dos globais de cada ambiente (navegador, Node) para o ESLint.                                                                                                                                                                                                                      |
+| `@types/node`                     | Tipos do Node para os scripts e os hooks de desenvolvimento.                                                                                                                                                                                                                             |
+| `.githooks/pre-commit`            | Roda formatação, lint, tipos e testes antes de cada commit, o mesmo portão do CI.                                                                                                                                                                                                        |
+| Fontes locais                     | Sora (800) e JetBrains Mono (400 e 700) em woff2 em subconjunto, com a licença OFL, em `packages/tema/src/fontes`. Servidas do próprio site: sem CDN de fontes e sem origem externa para a política de segurança de conteúdo.                                                            |
+| `copiar.ts`                       | O botão de copiar comando; o Astro o empacota em arquivo externo, o que mantém a página sem script inline.                                                                                                                                                                               |
+| `menu.ts`                         | O acabamento do menu do celular (um `<details>` que já funciona sem JavaScript): fecha o painel ao ativar um link, com Esc e ao clicar fora; também em arquivo externo.                                                                                                                  |
+| Escala tipográfica                | Cinco tamanhos nomeados (`--fs-rotulo`, `--fs-codigo`, `--fs-corpo`, `--fs-abertura`, `--fs-marca`) em `tokens.css`; o texto corrido, o código e os rótulos usam só esses; ficam de fora os títulos (fluidos, em `Topo` e `base.css`) e o código em linha (`0.875em` do texto ao redor). |
+| Consentimento                     | `consentimento.ts` (núcleo puro, testado) e o script do banner ligam o Google Analytics 4 em Consent Mode, negado por padrão: o `gtag.js` só é buscado depois do aceite, e a escolha fica em cookie de domínio.                                                                          |
+| `scripts/csp.mjs`                 | A política de segurança de conteúdo, em um lugar só: o `verificar-dist` confere o HTML do build contra ela e o `_headers` gerado no build a leva ao deploy como cabeçalho.                                                                                                               |
+| `scripts/hospedagem.mjs`          | Gera em `dist/` o `_headers`, o `robots.txt`, o `sitemap.xml` e a cópia `en/404.html`, no modo de medição do build; o endereço vem do `site` do `astro.config.mjs`.                                                                                                                      |
+| `scripts/conferir-hospedagem.mjs` | Depois do deploy, compara o domínio no ar com o `dist`: bytes, cabeçalhos (também na 404), `robots.txt`, `sitemap.xml` e `http://` sem resposta 200; escreve o resumo no run.                                                                                                            |
+| `scripts/verificar-dist.mjs`      | A guarda do build: roda no `build` de cada site e falha se o HTML gerado tiver script ou estilo inline, marcação de idioma incompleta, medição incoerente, recurso fora da CSP, âncora quebrada, botões com o mesmo destino ou marca (`og:image`, favicon, imagem social) ausente.       |
+| `palavras.ts`                     | Envolve cada palavra de um comando num `span`, para a linha do terminal não quebrar no meio de um hífen (o bloco `Passos`).                                                                                                                                                              |
+| Marca                             | `favicon.svg`, `apple-touch-icon.png` e as imagens sociais (`social-pt.png`, `social-en.png`) de cada site, em `apps/<site>/public`. São montados à mão, não gerados no build: o `verificar-dist` confere que existem e o `test/marca.test.ts` confere dimensões e traçado do logo.      |
 
 ---
 
