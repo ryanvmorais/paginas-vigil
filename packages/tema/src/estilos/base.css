@@ -1,5 +1,5 @@
-/**
- * @file Base do tema: reset, corpo, foco visível e o container `.envoltorio`.
+/*
+ * Base do tema: reset, corpo, foco visível e o container `.envoltorio`.
  *
  * Vem depois de `tokens.css` e `fontes.css` e antes dos estilos dos componentes. Só regras que valem
  * para a página inteira; o resto mora no `<style>` de cada componente (RF-01, RNF-02).
