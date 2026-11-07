@@ -324,8 +324,8 @@ e com a do WebVigil. Mudança de interface segue o fluxo de interface do projeto
 - **O procedimento de geração da demonstração e do relatório de exemplo** do repositório da ferramenta, para
   regerar a saída e as capturas (RF-07).
 - **A página do DMARC Fácil**, só para conferir o destino do convite (RF-06).
-- **O site do WebVigil**, destino do link para o outro produto, só existe depois do deploy; até lá a conferência
-  é do endereço, não da página.
+- **O site do WebVigil**, destino do link para o outro produto, ainda não está no ar; a conferência é do
+  endereço, não da página.
 
 ## Perguntas em aberto
 

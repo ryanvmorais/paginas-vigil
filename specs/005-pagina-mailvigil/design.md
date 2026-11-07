@@ -70,8 +70,8 @@ do MailVigil e confere âncoras, destinos repetidos, inline e CSP.
 - **Rótulos da saída:** o inventário registra os rótulos reais do veredito (`PRONTO` e os outros dois) e das
   colunas, em cada idioma, porque o texto dos passos e o alt da captura os citam.
 - **Destinos externos:** o inventário confere cada link da página (repositório e o README de cada idioma, pasta
-  `docs/`, o DMARC Fácil em cada idioma, o outro produto). Um destino que ainda não existe é anotado como não
-  verificável, não como erro, até o deploy.
+  `docs/`, o DMARC Fácil em cada idioma, o outro produto). Um destino que ainda não existe é anotado como "sem
+  resposta", não como erro.
 
 ## Menu
 
@@ -95,8 +95,7 @@ bloco 2. Valem para os dois passos, qualquer que seja a forma:
 e o roteiro das capturas no próprio docstring: o gerador escreve relatórios agregados sintéticos de
 `example.com` (um período que não está pronto e outro que está), roda `mailvigil verdict` neles e deixa a
 pasta de trabalho pronta para o relatório HTML. Nada ali é dado real e todo endereço é de faixa de
-documentação, então, ao contrário do scan ativo da 004, **não escreve em alvo nenhum e não pede autorização
-na hora**. Para não alterar o repositório da ferramenta, o gerador roda numa cópia limpa da tag da versão
+documentação, então, ao contrário do scan ativo da 004, **não escreve em alvo nenhum**. Para não alterar o repositório da ferramenta, o gerador roda numa cópia limpa da tag da versão
 consultada, numa pasta temporária.
 
 - **Saída do terminal (`terminais.ts`):** a saída real de `mailvigil verdict --config mailvigil.toml reports/`
@@ -104,7 +103,7 @@ consultada, numa pasta temporária.
   relatório. Mostra o veredito, o motivo, o endereço e as cinco regras, com as quebras em 80 colunas que a
   própria ferramenta faz, e o código de saída. Cabe nas faixas do `terminal.css` (120 caracteres de comando e
   80 linhas), o que o build confere. Os números da página (período, mensagens, percentuais, endereço) são os
-  que sairem dessa execução, e o texto se ajusta a eles, nunca o contrário.
+  que saírem dessa execução, e o texto se ajusta a eles, nunca o contrário.
 - **Capturas do relatório:** o relatório HTML (`--html`) de cada idioma, aberto numa janela de 1024 px
   (desktop) e de 360 px (celular), a 2x, nos dois temas, cortado nas bordas do conteúdo e no fim de um bloco
   completo. Como o MailVigil não tem o primeiro achado crítico da 004, o corte é no fim do bloco das cinco
@@ -245,8 +244,8 @@ precisa).
   é por bloco completo e o texto se ajusta ao que a imagem mostra, como na 004.
 - **Sem a configuração, o veredito do passo 2 muda** (ADR-1). Mitigação: a execução em `fatos.md` antes da
   decisão do bloco 2.
-- **Destinos que só existem depois do deploy** (o outro produto e, conforme o caso, o DMARC Fácil). Mitigação:
-  anotados como não verificáveis no inventário; a conferência de verdade é do deploy.
+- **Destinos que ainda não respondem** (o outro produto e o próprio site). Mitigação: o inventário anota
+  "sem resposta" como fato observado, não como erro.
 - **A ferramenta publica nova versão no meio do trabalho.** Mitigação: a versão consultada fica registrada; uma
   versão nova repete a conferência dos itens que ela mudou.
 

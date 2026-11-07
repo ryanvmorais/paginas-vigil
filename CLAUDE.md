@@ -142,7 +142,9 @@ test/                 # testes do repositório: impessoalidade.test.ts (ver "Con
 - **Interface:** mudança de interface parte de um mockup aprovado, não do código.
 - **Quem lê:** tudo o que é versionado é escrito para quem clonou o repositório: sem o nome do
   mantenedor (só em autoria e licença), com papéis ("o mantenedor") no lugar de pessoas, e sem apontar
-  para comandos que só existem na máquina de quem mantém. `test/impessoalidade.test.ts` guarda isso.
+  para comandos que só existem na máquina de quem mantém. `test/impessoalidade.test.ts` guarda isso em
+  todo arquivo versionado: o nome do mantenedor, skills pessoais, caminhos da máquina dele, padrões do
+  fluxo pessoal dele e marcadores de pendência interna.
 - **Commits:** Conventional Commits. Os PRs são integrados com squash.
 
 ## Qualidade e automação

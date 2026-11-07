@@ -9,8 +9,9 @@ origin: conception
 # 005 — Página do MailVigil: inventário de fatos
 
 Registro da conferência de RF-02 e RF-03 (Etapa 0): cada afirmação factual de `apps/mailvigil/src/textos.ts` e
-`terminais.ts` contra a ferramenta publicada. As correções propostas aqui só entram nos textos depois da
-revisão bloco a bloco pelo mantenedor (RF-04); até lá, os textos da página ficam como estão.
+`terminais.ts` contra a ferramenta publicada. As correções propostas aqui foram revistas bloco a bloco
+pelo mantenedor (RF-04) e aplicadas nos textos; o que cada uma virou está no `tasks.md` (Etapa 3). As
+observações descrevem a página no momento da conferência.
 
 ## Versão consultada e método
 
@@ -29,7 +30,7 @@ revisão bloco a bloco pelo mantenedor (RF-04); até lá, os textos da página f
   fluxo UTF-8. A conferência dos acentos rodou o mesmo código com `sys.platform` tratado como não Windows, que
   é o caso de um terminal UTF-8; o texto que sai é o do catálogo acentuado da própria ferramenta.
 
-Resultado: **confere**, **corrigida** (a proposta está na coluna de observação, à espera da revisão) ou
+Resultado: **confere**, **corrigida** (a proposta está na coluna de observação e foi aplicada na revisão do texto) ou
 **removida**. Nenhuma afirmação precisou ser removida.
 
 ## Instalação e comandos
@@ -114,8 +115,8 @@ Conferidos em 2026-11-06, por requisição (`curl`, seguindo redirecionamentos).
 | F-40 | `…/tree/main/docs` ("Ler a documentação")                                     | 200. A pasta é em inglês.                                                                                                                                                                                                                                                   |
 | F-41 | `https://dmarc-facil.ryanmorais.com.br/` (convite, português)                 | 200 (`<html lang="pt-BR">`).                                                                                                                                                                                                                                                |
 | F-42 | `https://dmarc-facil.ryanmorais.com.br/en/` (convite, inglês)                 | **404** hoje; o DMARC Fácil publicado não tem versão em inglês (`/en/`, `/en`, `/index.en.html` e `/us/` dão 404, e a página não declara `hreflang`). **Link quebrado na versão em inglês**: a revisão (bloco 5) decide o destino do convite em inglês ou se ele existe lá. |
-| F-43 | `https://webvigil.ryanmorais.com.br` (rodapé, outro produto)                  | Sem resposta: **não verificável até o deploy** (nada está no ar).                                                                                                                                                                                                           |
-| F-44 | `https://mailvigil.ryanmorais.com.br` (o próprio site: canonical, `hreflang`) | Sem resposta: **não verificável até o deploy**.                                                                                                                                                                                                                             |
+| F-43 | `https://webvigil.ryanmorais.com.br` (rodapé, outro produto)                  | Sem resposta (nada está no ar).                                                                                                                                                                                                                                             |
+| F-44 | `https://mailvigil.ryanmorais.com.br` (o próprio site: canonical, `hreflang`) | Sem resposta (nada está no ar).                                                                                                                                                                                                                                             |
 
 ## Inventário de achados de texto e de estrutura (RF-01, RF-08)
 

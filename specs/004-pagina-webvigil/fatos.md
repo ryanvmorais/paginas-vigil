@@ -9,8 +9,9 @@ origin: conception
 # 004 — Página do WebVigil: inventário de fatos
 
 Registro da conferência de RF-02 e RF-03 (Etapa 6): cada afirmação factual de `apps/webvigil/src/textos.ts` e
-`terminais.ts` contra a ferramenta publicada. As correções propostas aqui só entram nos textos depois da
-revisão bloco a bloco pelo mantenedor (RF-04); até lá, os textos da página ficam como estão.
+`terminais.ts` contra a ferramenta publicada. As correções propostas aqui foram revistas bloco a bloco
+pelo mantenedor (RF-04) e aplicadas nos textos; o que cada uma virou está no `tasks.md` (Etapa 6). As
+observações e a coluna "O que a página diz hoje" descrevem a página no momento da conferência.
 
 ## Versão consultada e método
 
@@ -25,7 +26,7 @@ revisão bloco a bloco pelo mantenedor (RF-04); até lá, os textos da página f
 - **Saída do terminal e capturas:** vêm de um scan ativo real da 1.2.0 contra o app de teste do repositório
   (Etapa 5). As frases do banner conferem com `cli/_render.py`.
 
-Resultado: **confere**, **corrigida** (a proposta está na coluna de observação, à espera da revisão) ou
+Resultado: **confere**, **corrigida** (a proposta está na coluna de observação e foi aplicada na revisão do texto) ou
 **removida**. Nenhuma afirmação precisou ser removida.
 
 ## Instalação e comandos
@@ -108,7 +109,8 @@ opt-in precisa ser dito; se não cita, não há o que corrigir.
 
 ## Achados levados à revisão de texto (RF-01, RF-04)
 
-Nada aqui foi alterado nos textos. Cada item vai ao mantenedor na revisão em português, bloco a bloco.
+Cada item foi levado ao mantenedor na revisão em português, bloco a bloco; a resolução de cada um está no
+`tasks.md` (Etapa 6).
 
 | #    | Achado                                                                                                                                                                                   | Classe                   | Bloco afetado          |
 | ---- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------ | ---------------------- |
