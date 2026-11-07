@@ -64,7 +64,8 @@ Etapa sem código de interface: o que ela entrega é a decisão.
 Etapa sem código e sem portão. Vem **antes** do merge do PR da Etapa 6: o `deploy.yml` roda a partir da `main`
 e, sem o ambiente pronto, o primeiro run falharia. Cada passo é do mantenedor.
 
-- [x] Guia de operação do mantenedor, mantido fora do repositório: criar o token novo da Cloudflare com o menor escopo, o ambiente `producao` (branch de deploy só a `main`, segredos `CLOUDFLARE_API_TOKEN` e `CLOUDFLARE_ACCOUNT_ID`, variável `PUBLIC_GA_MEASUREMENT_ID`), conferir o que a zona faz sozinha com os dois subdomínios, publicar, ler o resumo, validar cada página no navegador e os dois caminhos de volta. — RF-05, RF-06, RF-09, ADR-6, ADR-9
+- [x] Operação da publicação definida (token da Cloudflare com o menor escopo, ambiente `producao`, conferência da zona, caminhos de volta). — RF-05, RF-06, RF-09, ADR-6, ADR-9
+      Feito: o que vale para quem clonou está em `docs/stack.md` e no `CLAUDE.md`.
 - [x] O token, o ambiente `producao`, os segredos e a variável criados, e a zona conferida (Web Analytics e demais otimizações que reescrevem conteúdo desligadas para os dois subdomínios). — RF-05, RF-06
 
 ## Etapa 6 — Workflow de deploy e Lighthouse de produção
@@ -83,19 +84,27 @@ e, sem o ambiente pronto, o primeiro run falharia. Cada passo é do mantenedor.
 
 ## Etapa 7 — Documentação
 
-- [ ] `CLAUDE.md` (manter abaixo de ~20 KB): árvore de arquitetura com `wrangler.json`, `deploy.yml`, `hospedagem.mjs`, `conferir-hospedagem.mjs` e `producao-*.json`; um aviso `⚠️` de que `_headers`, `robots.txt` e `sitemap.xml` são gerados no build e nunca escritos à mão; a seção de qualidade cita o deploy e a conferência; a linha de estado deixa de dizer que a hospedagem está por fazer. — RF-09, Impacto
-- [ ] `docs/stack.md`: Workers Static Assets, `wrangler` por `npx`, `_headers`, HSTS, ambiente `producao`. — RF-09, Impacto
-- [ ] `README.md` e `README.en.md`: o endereço de cada site e a tecnologia que o serve, sem data de lançamento. — RF-09, Impacto
-- [ ] `specs/README.md`: linha da 006 como `em andamento` e a nota de manutenção sobre o `_headers` gerado a partir de `scripts/csp.mjs`. — RF-09, Impacto
-- [ ] Portão de qualidade final, com o total de testes e a cobertura. — registrar o resultado. A spec fica `em andamento` até a Etapa 8.
+- [x] `CLAUDE.md` (manter abaixo de ~20 KB): árvore de arquitetura com `wrangler.json`, `deploy.yml`, `hospedagem.mjs`, `conferir-hospedagem.mjs` e `producao-*.json`; um aviso `⚠️` de que `_headers`, `robots.txt` e `sitemap.xml` são gerados no build e nunca escritos à mão; a seção de qualidade cita o deploy e a conferência; a linha de estado deixa de dizer que a hospedagem está por fazer. — RF-09, Impacto
+      Feito: 16,3 KB. A árvore ganhou `wrangler.json`, `deploy.yml`, `conferir-hospedagem.mjs` e `producao-*.json`; o aviso de `_headers`, `robots.txt` e `sitemap.xml` passou de `Cuidado` a `⚠️ NÃO regredir`; a seção de qualidade ganhou o item do deploy; a linha de estado diz que os sites estão no ar.
+- [x] `docs/stack.md`: Workers Static Assets, `wrangler` por `npx`, `_headers`, HSTS, ambiente `producao`. — RF-09, Impacto
+      Feito: três seções novas (hospedagem e `wrangler`; `_headers`, HSTS e CSP; deploy e ambiente `producao`), duas linhas na tabela de peças menores, o diagrama com o deploy e a seção do Lighthouse com os limites de produção. Links conferidos.
+- [x] `README.md` e `README.en.md`: o endereço de cada site e a tecnologia que o serve, sem data de lançamento. — RF-09, Impacto
+- [x] `specs/README.md`: linha da 006 como `em andamento` e a nota de manutenção sobre o `_headers` gerado a partir de `scripts/csp.mjs`. — RF-09, Impacto
+- [x] Portão de qualidade final, com o total de testes e a cobertura. — registrar o resultado. A spec fica `em andamento` até a Etapa 8.
+      Resultado: `format:check`, `lint` e `typecheck` sem erro; `pnpm test`: 19 arquivos, 340 testes verdes; `pnpm build` dos dois sites, sem e com `G-TESTE12345`, com `verificar-dist` sem problemas. Etapa só de documentação: nenhum código mudou, então a cobertura é a da Etapa 4 (`conferir-hospedagem.mjs` 85 % e `hospedagem.mjs` 73 %).
 
 ## Etapa 8 — Publicação (o mantenedor)
 
 Etapa sem código e sem portão: o que ela entrega são os sites no ar, conferidos pelo `deploy.yml` (RF-08).
 
-- [ ] Merge do PR da Etapa 6 com a Etapa 5 pronta; o primeiro deploy sai pelo run do CI na `main` ou por `workflow_dispatch`. — RF-01, RF-05
-- [ ] Resumo da conferência lido, nos dois sites: todas as verificações verdes, ou cada falha tratada (cabeçalhos na 404, `Cache-Control` de `/_astro/*`, `en/404.html`, permissão do token, os riscos do design) com o desvio registrado no `design.md`. — RF-02, RF-03, RF-04, RF-06, RF-08
+- [x] Merge do PR da Etapa 6 com a Etapa 5 pronta; o primeiro deploy sai pelo run do CI na `main` ou por `workflow_dispatch`. — RF-01, RF-05
+      Feito: PR #49 mesclado; o deploy saiu pelo run do CI na `main` (`35d068e`), com os dois sites publicados em 2026-11-07.
+- [x] Resumo da conferência lido, nos dois sites: todas as verificações verdes, ou cada falha tratada (cabeçalhos na 404, `Cache-Control` de `/_astro/*`, `en/404.html`, permissão do token, os riscos do design) com o desvio registrado no `design.md`. — RF-02, RF-03, RF-04, RF-06, RF-08
+      Feito: 13 verificações em cada site, todas verdes.
 - [ ] Lighthouse de produção verde nos dois sites e nos dois modos, com as notas e o peso registrados aqui; cada página aberta no navegador, só com o próprio site e os hosts do GA4 depois do aceite, sem violação de CSP no console. — RF-08, ADR-6
-- [ ] Um rollback real feito e desfeito num dos sites, antes de divulgar os endereços. — RF-05, ADR-9
-- [ ] `*.workers.dev` e a pré-visualização conferidos como fora do ar nos dois projetos (só o subdomínio aparece). — RF-01
+      Resultado até aqui: Lighthouse de produção com notas de 0,98 a 1,0 nos dois sites e nos dois modos; páginas abertas no navegador sem violação de CSP, cookie de escolha compartilhado entre os três sites e `page_view` no GA4 depois do aceite.
+- [x] Um rollback real feito e desfeito num dos sites, antes de divulgar os endereços. — RF-05, ADR-9
+      Feito: rollback e volta conferidos num dos sites.
+- [x] `*.workers.dev` e a pré-visualização conferidos como fora do ar nos dois projetos (só o subdomínio aparece). — RF-01
+      Feito: `workers.dev` desligado nos dois.
 - [ ] Os três arquivos da spec com `status: concluído` e a linha da 006 em `specs/README.md` como `concluído`. — Impacto

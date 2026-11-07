@@ -15,18 +15,19 @@
 
 **Este repositório guarda os sites estáticos, feitos em Astro, que apresentam ferramentas de código aberto.** Cada ferramenta tem o próprio site, em `apps/<ferramenta>`, publicado no próprio subdomínio:
 
-- **[WebVigil](https://github.com/ryanvmorais/webvigil)**: scanner de vulnerabilidades web.
-- **[MailVigil](https://github.com/ryanvmorais/mailvigil)**: analisador de relatórios DMARC que diz se o domínio já está pronto para `p=reject`.
+- **[WebVigil](https://github.com/ryanvmorais/webvigil)**: scanner de vulnerabilidades web. O site está em [webvigil.ryanmorais.com.br](https://webvigil.ryanmorais.com.br).
+- **[MailVigil](https://github.com/ryanvmorais/mailvigil)**: analisador de relatórios DMARC que diz se o domínio já está pronto para `p=reject`. O site está em [mailvigil.ryanmorais.com.br](https://mailvigil.ryanmorais.com.br).
 
 Cada site existe em português e em inglês: o texto em português fica na raiz e o em inglês em `/en/`. As páginas são HTML estático gerado pelo Astro, sem framework de interface e sem servidor. O repositório tem um nome só, e não o de uma ferramenta, porque serve todos os sites.
 
-> **Status:** em construção. As páginas ainda não estão no ar.
+> **Status:** no ar. Cada site é servido pelo Cloudflare Workers Static Assets, num projeto por subdomínio, e é publicado a cada merge na `main` com o CI verde.
 
 ## O que tem aqui
 
 - **`apps/webvigil`** e **`apps/mailvigil`**: um site por ferramenta.
 - **`packages/tema`**: o tema que os sites compartilham: fontes, estilos, layout bilíngue, blocos de interface e a conferência de que todo texto existe nos dois idiomas.
-- **`scripts/`**: a conferência do HTML gerado e a política de segurança de conteúdo (CSP), rodadas no build de cada site.
+- **`scripts/`**: a conferência do HTML gerado, a política de segurança de conteúdo (CSP) e os arquivos de hospedagem (`_headers`, `robots.txt`, `sitemap.xml`), gerados no build de cada site; e a conferência do que está no ar, rodada pelo deploy.
+- **`.github/workflows/`**: o CI, as análises de segurança, o Lighthouse e o deploy.
 - **`specs/`**: a especificação de cada funcionalidade, em [specs/](specs/README.md).
 
 ## Decisões que valem saber
@@ -34,6 +35,7 @@ Cada site existe em português e em inglês: o texto em português fica na raiz 
 - **Bilíngue, sem redirecionamento automático.** `/` em português e `/en/` em inglês, com links reais entre as duas versões e `x-default` apontando para `/en/`; o idioma do navegador não decide nada. Origem: [`002-tema`](specs/002-tema/).
 - **Nenhum script nem estilo inline.** A política de segurança de conteúdo do deploy não permite `unsafe-inline`, então todo script e todo estilo vão em arquivo externo. Origem: [`001-fundacao`](specs/001-fundacao/).
 - **Medição só com consentimento.** O Google Analytics 4 roda em Consent Mode, negado por padrão, e o `gtag.js` só é carregado depois do aceite. Origem: [`003-medicao`](specs/003-medicao/).
+- **Cabeçalhos e descoberta gerados no build.** O `_headers` (com a CSP, o HSTS e os demais cabeçalhos), o `robots.txt` e o `sitemap.xml` saem do build de cada site, nunca escritos à mão, e o deploy confere que o domínio no ar os serve como o build os gerou. Origem: [`006-hospedagem`](specs/006-hospedagem/).
 
 ## Desenvolvimento
 
