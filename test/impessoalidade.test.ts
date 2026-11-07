@@ -99,7 +99,7 @@ describe("impessoalidade: o nome do mantenedor", () => {
 // Comandos de skills pessoais: quem clona o repositório não os tem. O `(?<![\w/.-])` deixa passar
 // caminhos como `docs/stack.md` e `../specs/`.
 const COMANDOS_PESSOAIS =
-  /(?<![\w/.-])\/(spec|idioma|estilo-arquivos|fechar-sessao|atualizar-docs|atualizar-dependencias|atualizar-ferramentas|auditar-impessoalidade|auditoria-[a-z]+|revisar-dependabot|limpar-branches|nova-interface|novo-projeto|preparar-release|qualidade-python|stack)(?![\w-])/;
+  /(?<![\w/.-])\/(spec|idioma|estilo-arquivos|fechar-sessao|atualizar-docs|atualizar-dependencias|atualizar-ferramentas|auditoria-[a-z]+|enxugar-memoria|revisar-dependabot|limpar-branches|nova-interface|novo-projeto|preparar-release|qualidade-python|stack)(?![\w-])/;
 
 // Pastas e caminhos da máquina de quem mantém o projeto.
 const CAMINHOS_PESSOAIS = /orientacoes-pessoais|~\/\.claude|[A-Za-z]:[\\/]Users[\\/]/;
