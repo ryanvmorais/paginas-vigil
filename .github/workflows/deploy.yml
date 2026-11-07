@@ -1,0 +1,146 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+# Deploy dos dois sites na Cloudflare (Workers Static Assets), um job por site, depois do CI verde.
+#
+# Por que `workflow_run` e não `push`: o deploy encadeia no `CI` sem repetir o portão. Se `qualidade`
+# ou `seguranca` falham, este workflow nem começa. A condição do job só deixa passar um run do `CI`
+# que terminou com sucesso, veio de `push` na `main` e é do próprio repositório: PR e fork nunca
+# disparam deploy nem tocam o segredo. `workflow_run` usa o arquivo da `main`, então mexer neste
+# workflow só vale depois do merge. `workflow_dispatch` serve para publicar de novo sem commit novo.
+#
+# Por que o `wrangler` vem por `npx` numa variável e não como dependência do package.json: a árvore
+# dele derrubaria o `pnpm audit` obrigatório do CI, como a do `@lhci/cli`. O Dependabot não vê `npx`:
+# a revisão de `WRANGLER_VERSION` e de `LHCI_VERSION` é manual.
+#
+# Depois de publicar, o mesmo job confere o que está no ar (cabeçalhos, 404, bytes, http para https) e
+# mede o endereço real com o Lighthouse. Falha deixa o run vermelho e o resumo mostra a tabela; o
+# deploy não é desfeito sozinho (caminho de volta: reverter o commit por PR, ou `wrangler rollback`).
+# O ambiente `producao` guarda os segredos `CLOUDFLARE_API_TOKEN` e `CLOUDFLARE_ACCOUNT_ID` e a
+# variável `PUBLIC_GA_MEASUREMENT_ID`, e só aceita deploy a partir da `main`.
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+# Somente leitura: o job só baixa o repositório. O segredo da Cloudflare não é permissão do GitHub.
+permissions:
+  contents: read
+
+# Um deploy por vez e nenhum cancelado no meio: interromper um `wrangler deploy` deixaria o site
+# num estado que ninguém conferiu. O mais velho não publica por último (passo "Conferir a ponta").
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+env:
+  # Mais de 7 dias de publicada (a 4.156.1 saiu em 2026-11-01; a 4.158.0 é de 2026-11-05). O
+  # Dependabot não vê `npx`: a revisão desta versão é manual.
+  WRANGLER_VERSION: "4.156.0"
+  # A mesma versão do lighthouse.yml: uma só para medir o build e o que está no ar.
+  LHCI_VERSION: "0.15.1"
+
+jobs:
+  publicar:
+    name: publicar (${{ matrix.site }})
+    if: >-
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'workflow_run' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_repository.full_name == github.repository)
+    runs-on: ubuntu-26.04
+    timeout-minutes: 30
+    environment: producao
+    strategy:
+      # A falha de um site não impede o deploy do outro.
+      fail-fast: false
+      matrix:
+        site: [webvigil, mailvigil]
+    env:
+      # O commit que o CI aprovou (no disparo manual, o da `main` em que o workflow foi disparado).
+      COMMIT: ${{ github.event.workflow_run.head_sha || github.sha }}
+      PUBLIC_GA_MEASUREMENT_ID: ${{ vars.PUBLIC_GA_MEASUREMENT_ID }}
+    steps:
+      - name: Conferir o identificador de medição
+        # Vazio, fora do formato ou o valor de teste do CI: nenhum deles pode chegar ao ar. Sem esta
+        # parada o build sairia sem medição (ou medindo para uma propriedade que não existe) e o
+        # deploy "daria certo". O formato é o de `medicaoValida` em scripts/csp.mjs.
+        run: |
+          if [[ ! "$PUBLIC_GA_MEASUREMENT_ID" =~ ^G-[A-Z0-9]{10}$ ]]; then
+            echo "::error::A variável PUBLIC_GA_MEASUREMENT_ID do ambiente producao está vazia ou fora do formato G-XXXXXXXXXX."
+            exit 1
+          fi
+          if [[ "$PUBLIC_GA_MEASUREMENT_ID" == "G-TESTE12345" ]]; then
+            echo "::error::A variável PUBLIC_GA_MEASUREMENT_ID do ambiente producao é o identificador de teste do CI."
+            exit 1
+          fi
+
+      - name: Baixar o repositório
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.COMMIT }}
+          # O checkout não deixa o token do GitHub no disco: nenhum passo seguinte precisa dele.
+          persist-credentials: false
+
+      - name: Instalar o pnpm
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+      - name: Instalar o Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 26
+          cache: pnpm
+
+      - name: Instalar as dependências
+        run: pnpm install --frozen-lockfile
+
+      - name: Gerar o site
+        # `astro build`, depois o gerador da hospedagem e o `verificar-dist`. O identificador vem do
+        # ambiente do job, o mesmo valor que o gerador lê para escolher a CSP.
+        run: pnpm --filter @paginas-vigil/${{ matrix.site }} build
+
+      - name: Conferir a ponta da main
+        # Dois merges seguidos geram dois deploys: sem esta conferência o mais velho, se terminasse o
+        # build depois, publicaria por último e desfaria o mais novo. Se não for mais a ponta, os
+        # passos seguintes são pulados (o deploy do commit mais novo cuida do site).
+        id: ponta
+        run: |
+          ponta=$(git ls-remote "https://github.com/${GITHUB_REPOSITORY}.git" refs/heads/main | cut -f1)
+          if [[ "$ponta" == "$COMMIT" ]]; then
+            echo "atual=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "atual=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::O commit ${COMMIT} não é mais a ponta da main (${ponta}); este deploy foi pulado."
+          fi
+
+      - name: Publicar na Cloudflare
+        if: steps.ponta.outputs.atual == 'true'
+        # Os segredos entram só neste passo, nunca no job inteiro.
+        run: npx --yes wrangler@${{ env.WRANGLER_VERSION }} deploy --config apps/${{ matrix.site }}/wrangler.json --message "$COMMIT"
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Conferir o que está no ar
+        if: steps.ponta.outputs.atual == 'true'
+        run: node scripts/conferir-hospedagem.mjs ${{ matrix.site }}
+
+      - name: Medir o endereço real, no celular
+        if: steps.ponta.outputs.atual == 'true' && !cancelled()
+        run: npx --yes @lhci/cli@${{ env.LHCI_VERSION }} autorun --config=.github/lighthouse/producao-${{ matrix.site }}-mobile.json
+
+      - name: Medir o endereço real, no desktop
+        if: steps.ponta.outputs.atual == 'true' && !cancelled()
+        run: npx --yes @lhci/cli@${{ env.LHCI_VERSION }} autorun --config=.github/lighthouse/producao-${{ matrix.site }}-desktop.json
+
+      - name: Guardar os relatórios
+        if: steps.ponta.outputs.atual == 'true' && !cancelled()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: lighthouse-producao-${{ matrix.site }}
+          path: .lighthouseci/producao-${{ matrix.site }}-*
+          include-hidden-files: true
+          retention-days: 14
