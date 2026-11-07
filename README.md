@@ -2,23 +2,35 @@
 
 **Português (Brasil)** · [English](README.en.md)
 
+![Páginas Vigil: sites estáticos de apresentação das ferramentas, feitos em Astro](docs/images/paginas-vigil-static-sites-social-preview.png)
+
 ![TypeScript](https://img.shields.io/badge/TypeScript-6.0-3178C6?logo=typescript&logoColor=white)
 ![Astro](https://img.shields.io/badge/Astro-7-BC52EE?logo=astro&logoColor=white)
 ![deps](https://img.shields.io/badge/deps-pnpm-F69220?logo=pnpm&logoColor=white)
 [![CI](https://github.com/ryanvmorais/paginas-vigil/actions/workflows/ci.yml/badge.svg)](https://github.com/ryanvmorais/paginas-vigil/actions/workflows/ci.yml)
 ![license](https://img.shields.io/badge/license-Apache%202.0-blue)
 
-**Este repositório guarda os dois sites estáticos, feitos em Astro, que apresentam o [WebVigil](https://github.com/ryanvmorais/webvigil), um scanner de vulnerabilidades web de código aberto, e o [MailVigil](https://github.com/ryanvmorais/mailvigil), um analisador de relatórios DMARC que diz se o domínio já está pronto para `p=reject`.**
+**Este repositório guarda os sites estáticos, feitos em Astro, que apresentam ferramentas de código aberto.** Cada ferramenta tem o próprio site, em `apps/<ferramenta>`, publicado no próprio subdomínio:
 
-Cada site é publicado no próprio subdomínio, em português e em inglês: o texto em português fica na raiz e o em inglês em `/en/`. As páginas são HTML estático gerado pelo Astro, sem framework de interface e sem servidor.
+- **[WebVigil](https://github.com/ryanvmorais/webvigil)**: scanner de vulnerabilidades web.
+- **[MailVigil](https://github.com/ryanvmorais/mailvigil)**: analisador de relatórios DMARC que diz se o domínio já está pronto para `p=reject`.
+
+Cada site existe em português e em inglês: o texto em português fica na raiz e o em inglês em `/en/`. As páginas são HTML estático gerado pelo Astro, sem framework de interface e sem servidor. O repositório tem um nome só, e não o de uma ferramenta, porque serve todos os sites.
 
 > **Status:** em construção. As páginas ainda não estão no ar.
 
 ## O que tem aqui
 
-- **`apps/webvigil`**: o site do WebVigil.
-- **`apps/mailvigil`**: o site do MailVigil.
-- **`packages/tema`**: o tema que os dois sites compartilham: fontes, estilos, layout bilíngue, blocos de interface e a conferência de que todo texto existe nos dois idiomas.
+- **`apps/webvigil`** e **`apps/mailvigil`**: um site por ferramenta.
+- **`packages/tema`**: o tema que os sites compartilham: fontes, estilos, layout bilíngue, blocos de interface e a conferência de que todo texto existe nos dois idiomas.
+- **`scripts/`**: a conferência do HTML gerado e a política de segurança de conteúdo (CSP), rodadas no build de cada site.
+- **`specs/`**: a especificação de cada funcionalidade, em [specs/](specs/README.md).
+
+## Decisões que valem saber
+
+- **Bilíngue, sem redirecionamento automático.** `/` em português e `/en/` em inglês, com links reais entre as duas versões e `x-default` apontando para `/en/`; o idioma do navegador não decide nada. Origem: [`002-tema`](specs/002-tema/).
+- **Nenhum script nem estilo inline.** A política de segurança de conteúdo do deploy não permite `unsafe-inline`, então todo script e todo estilo vão em arquivo externo. Origem: [`001-fundacao`](specs/001-fundacao/).
+- **Medição só com consentimento.** O Google Analytics 4 roda em Consent Mode, negado por padrão, e o `gtag.js` só é carregado depois do aceite. Origem: [`003-medicao`](specs/003-medicao/).
 
 ## Desenvolvimento
 
@@ -31,7 +43,7 @@ pnpm install
 # Ative o hook de pre-commit (uma vez por clone)
 git config core.hooksPath .githooks
 
-# Rode um site em modo de desenvolvimento
+# Rode um site em modo de desenvolvimento (troque pelo site que quiser)
 pnpm --filter webvigil dev
 pnpm --filter mailvigil dev
 ```
@@ -55,10 +67,23 @@ pnpm test
 
 # Build estático de cada site
 pnpm build
+
+# Corrige a formatação, quando a conferência falhar
+pnpm format
 ```
 
-O mapa de cada tecnologia da stack, com o porquê de cada escolha, está em [docs/stack.md](docs/stack.md), e as especificações de cada funcionalidade estão em [specs/](specs/README.md). Para contribuir, veja o [CONTRIBUTING.md](CONTRIBUTING.md). Para relatar um problema de segurança, veja o [SECURITY.md](SECURITY.md).
+O build de cada site termina conferindo o HTML gerado (`scripts/verificar-dist.mjs`) e falha se achar `<script>` sem `src`, `<style>` ou `style=`, âncora que aponta para nada ou recurso fora da política de segurança de conteúdo.
+
+Para ver o que o visitante verá, construa um site e sirva o build (com o `.env` preenchido, a página sai com medição e banner):
+
+```bash
+# Troque webvigil pelo site que quiser
+pnpm --filter webvigil build
+pnpm --filter webvigil preview
+```
+
+O mapa de cada tecnologia da stack, com o porquê de cada escolha, está em [docs/stack.md](docs/stack.md). Para contribuir, veja o [CONTRIBUTING.md](CONTRIBUTING.md). Para relatar um problema de segurança, veja o [SECURITY.md](SECURITY.md).
 
 ## Licença
 
-[Apache-2.0](LICENSE).
+[Apache-2.0](LICENSE). O material de terceiros (um ícone e as fontes) está listado no [NOTICE](NOTICE).

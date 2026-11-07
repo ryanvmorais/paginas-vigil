@@ -93,12 +93,15 @@ apps/mailvigil/       # site do MailVigil
   dist/               # (em cada app) build estático, gerado e fora do git
 .github/workflows/    # ci, codeql, dependency-review, pnpm-audit, lighthouse
 .github/lighthouse/   # limites do Lighthouse CI por site e por formato (celular, desktop)
+.github/              # também dependabot.yml, ISSUE_TEMPLATE/ (bug e funcionalidade) e pull_request_template.md
 .githooks/            # pre-commit: o portão de qualidade em modo verificação
-scripts/              # verificar-dist.mjs: confere o HTML gerado (sem inline, modo da medição, CSP, âncoras e destinos
-                      # dos botões), rodado no build de cada site; csp.mjs: a política de segurança de conteúdo, fonte única (cada .mjs tem o teste ao lado)
+scripts/              # verificar-dist.mjs: confere o HTML gerado (sem inline, marcação de idioma, modo da medição, CSP,
+                      # âncoras, destinos dos botões e marca: og:image, favicon e imagem social), rodado no build de cada
+                      # site; csp.mjs: a política de segurança de conteúdo, fonte única (cada .mjs tem o teste ao lado)
 docs/images/          # social preview do repositório (1280 x 640), genérica: não cita nenhuma das ferramentas
-test/                 # testes do repositório: impessoalidade.test.ts (ver "Convenções") e marca.test.ts (o traçado do
-                      # logo igual no cabeçalho e no favicon; dimensões das imagens)
+test/                 # testes do repositório: impessoalidade.test.ts (ver "Convenções"), marca.test.ts (o traçado do
+                      # logo igual no cabeçalho e no favicon; dimensões das imagens) e csp.test.ts (a URL do gtag.js
+                      # cabe na CSP com medição e não cabe sem)
 .claude/              # hooks do Claude Code (ver "Qualidade e automação")
 ```
 
