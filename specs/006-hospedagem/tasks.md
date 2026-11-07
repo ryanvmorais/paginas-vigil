@@ -37,14 +37,17 @@ Etapa sem código de interface: o que ela entrega é a decisão.
 
 ## Etapa 3 — Arquivos da hospedagem gerados no build
 
-- [ ] `scripts/csp.mjs`: exportar `medicaoValida(id)` (o formato `G-` e dez maiúsculas ou dígitos); `verificar-dist.mjs` passa a importá-la no lugar da cópia. Teste de que ela concorda com `validarIdMedicao` do tema. — RNF-06, ADR-3
-- [ ] `scripts/hospedagem.mjs`: `montarCabecalhos`, `montarRobots`, `montarSitemap` e `gerarHospedagem`; execução que lê o `site` do `astro.config.mjs` da pasta atual e o modo de `PUBLIC_GA_MEASUREMENT_ID`. `@ts-check` e JSDoc, como os outros scripts. — RF-02, RF-04, RF-07, ADR-3, ADR-7
-- [ ] `scripts/hospedagem.test.mjs`: os testes de `scripts/hospedagem.mjs` listados no design (dois modos, limites da plataforma, sitemap com o trio de `hreflang`, escrita em pasta temporária). — RF-02, RF-04, RF-07, RNF-04
-- [ ] `apps/webvigil/package.json` e `apps/mailvigil/package.json`: `build` passa a `astro build && node ../../scripts/hospedagem.mjs dist && node ../../scripts/verificar-dist.mjs dist`. — RF-02, ADR-3
-- [ ] `scripts/verificar-dist.mjs`: a regra 8 (cabeçalhos, `robots.txt`, `sitemap.xml` e as duas 404 coerentes com o modo do build), com a documentação do cabeçalho do arquivo atualizada. — RF-02, RF-03, RF-07, ADR-3
-- [ ] `scripts/verificar-dist.test.mjs`: uma variação por falha da regra 8, listadas no design. — RF-02, RF-03, RF-07, RNF-04
-- [ ] `.github/lighthouse/<site>-{mobile,desktop}.json` (4 arquivos): `collect.url` com `/index.html` e `/en/index.html`, para a medição por pasta não incluir as 404. — ADR-8
-- [ ] Portão de qualidade, com o build dos dois sites sem e com medição (`G-TESTE12345`) e o Lighthouse local de um site. — registrar o resultado
+- [x] `scripts/csp.mjs`: exportar `medicaoValida(id)` (o formato `G-` e dez maiúsculas ou dígitos); `verificar-dist.mjs` passa a importá-la no lugar da cópia. Teste de que ela concorda com `validarIdMedicao` do tema. — RNF-06, ADR-3
+- [x] `scripts/hospedagem.mjs`: `montarCabecalhos`, `montarRobots`, `montarSitemap` e `gerarHospedagem`; execução que lê o `site` do `astro.config.mjs` da pasta atual e o modo de `PUBLIC_GA_MEASUREMENT_ID`. `@ts-check` e JSDoc, como os outros scripts. — RF-02, RF-04, RF-07, ADR-3, ADR-7
+      Feito: o gerador também copia `en/404/index.html` para `en/404.html` (desvio da Etapa 2) e recusa um `site` que não seja `https`. Desvio: sem `// @ts-check`, porque nenhum outro script de `scripts/` o usa (só JSDoc). O modo vem de `process.env`: um identificador só no `.env` liga o banner mas não o gerador, e a regra 8 derruba o build (conferido).
+- [x] `scripts/hospedagem.test.mjs`: os testes de `scripts/hospedagem.mjs` listados no design (dois modos, limites da plataforma, sitemap com o trio de `hreflang`, escrita em pasta temporária). — RF-02, RF-04, RF-07, RNF-04
+- [x] `apps/webvigil/package.json` e `apps/mailvigil/package.json`: `build` passa a `astro build && node ../../scripts/hospedagem.mjs dist && node ../../scripts/verificar-dist.mjs dist`. — RF-02, ADR-3
+- [x] `scripts/verificar-dist.mjs`: a regra 8 (cabeçalhos, `robots.txt`, `sitemap.xml` e as duas 404 coerentes com o modo do build), com a documentação do cabeçalho do arquivo atualizada. — RF-02, RF-03, RF-07, ADR-3
+- [x] `scripts/verificar-dist.test.mjs`: uma variação por falha da regra 8, listadas no design. — RF-02, RF-03, RF-07, RNF-04
+- [x] `.github/lighthouse/<site>-{mobile,desktop}.json` (4 arquivos): `collect.url` com `/index.html` e `/en/index.html`, para a medição por pasta não incluir as 404. — ADR-8
+      Feito na Etapa 2 (PR da 404): os quatro JSON já listavam só `/index.html` e `/en/index.html`.
+- [x] Portão de qualidade, com o build dos dois sites sem e com medição (`G-TESTE12345`) e o Lighthouse local de um site. — registrar o resultado
+      Resultado: `format:check`, `lint` e `typecheck` sem erro; `pnpm test`: 15 arquivos, 238 testes verdes; `pnpm build` dos dois sites, sem e com `G-TESTE12345`, com `verificar-dist` sem problemas (regra 8 incluída; `_headers` de outro modo derruba o build). Lighthouse local do WebVigil, celular e desktop, sobre as duas páginas indexáveis: sem asserção falha.
 
 ## Etapa 4 — Configuração dos projetos e conferência do que está no ar
 
