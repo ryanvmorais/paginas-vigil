@@ -1,5 +1,5 @@
-/**
- * @file Fontes locais do tema: Sora 800 (títulos) e JetBrains Mono 400 e 700 (comandos e terminal).
+/*
+ * Fontes locais do tema: Sora 800 (títulos) e JetBrains Mono 400 e 700 (comandos e terminal).
  *
  * Os arquivos `woff2` são subconjuntos versionados em `../fontes/` (ADR-3): a política de segurança
  * de conteúdo do deploy não permite buscar fonte em CDN. O corpo do texto usa `system-ui` e não tem

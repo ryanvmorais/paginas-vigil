@@ -1,5 +1,5 @@
-/**
- * @file Estilos do terminal: cores da saída, classes de contagem e a animação de digitação.
+/*
+ * Estilos do terminal: cores da saída, classes de contagem e a animação de digitação.
  *
  * Importado pelo `Terminal.astro`. O terminal é escuro nos dois esquemas (`--term-*` de `tokens.css`) e
  * é a única ousadia da página (spec 002, RF-08). A animação é só CSS (ADR-4): o texto completo está

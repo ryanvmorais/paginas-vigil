@@ -1,5 +1,5 @@
-/**
- * @file Tokens do tema: cores, tipografia e acento por produto, em claro e escuro.
+/*
+ * Tokens do tema: cores, tipografia e acento por produto, em claro e escuro.
  *
  * Reproduz o `:root` do mockup aprovado (spec 002, direção A "Terminal primeiro"), sem o seletor
  * manual `data-theme`: o esquema vem só de `prefers-color-scheme` (RF-01). A escala de severidade
