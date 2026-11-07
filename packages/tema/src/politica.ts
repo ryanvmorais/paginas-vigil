@@ -20,12 +20,13 @@ export interface DestinoPolitica {
 /**
  * Política de privacidade por idioma da página.
  *
- * Hoje só existe em português; a página em inglês aponta para ela e avisa no rótulo. Quando a
- * versão em inglês existir, troca-se o `href` de `en` e `traduzida` vira `true`.
+ * A política existe nos dois idiomas no site principal, e cada versão da página aponta para a sua.
+ * Se um idioma voltar a apontar para um texto em outro idioma, `traduzida` fica `false` e o rótulo
+ * avisa.
  */
 export const POLITICA: Record<Idioma, DestinoPolitica> = {
   pt: { href: "https://ryanmorais.com.br/politica-de-privacidade/", traduzida: true },
-  en: { href: "https://ryanmorais.com.br/politica-de-privacidade/", traduzida: false },
+  en: { href: "https://ryanmorais.com.br/en/privacy-policy/", traduzida: true },
 };
 
 /** Domínio do cookie da escolha: o do site principal, para valer também nos subdomínios. */
