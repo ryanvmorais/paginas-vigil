@@ -23,7 +23,7 @@ auditConfig:
 catalog:
   "@astrojs/check": ^0.9.12
   astro: ^7.4.4
-  eslint: ^10.13.0
+  eslint: ^10.14.0
   eslint-plugin-astro: ^3.2.1
   prettier: ^3.9.10
   prettier-plugin-astro: ^1.1.2
