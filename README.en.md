@@ -6,12 +6,11 @@
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-6.0-3178C6?logo=typescript&logoColor=white)
 ![Astro](https://img.shields.io/badge/Astro-7-BC52EE?logo=astro&logoColor=white)
-![Node](https://img.shields.io/badge/Node-26+-5FA04E?logo=nodedotjs&logoColor=white)
 ![deps](https://img.shields.io/badge/deps-pnpm-F69220?logo=pnpm&logoColor=white)
-[![CI](https://github.com/ryanvmorais/paginas-vigil/actions/workflows/ci.yml/badge.svg)](https://github.com/ryanvmorais/paginas-vigil/actions/workflows/ci.yml)
+[![CI](https://img.shields.io/github/actions/workflow/status/ryanvmorais/paginas-vigil/ci.yml?label=CI&logo=githubactions&logoColor=white)](https://github.com/ryanvmorais/paginas-vigil/actions/workflows/ci.yml)
 ![lint](https://img.shields.io/badge/lint-ESLint-4B32C3?logo=eslint&logoColor=white)
 ![style](https://img.shields.io/badge/style-Prettier-F7B93E?logo=prettier&logoColor=black)
-![license](https://img.shields.io/badge/license-Apache%202.0-blue)
+![license](https://img.shields.io/badge/license-Apache%202.0-blue?logo=apache&logoColor=white)
 
 **This repository holds the static websites, built with Astro, that present open-source tools.** Each tool has its own site, in `apps/<tool>`, published on its own subdomain:
 
