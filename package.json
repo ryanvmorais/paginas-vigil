@@ -23,7 +23,7 @@
     "@types/node": "^26.6.5",
     "eslint": "catalog:",
     "eslint-plugin-astro": "catalog:",
-    "globals": "^17.13.0",
+    "globals": "^17.14.0",
     "prettier": "catalog:",
     "prettier-plugin-astro": "catalog:",
     "typescript": "catalog:",
