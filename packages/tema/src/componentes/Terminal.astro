@@ -80,9 +80,15 @@ const classes = `n-${faixa(caracteres)} l-${faixa(linhas)}`;
     white-space: pre;
   }
 
-  /* Cada linha de saída ocupa o espaço final desde o primeiro quadro (a animação só recorta). */
+  /* Cada linha de saída ocupa o espaço final desde o primeiro quadro (a animação só recorta).
+   * `width: max-content` faz a caixa cobrir a linha mais larga, e não só a largura visível do `<pre>`: o
+   * `clip-path` da animação recorta na borda da caixa e, no fim dela, `inset(0)` continua valendo, então
+   * com a caixa estreita o texto que rola para o lado ficaria cortado no celular. `min-width: 100%` evita
+   * que a caixa fique mais estreita que o bloco. */
   .saida {
     display: block;
+    width: max-content;
+    min-width: 100%;
   }
 
   /* Pista de rolagem no celular: as duas camadas `local` (cobertura, na cor do fundo) andam com o
