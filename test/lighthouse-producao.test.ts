@@ -27,17 +27,27 @@ const lerSite = async (site: string): Promise<string> => {
   return modulo.default.site;
 };
 
+/**
+ * Limite de um teste que importa o `astro.config.mjs`: o primeiro `import` carrega o Astro inteiro e, numa
+ * máquina carregada, passa dos 5 s padrão do Vitest sem que nada esteja errado.
+ */
+const LIMITE_IMPORTAR_CONFIG_MS = 30_000;
+
 describe.each(COMBINACOES)("Lighthouse de produção de %s (%s)", (site, modo) => {
   const producao = lerJson(`.github/lighthouse/producao-${site}-${modo}.json`);
   const origem = lerJson(`.github/lighthouse/${site}-${modo}.json`);
 
-  it("mede as duas páginas do site, no endereço do astro.config.mjs", async () => {
-    const endereco = new URL(await lerSite(site));
-    expect(producao.ci.collect.url).toEqual([
-      new URL("/", endereco).href,
-      new URL("/en/", endereco).href,
-    ]);
-  });
+  it(
+    "mede as duas páginas do site, no endereço do astro.config.mjs",
+    async () => {
+      const endereco = new URL(await lerSite(site));
+      expect(producao.ci.collect.url).toEqual([
+        new URL("/", endereco).href,
+        new URL("/en/", endereco).href,
+      ]);
+    },
+    LIMITE_IMPORTAR_CONFIG_MS,
+  );
 
   it("não mede a pasta do build: o que mede é o que está no ar", () => {
     expect(producao.ci.collect).not.toHaveProperty("staticDistDir");

@@ -24,6 +24,12 @@ const lerSite = async (site: string): Promise<string> => {
   return modulo.default.site;
 };
 
+/**
+ * Limite de um teste que importa o `astro.config.mjs`: o primeiro `import` carrega o Astro inteiro e, numa
+ * máquina carregada, passa dos 5 s padrão do Vitest sem que nada esteja errado.
+ */
+const LIMITE_IMPORTAR_CONFIG_MS = 30_000;
+
 describe.each(SITES)("wrangler.json de %s", (site) => {
   const configuracao = lerJson(`apps/${site}/wrangler.json`);
 
@@ -56,17 +62,25 @@ describe.each(SITES)("wrangler.json de %s", (site) => {
     expect(configuracao.observability).toEqual({ enabled: false });
   });
 
-  it("tem uma só rota, de domínio personalizado, igual ao site do astro.config.mjs", async () => {
-    const endereco = new URL(await lerSite(site));
-    expect(configuracao.routes).toEqual([{ pattern: endereco.hostname, custom_domain: true }]);
-  });
+  it(
+    "tem uma só rota, de domínio personalizado, igual ao site do astro.config.mjs",
+    async () => {
+      const endereco = new URL(await lerSite(site));
+      expect(configuracao.routes).toEqual([{ pattern: endereco.hostname, custom_domain: true }]);
+    },
+    LIMITE_IMPORTAR_CONFIG_MS,
+  );
 });
 
 describe("domínios dos dois sites", () => {
-  it("são distintos entre si", async () => {
-    const dominios = await Promise.all(SITES.map(lerSite));
-    expect(new Set(dominios).size).toBe(SITES.length);
-  });
+  it(
+    "são distintos entre si",
+    async () => {
+      const dominios = await Promise.all(SITES.map(lerSite));
+      expect(new Set(dominios).size).toBe(SITES.length);
+    },
+    LIMITE_IMPORTAR_CONFIG_MS,
+  );
 });
 
 describe("wrangler fora das dependências", () => {
