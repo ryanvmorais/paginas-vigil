@@ -188,6 +188,9 @@ test/                 # testes do repositório: impessoalidade.test.ts (ver "Con
   e os cabeçalhos do build) e o Lighthouse de produção (`.github/lighthouse/producao-*.json`). As versões do
   `wrangler` e do `@lhci/cli` ficam em variáveis do workflow e são revistas à mão: o Dependabot não vê `npx`.
   `workflow_run` usa o arquivo da `main`, então mexer no workflow só vale depois do merge.
+  Logo depois da publicação a borda pode ainda servir a versão anterior (o mesmo tamanho, só muda o hash de
+  `_astro/`), então um corpo diferente é conferido de novo a cada 15 s, por até 3 minutos somados; status e
+  cabeçalho reprovam na hora.
   `pnpm hospedagem:conferir <site>` repete a conferência à mão, mas só é fiel se o `dist` foi construído com
   o identificador real (a conferência compara o domínio com o `dist` local).
 - **Ruleset `proteger-main`:** PR obrigatório, só squash, check `qualidade` exigido. Nada de commit direto na

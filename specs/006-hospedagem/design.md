@@ -218,7 +218,10 @@ Uso: `node scripts/conferir-hospedagem.mjs <site>` (e `pnpm hospedagem:conferir 
 da rota do `wrangler.json` do app e os bytes esperados, do `dist` recém-construído e publicado. Sai com código 1
 se algo falhar e escreve a tabela em `$GITHUB_STEP_SUMMARY`. Primeiro **espera** o domínio responder
 (até 5 minutos, a cada 15 s), porque o certificado e o DNS do domínio personalizado podem demorar no primeiro
-deploy. Depois, na ordem:
+deploy. Logo depois da publicação a borda pode ainda servir a versão anterior (o HTML novo e o antigo só
+diferem no hash dos arquivos de `_astro/`, com o mesmo tamanho): um corpo diferente do `dist` é conferido de
+novo a cada 15 s, dentro de um orçamento de 3 minutos que as verificações de corpo dividem, e só então reprova;
+status e cabeçalho reprovam na hora. Depois, na ordem:
 
 1. `GET /`: status 200; corpo idêntico ao `dist/index.html` (SHA-256); cabeçalhos de `/*` presentes e iguais.
 2. `GET /en/`: o mesmo, contra `dist/en/index.html`.

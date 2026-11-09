@@ -368,6 +368,76 @@ describe("conferirHospedagem", () => {
       expect(linhas[0].detalhe).toContain("status 525");
     });
   });
+
+  describe("espera pela propagação do corpo", () => {
+    // Uma página que a borda serve na versão anterior (mesmo tamanho, outro conteúdo) nas primeiras vezes.
+    const antiga = "<!doctype html><title>xx</title>";
+    const versaoAnteriorPor = (vezes) => {
+      let restantes = vezes;
+      return (certa) => {
+        if (restantes > 0) {
+          restantes -= 1;
+          return { ...certa, corpo: antiga };
+        }
+        return certa;
+      };
+    };
+
+    it("confere de novo e aprova quando a borda passa a servir o corpo novo", async () => {
+      // A espera pelo domínio também pede `/` e gasta a primeira resposta antiga; a página gasta as outras duas.
+      const { linhas, esperar } = await conferir({ ajustes: { "/": versaoAnteriorPor(3) } });
+      expect(reprovadas(linhas)).toEqual([]);
+      expect(esperar).toHaveBeenCalledTimes(2);
+      expect(esperar).toHaveBeenCalledWith(15_000);
+      expect(linhas.find(({ nome }) => nome === "GET /")?.detalhe).toContain("na tentativa 3");
+    });
+
+    it("não anota tentativa quando o corpo já veio certo", async () => {
+      const { linhas } = await conferir();
+      expect(linhas.find(({ nome }) => nome === "GET /")?.detalhe).not.toContain("tentativa");
+    });
+
+    it("desiste depois de 3 minutos de corpo diferente e reprova", async () => {
+      const { linhas, esperar } = await conferir({ ajustes: { "/": versaoAnteriorPor(1000) } });
+      expect(reprovadas(linhas)).toEqual(["GET /"]);
+      expect(esperar).toHaveBeenCalledTimes(12);
+      const detalhe = linhas.find(({ nome }) => nome === "GET /")?.detalhe;
+      expect(detalhe).toMatch(/corpo diferente/);
+      expect(detalhe).toContain("depois de 13 tentativas");
+    });
+
+    it("divide o mesmo tempo entre as verificações, em vez de esperar 3 minutos em cada uma", async () => {
+      const { linhas, esperar } = await conferir({
+        ajustes: { "/": versaoAnteriorPor(1000), "/en/": versaoAnteriorPor(1000) },
+      });
+      expect(reprovadas(linhas)).toEqual(["GET /", "GET /en/"]);
+      expect(esperar).toHaveBeenCalledTimes(12);
+    });
+
+    it("confere de novo também o robots.txt e o sitemap.xml", async () => {
+      const { linhas, esperar } = await conferir({
+        ajustes: { "/robots.txt": versaoAnteriorPor(1), "/sitemap.xml": versaoAnteriorPor(1) },
+      });
+      expect(reprovadas(linhas)).toEqual([]);
+      expect(esperar).toHaveBeenCalledTimes(2);
+    });
+
+    it("confere de novo um arquivo de _astro que a borda ainda serve na versão anterior", async () => {
+      const { linhas, esperar } = await conferir({
+        ajustes: { "/_astro/app.abc123.css": versaoAnteriorPor(1) },
+      });
+      expect(reprovadas(linhas)).toEqual([]);
+      expect(esperar).toHaveBeenCalledTimes(1);
+    });
+
+    it("não espera por um problema que a propagação não explica", async () => {
+      const { linhas, esperar } = await conferir({
+        ajustes: { "/conferencia-caminho-inexistente/a/b": (certa) => ({ ...certa, status: 200 }) },
+      });
+      expect(reprovadas(linhas)).toEqual(["404 em português"]);
+      expect(esperar).not.toHaveBeenCalled();
+    });
+  });
 });
 
 describe("montarTabela", () => {

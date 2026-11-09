@@ -6,7 +6,10 @@
  * byte iguais (ADR-6: nada injetado pela zona), os cabeçalhos do `_headers` têm de estar na resposta
  * (inclusive na da 404, que a documentação da hospedagem não garante), o `_headers` não pode ser servido e
  * `http://` não pode responder 200. Antes de julgar, espera o domínio responder: o certificado e o DNS de
- * um domínio personalizado podem demorar no primeiro deploy (ADR-5).
+ * um domínio personalizado podem demorar no primeiro deploy (ADR-5). Logo depois do deploy a borda pode
+ * ainda servir a versão anterior (o HTML novo e o antigo só diferem no hash dos arquivos de `_astro/`, com
+ * o mesmo tamanho), então um corpo diferente é conferido de novo a cada intervalo, dentro de um tempo
+ * total que as verificações dividem; um problema de status ou de cabeçalho reprova na hora.
  *
  * A lógica mora em funções que recebem a rede (`buscar`) e o relógio (`esperar`) por parâmetro, para o
  * teste rodar sem rede. O endereço vem da rota do `wrangler.json` do app, e os bytes esperados, do `dist`.
@@ -32,6 +35,13 @@ const FIM_BLOCO_GERENCIADO = "# END Cloudflare Managed Content";
 // O que a zona espera até o domínio responder: 5 minutos, de 15 em 15 segundos.
 const INTERVALO_PADRAO_MS = 15_000;
 const LIMITE_PADRAO_MS = 300_000;
+
+// O que as verificações de corpo esperam, somadas, a borda servir o conteúdo novo: 3 minutos. É um
+// orçamento único (não por verificação), para uma diferença de verdade não multiplicar a espera.
+const PROPAGACAO_PADRAO_MS = 180_000;
+
+// Os problemas que a propagação pode explicar: o corpo servido ainda é o da versão anterior.
+const PROBLEMA_DE_CORPO = /^(corpo|conteúdo) diferente do dist/;
 
 // `redirect: "manual"` mostra o redirecionamento em vez de segui-lo, para o `http://` ser julgado de verdade.
 const OPCOES_PEDIDO = {
@@ -251,8 +261,9 @@ const arquivosDoAstro = async (pasta) => {
  * Roda as verificações de RF-08 contra `endereco`.
  *
  * @param {{ endereco: string, pasta: string, buscar?: Buscar, esperar?: (ms: number) => Promise<void>,
- *   intervaloMs?: number, limiteMs?: number }} opcoes - `endereco` é a origem do site (`https://host`);
- *   `pasta`, o `dist` publicado; `buscar` e `esperar` são injetados nos testes
+ *   intervaloMs?: number, limiteMs?: number, propagacaoMs?: number }} opcoes - `endereco` é a origem do
+ *   site (`https://host`); `pasta`, o `dist` publicado; `propagacaoMs`, o tempo total que as verificações
+ *   de corpo esperam a borda servir o conteúdo novo; `buscar` e `esperar` são injetados nos testes
  * @returns {Promise<Verificacao[]>} uma linha por verificação; se o domínio não responde, só a primeira
  */
 export const conferirHospedagem = async ({
@@ -262,6 +273,7 @@ export const conferirHospedagem = async ({
   esperar = pausar,
   intervaloMs = INTERVALO_PADRAO_MS,
   limiteMs = LIMITE_PADRAO_MS,
+  propagacaoMs = PROPAGACAO_PADRAO_MS,
 }) => {
   const espera = await esperarDominio({ endereco, buscar, esperar, intervaloMs, limiteMs });
   if (!espera.ok) return [espera];
@@ -269,6 +281,44 @@ export const conferirHospedagem = async ({
   const textoHeaders = await readFile(join(pasta, "_headers"), "utf8");
   const gerais = lerCabecalhosEsperados(textoHeaders, "/*");
   const doAstro = lerCabecalhosEsperados(textoHeaders, "/_astro/*");
+
+  // O tempo que ainda resta para a borda propagar; todas as verificações de corpo gastam do mesmo.
+  let restanteMs = propagacaoMs;
+
+  /**
+   * Como `verificar`, mas repete a conferência enquanto o problema for corpo diferente do dist e houver
+   * tempo no orçamento da propagação. Anota na linha em que tentativa passou ou desistiu.
+   *
+   * @param {string} nome - o nome da linha na tabela
+   * @param {() => Promise<string[]>} conferir - devolve os problemas; vazio aprova
+   * @param {string} aprovada - o detalhe da linha quando nada falha
+   * @returns {Promise<Verificacao>} a linha da tabela
+   */
+  const verificarComEspera = async (nome, conferir, aprovada) => {
+    let tentativas = 1;
+    const linha = await verificar(
+      nome,
+      async () => {
+        let problemas = await conferir();
+        while (
+          problemas.some((problema) => PROBLEMA_DE_CORPO.test(problema)) &&
+          restanteMs >= intervaloMs
+        ) {
+          await esperar(intervaloMs);
+          restanteMs -= intervaloMs;
+          tentativas += 1;
+          problemas = await conferir();
+        }
+        return problemas;
+      },
+      aprovada,
+    );
+    if (tentativas === 1) return linha;
+    const nota = linha.ok
+      ? `corpo igual só na tentativa ${tentativas}: a borda ainda servia a versão anterior`
+      : `depois de ${tentativas} tentativas`;
+    return { ...linha, detalhe: `${linha.detalhe} (${nota})` };
+  };
 
   /**
    * Confere uma página: status, corpo idêntico ao arquivo do `dist` e cabeçalhos de `/*`.
@@ -280,7 +330,7 @@ export const conferirHospedagem = async ({
    * @returns {Promise<Verificacao>} a linha da tabela
    */
   const pagina = (nome, caminho, status, arquivo) =>
-    verificar(
+    verificarComEspera(
       nome,
       async () => {
         const resposta = await pedir(buscar, `${endereco}${caminho}`);
@@ -312,7 +362,7 @@ export const conferirHospedagem = async ({
         continue;
       }
       linhas.push(
-        await verificar(
+        await verificarComEspera(
           nome,
           async () => {
             const resposta = await pedir(buscar, `${endereco}/_astro/${arquivo}`);
@@ -351,7 +401,7 @@ export const conferirHospedagem = async ({
   );
 
   linhas.push(
-    await verificar(
+    await verificarComEspera(
       "GET /robots.txt",
       async () => {
         const resposta = await pedir(buscar, `${endereco}/robots.txt`);
@@ -369,7 +419,7 @@ export const conferirHospedagem = async ({
   );
 
   linhas.push(
-    await verificar(
+    await verificarComEspera(
       "GET /sitemap.xml",
       async () => {
         const resposta = await pedir(buscar, `${endereco}/sitemap.xml`);
