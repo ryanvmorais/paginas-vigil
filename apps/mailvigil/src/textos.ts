@@ -249,10 +249,9 @@ const en: TextosPagina = {
 export const textos: Record<Idioma, TextosPagina> = { pt, en };
 
 /**
- * Convite ao DMARC Fácil, nos dois idiomas. O DMARC Fácil publicado só existe em português: a versão
- * em inglês aponta para a mesma página e avisa no texto ("in Portuguese"), em vez de um endereço
- * `/en/` que ainda não existe. Fica fora do dicionário porque o texto em volta do link muda por
- * idioma, e a paridade confere só textos.
+ * Convite ao DMARC Fácil, nos dois idiomas: cada versão aponta para a página do DMARC Fácil no mesmo
+ * idioma (`/` em português, `/en/` em inglês). Fica fora do dicionário porque o texto em volta do
+ * link muda por idioma, e a paridade confere só textos.
  */
 export const DMARC_FACIL: Record<
   Idioma,
@@ -265,9 +264,9 @@ export const DMARC_FACIL: Record<
     depois: ".",
   },
   en: {
-    href: "https://dmarc-facil.ryanmorais.com.br/",
+    href: "https://dmarc-facil.ryanmorais.com.br/en/",
     antes: "Have not published DMARC yet? Start with ",
     rotulo: "DMARC Fácil",
-    depois: " (in Portuguese).",
+    depois: ".",
   },
 };
