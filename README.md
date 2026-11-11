@@ -34,7 +34,7 @@ Cada site existe em português e em inglês: o texto em português fica na raiz 
 - **Bilíngue, sem redirecionamento automático.** `/` em português e `/en/` em inglês, com links reais entre as duas versões e `x-default` apontando para `/en/`; o idioma do navegador não decide nada. Origem: [`002-tema`](specs/002-tema/).
 - **Nenhum script nem estilo inline.** A política de segurança de conteúdo do deploy não permite `unsafe-inline`, então todo script e todo estilo vão em arquivo externo. Origem: [`001-fundacao`](specs/001-fundacao/).
 - **Medição só com consentimento.** O Google Analytics 4 roda em Consent Mode, negado por padrão, e o `gtag.js` só é carregado depois do aceite. Origem: [`003-medicao`](specs/003-medicao/).
-- **Cabeçalhos e descoberta gerados no build.** O `_headers` (com a CSP, o HSTS e os demais cabeçalhos), o `robots.txt` e o `sitemap.xml` saem do build de cada site, nunca escritos à mão, e o deploy confere que o domínio no ar os serve como o build os gerou. Origem: [`006-hospedagem`](specs/006-hospedagem/).
+- **Cabeçalhos e descoberta gerados no build.** O `_headers` (com a CSP, o HSTS e os demais cabeçalhos), o `robots.txt` e o `sitemap.xml` saem do build de cada site, nunca escritos à mão, e o deploy confere que o domínio no ar os serve como o build os gerou. O contato de segurança fica no `/.well-known/security.txt` de cada site (RFC 9116), conferido da mesma forma. Origem: [`006-hospedagem`](specs/006-hospedagem/).
 
 ## Desenvolvimento
 
