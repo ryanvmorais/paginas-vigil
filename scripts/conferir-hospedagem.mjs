@@ -2,14 +2,15 @@
  * @file Confere o que está no ar contra o `dist` recém-publicado (spec 006, RF-06 e RF-08).
  *
  * Roda depois do deploy, no mesmo job. Consulta o endereço real do site e compara com o que o build
- * gerou: a página, a 404, os arquivos de `_astro/`, o `robots.txt` e o `sitemap.xml` têm de chegar byte a
- * byte iguais (ADR-6: nada injetado pela zona), os cabeçalhos do `_headers` têm de estar na resposta
- * (inclusive na da 404, que a documentação da hospedagem não garante), o `_headers` não pode ser servido e
- * `http://` não pode responder 200. Antes de julgar, espera o domínio responder: o certificado e o DNS de
- * um domínio personalizado podem demorar no primeiro deploy (ADR-5). Logo depois do deploy a borda pode
- * ainda servir a versão anterior (o HTML novo e o antigo só diferem no hash dos arquivos de `_astro/`, com
- * o mesmo tamanho), então um corpo diferente é conferido de novo a cada intervalo, dentro de um tempo
- * total que as verificações dividem; um problema de status ou de cabeçalho reprova na hora.
+ * gerou: a página, a 404, os arquivos de `_astro/`, o `robots.txt`, o `sitemap.xml` e o `security.txt`
+ * têm de chegar byte a byte iguais (ADR-6: nada injetado pela zona), os cabeçalhos do `_headers` têm de
+ * estar na resposta (inclusive na da 404, que a documentação da hospedagem não garante), o `_headers`
+ * não pode ser servido e `http://` não pode responder 200. Antes de julgar, espera o domínio responder:
+ * o certificado e o DNS de um domínio personalizado podem demorar no primeiro deploy (ADR-5). Logo
+ * depois do deploy a borda pode ainda servir a versão anterior (o HTML novo e o antigo só diferem no
+ * hash dos arquivos de `_astro/`, com o mesmo tamanho), então um corpo diferente é conferido de novo a
+ * cada intervalo, dentro de um tempo total que as verificações dividem; um problema de status ou de
+ * cabeçalho reprova na hora.
  *
  * A lógica mora em funções que recebem a rede (`buscar`) e o relógio (`esperar`) por parâmetro, para o
  * teste rodar sem rede. O endereço vem da rota do `wrangler.json` do app, e os bytes esperados, do `dist`.
@@ -427,6 +428,27 @@ export const conferirHospedagem = async ({
         const problemas = [];
         if (resposta.status !== 200) problemas.push(`status ${resposta.status}, esperado 200`);
         conferirCorpo(problemas, resposta, await readFile(join(pasta, "sitemap.xml")));
+        return problemas;
+      },
+      "200 e corpo igual",
+    ),
+  );
+
+  // O security.txt mora em `.well-known/`: o corpo igual prova também que a pasta com ponto no nome
+  // saiu do `public/` e chegou à hospedagem.
+  linhas.push(
+    await verificarComEspera(
+      "GET /.well-known/security.txt",
+      async () => {
+        const resposta = await pedir(buscar, `${endereco}/.well-known/security.txt`);
+        /** @type {string[]} */
+        const problemas = [];
+        if (resposta.status !== 200) problemas.push(`status ${resposta.status}, esperado 200`);
+        conferirCorpo(
+          problemas,
+          resposta,
+          await readFile(join(pasta, ".well-known", "security.txt")),
+        );
         return problemas;
       },
       "200 e corpo igual",

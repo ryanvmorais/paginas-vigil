@@ -5,6 +5,9 @@
  * a 404 própria, sem endereço `workers.dev` nem de pré-visualização e sem observabilidade. A rota é o
  * mesmo domínio do `site` do `astro.config.mjs` (o endereço do `canonical`, do sitemap e da conferência),
  * e o `wrangler` entra só por `npx`, nunca como dependência (RNF-03: a árvore dele derrubaria o `pnpm audit`).
+ *
+ * O `security.txt` de cada site (`public/.well-known/`) tem os campos da RFC 9116, o `Canonical` no domínio
+ * do `site` e um `Expires` que o teste obriga a renovar um mês antes de vencer.
  */
 
 import { readFileSync } from "node:fs";
@@ -100,5 +103,53 @@ describe("wrangler fora das dependências", () => {
     ]) {
       expect(Object.keys(manifesto[campo] ?? {})).not.toContain("wrangler");
     }
+  });
+});
+
+// O `Expires` do security.txt é obrigatório (RFC 9116, 2.5.5) e vence: este prazo deixa o portão
+// vermelho um mês antes, com tempo de renovar sem o arquivo passar a valer como vencido.
+const AVISO_EXPIRES_DIAS = 30;
+// A RFC recomenda `Expires` a menos de um ano; a folga de um dia cobre a renovação no dia exato.
+const MAXIMO_EXPIRES_DIAS = 366;
+const DIA_MS = 24 * 60 * 60 * 1000;
+
+describe.each(SITES)("security.txt de %s", (site) => {
+  /** Os valores de cada campo do arquivo, sem os comentários. */
+  const campos = new Map<string, string[]>();
+  const texto = readFileSync(resolve(RAIZ, `apps/${site}/public/.well-known/security.txt`), "utf8");
+  for (const linha of texto.split("\n")) {
+    const casou = /^([A-Za-z-]+): (.+)$/.exec(linha);
+    if (casou?.[1] !== undefined && casou[2] !== undefined) {
+      campos.set(casou[1], [...(campos.get(casou[1]) ?? []), casou[2]]);
+    }
+  }
+
+  it("tem Contact https, Policy e Preferred-Languages, e um Expires só", () => {
+    const contatos = campos.get("Contact") ?? [];
+    expect(contatos.length).toBeGreaterThan(0);
+    for (const contato of contatos) expect(contato).toMatch(/^https:\/\//);
+    expect(campos.get("Policy")).toHaveLength(1);
+    expect(campos.get("Preferred-Languages")).toEqual(["pt, en"]);
+    expect(campos.get("Expires")).toHaveLength(1);
+  });
+
+  it(
+    "o Canonical é o endereço do site do astro.config.mjs",
+    async () => {
+      expect(campos.get("Canonical")).toEqual([`${await lerSite(site)}/.well-known/security.txt`]);
+    },
+    LIMITE_IMPORTAR_CONFIG_MS,
+  );
+
+  it(`o Expires vale por mais ${AVISO_EXPIRES_DIAS} dias e por menos de um ano`, () => {
+    const expira = campos.get("Expires")?.[0] ?? "";
+    expect(expira).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/);
+    const restam = (Date.parse(expira) - Date.now()) / DIA_MS;
+    expect(restam, "Expires perto de vencer: renove para até um ano à frente").toBeGreaterThan(
+      AVISO_EXPIRES_DIAS,
+    );
+    expect(restam, "Expires a mais de um ano (RFC 9116, 2.5.5)").toBeLessThanOrEqual(
+      MAXIMO_EXPIRES_DIAS,
+    );
   });
 });

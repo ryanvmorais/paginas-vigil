@@ -38,6 +38,7 @@ const ARQUIVOS = {
   "favicon.svg": "<svg/>",
   "robots.txt": "User-agent: *\nAllow: /\n\nSitemap: https://exemplo.test/sitemap.xml\n",
   "sitemap.xml": "<urlset/>",
+  ".well-known/security.txt": "Contact: https://exemplo.test/contato\n",
   "_astro/app.abc123.js": "console.log(1)",
   "_astro/app.abc123.css": "body{}",
   "_astro/fonte.abc123.woff2": "fonte",
@@ -50,6 +51,7 @@ beforeEach(async () => {
   pasta = await mkdtemp(join(tmpdir(), "conferir-hospedagem-"));
   await mkdir(join(pasta, "_astro"), { recursive: true });
   await mkdir(join(pasta, "en"), { recursive: true });
+  await mkdir(join(pasta, ".well-known"), { recursive: true });
   for (const [nome, conteudo] of Object.entries(ARQUIVOS)) {
     await writeFile(join(pasta, nome), conteudo, "utf8");
   }
@@ -78,6 +80,7 @@ const respostaCerta = (protocolo, caminho) => {
     "/favicon.svg": [200, ARQUIVOS["favicon.svg"], { "cache-control": CACHE_REVALIDAR }],
     "/robots.txt": [200, ARQUIVOS["robots.txt"]],
     "/sitemap.xml": [200, ARQUIVOS["sitemap.xml"]],
+    "/.well-known/security.txt": [200, ARQUIVOS[".well-known/security.txt"]],
   };
   if (caminho.startsWith("/_astro/")) {
     const corpo = ARQUIVOS[/** @type {keyof typeof ARQUIVOS} */ (caminho.slice(1))];
@@ -184,7 +187,7 @@ describe("conferirHospedagem", () => {
   it("aprova um site servido como o dist, sem esperar", async () => {
     const { linhas, esperar } = await conferir();
     expect(reprovadas(linhas)).toEqual([]);
-    expect(linhas.length).toBeGreaterThanOrEqual(13);
+    expect(linhas.length).toBeGreaterThanOrEqual(14);
     expect(esperar).not.toHaveBeenCalled();
   });
 
@@ -197,6 +200,7 @@ describe("conferirHospedagem", () => {
       "/favicon.svg",
       "/robots.txt",
       "/sitemap.xml",
+      "/.well-known/security.txt",
       "/_headers",
     ]) {
       expect(pedidos).toContain(`${ENDERECO}${caminho}`);
@@ -328,6 +332,19 @@ describe("conferirHospedagem", () => {
       ajustes: { "/sitemap.xml": (certa) => ({ ...certa, corpo: "<urlset><url/></urlset>" }) },
     });
     expect(reprovadas(linhas)).toEqual(["GET /sitemap.xml"]);
+  });
+
+  it("reprova o security.txt que não chegou à hospedagem", async () => {
+    const { linhas } = await conferir({
+      ajustes: {
+        "/.well-known/security.txt": (certa) => ({
+          ...certa,
+          status: 404,
+          corpo: ARQUIVOS["404.html"],
+        }),
+      },
+    });
+    expect(reprovadas(linhas)).toEqual(["GET /.well-known/security.txt"]);
   });
 
   it("reprova quando o dist não tem um dos arquivos de _astro", async () => {
