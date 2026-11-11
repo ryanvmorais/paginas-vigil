@@ -11,7 +11,7 @@ um workspace pnpm. Cada site é publicado no próprio subdomínio (`webvigil.rya
 > Cuidado: o nome do repositório (`paginas-vigil`) é exceção à regra "nome do repositório = subdomínio",
 > porque um repositório serve dois subdomínios. Não renomeie para casar com um deles.
 
-Estado: os dois sites estão no ar, cada um no seu subdomínio, com a página inteira (português e inglês), o tema e a marca (favicon, ícone de tela inicial e imagem social). Cada merge na `main` com o CI verde publica os dois (`deploy.yml`) e confere o que ficou no ar. A medição (Google Analytics 4 com consentimento) liga com o identificador do ambiente `producao`; a política de privacidade mora no site principal.
+Estado: os dois sites estão no ar, cada um no seu subdomínio, com a página inteira (português e inglês), o tema e a marca (favicon, ícone de tela inicial e imagem social). Cada merge na `main` com o CI verde publica os dois (`deploy.yml`) e confere o que ficou no ar. A medição (Google Analytics 4 com consentimento) liga com o identificador do ambiente `producao`; a política de privacidade mora no domínio-pai (`ryanmorais.com.br`).
 
 ## Comandos comuns
 
@@ -66,7 +66,7 @@ comando por `;`); no bash, `PUBLIC_GA_MEASUREMENT_ID=G-TESTE12345 pnpm --filter 
 packages/tema/        # tema e utilidades compartilhados pelos dois sites
   src/idiomas.ts      # IDIOMAS e chavesFaltantes: confere a paridade pt/en dos dicionários
   src/medicao.ts      # validarIdMedicao: só o formato G-XXXXXXXXXX liga a medição
-  src/politica.ts     # endereço da política de privacidade do site principal e domínio do cookie de escolha
+  src/politica.ts     # endereço da política de privacidade do domínio-pai e domínio do cookie de escolha
   src/consentimento.ts # núcleo puro do consentimento: escolha, cookie, Consent Mode e gtag, tudo injetado
                       # (cada módulo .ts tem o teste ao lado, em *.test.ts)
   src/caminhos.ts     # troca o idioma e calcula o caminho da outra versão da página (links e seletor)
@@ -145,7 +145,7 @@ test/                 # testes do repositório: impessoalidade.test.ts (ver "Con
 > carregado depois do aceite. O identificador vem de `PUBLIC_GA_MEASUREMENT_ID` (ver `.env.example`; o
 > `vite.envDir` dos apps aponta para a raiz): vazio ou fora do formato significa página sem medição, sem
 > banner e sem o controle "Gerenciar Cookies", e o build segue. A escolha do visitante fica no cookie
-> `cookies-accepted`, de domínio, que vale também no site principal, com recuo para o `localStorage` e
+> `cookies-accepted`, de domínio, que vale também no domínio-pai (`ryanmorais.com.br`), com recuo para o `localStorage` e
 > depois para a memória. O CI constrói os dois sites com e sem medição (identificador de teste
 > `G-TESTE12345`), e o Lighthouse mede a página com o banner aberto.
 
@@ -160,7 +160,7 @@ test/                 # testes do repositório: impessoalidade.test.ts (ver "Con
   lê seguem o idioma da página. Nomes técnicos universais (`HTML`, `CSS`, `URL`) ficam como são.
 - **Estilo dos arquivos:** siga o do restante do repositório: cabeçalho `@file` e comentário de documentação
   nas funções exportadas, comentários que explicam o porquê, formatação pelo Prettier (`pnpm format`).
-- **Interface:** mudança de interface parte de um mockup aprovado, não do código.
+- **Interface:** mudança de interface parte de um desenho registrado no `design.md` da spec, não do código.
 - **Quem lê:** tudo o que é versionado é escrito para quem clonou o repositório: sem o nome do
   mantenedor (só em autoria e licença), com papéis ("o mantenedor") no lugar de pessoas, e sem apontar
   para comandos que só existem na máquina de quem mantém. `test/impessoalidade.test.ts` guarda isso em
@@ -211,7 +211,7 @@ portão de qualidade e confira se os READMEs (nos dois idiomas) e este arquivo r
 Cada funcionalidade nasce como spec em [specs/](specs/README.md), em três arquivos escritos em ordem:
 `requirements.md`, `design.md` e `tasks.md`, cada fase aprovada antes da seguinte. O formato de referência é a
 `specs/001-fundacao/`, que registra o chão atual (workspace, portões de qualidade, CI e `main`
-protegida). Tela nova tem o mockup aprovado no `design.md`.
+protegida). Tela nova tem o desenho no `design.md`.
 
 ## Gestão de dependências
 
