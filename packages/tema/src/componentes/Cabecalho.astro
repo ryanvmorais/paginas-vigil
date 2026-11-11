@@ -1,14 +1,14 @@
 ---
 /**
- * @file Cabeçalho da página: logo e nome à esquerda, navegação no meio e seletor de idioma à direita,
- * como no mockup aprovado.
+ * @file Cabeçalho da página: logo e nome à esquerda, navegação no meio e seletor de idioma à
+ * direita.
  *
- * O logo chega pelo `slot="logo"` (os arquivos vêm na fase de imagens). A navegação em linha só
- * aparece a partir de 720 px; abaixo disso entra o menu do celular, um `<details>` com o ícone de
- * três linhas e um painel sob o cabeçalho (RF-06, ADR-1). Os dois só existem se o site passar itens,
- * e só um deles fica na árvore de acessibilidade de cada vez (o outro é `display: none`), para não
- * repetir o defeito dos marcos duplicados. Não há botão do GitHub: o cabeçalho não é fixo e o botão
- * repetia o do topo e o da chamada final (RF-05, decisão 3 da spec 002).
+ * O logo chega pelo `slot="logo"`. A navegação em linha só aparece a partir de 720 px; abaixo disso
+ * entra o menu do celular, um `<details>` com o ícone de três linhas e um painel sob o cabeçalho
+ * (RF-06, ADR-1). Os dois só existem se o site passar itens, e só um deles fica na árvore de
+ * acessibilidade de cada vez (o outro é `display: none`), para não repetir o defeito dos marcos
+ * duplicados. Não há botão do GitHub: o cabeçalho não é fixo e o botão repetia o do topo e o da
+ * chamada final (RF-05, decisão 3 da spec 002).
  */
 import { caminhoNoIdioma } from "../caminhos";
 import type { Idioma } from "../idiomas";

@@ -1,10 +1,10 @@
 /**
  * @file Onde mora a política de privacidade e onde a escolha de cookies é gravada.
  *
- * A política é única e fica no site principal do mantenedor: os dois sites são subdomínios dele e
- * usam a mesma propriedade do GA4, então o banner e o rodapé só apontam para ela (decisão 5 da
- * spec 003). O endereço e o domínio do cookie moram aqui, num lugar só, para o banner, o rodapé e o
- * núcleo de consentimento não divergirem (RF-05, ADR-2).
+ * A política é única e fica no domínio-pai (`ryanmorais.com.br`): os dois sites são subdomínios
+ * dele e usam a mesma propriedade do GA4, então o banner e o rodapé só apontam para ela (decisão 5
+ * da spec 003). O endereço e o domínio do cookie moram aqui, num lugar só, para o banner, o rodapé
+ * e o núcleo de consentimento não divergirem (RF-05, ADR-2).
  */
 
 import type { Idioma } from "./idiomas";
@@ -20,7 +20,7 @@ export interface DestinoPolitica {
 /**
  * Política de privacidade por idioma da página.
  *
- * A política existe nos dois idiomas no site principal, e cada versão da página aponta para a sua.
+ * A política existe nos dois idiomas no domínio-pai, e cada versão da página aponta para a sua.
  * Se um idioma voltar a apontar para um texto em outro idioma, `traduzida` fica `false` e o rótulo
  * avisa.
  */
@@ -29,5 +29,5 @@ export const POLITICA: Record<Idioma, DestinoPolitica> = {
   en: { href: "https://ryanmorais.com.br/en/privacy-policy/", traduzida: true },
 };
 
-/** Domínio do cookie da escolha: o do site principal, para valer também nos subdomínios. */
+/** Domínio do cookie da escolha: o domínio-pai, para valer também nos subdomínios. */
 export const DOMINIO_COOKIE = ".ryanmorais.com.br";

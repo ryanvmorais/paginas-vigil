@@ -31,7 +31,7 @@ import { validarIdMedicao } from "../medicao";
 import { DOMINIO_COOKIE } from "../politica";
 
 /**
- * Armazém da escolha no cookie do domínio do site principal.
+ * Armazém da escolha no cookie do domínio-pai.
  *
  * @returns o armazém sobre `document.cookie`
  */
@@ -71,7 +71,7 @@ function criarArmazemLocal(): Armazem | undefined {
  * Remove do navegador os cookies do Google Analytics (`_ga` e `_ga_<ID>`).
  *
  * O `gtag.js` grava no domínio registrável, mas um cookie de nome igual pode existir só no host;
- * tenta o host, o host com ponto e o domínio do site principal, para o navegador casar o escopo
+ * tenta o host, o host com ponto e o domínio-pai, para o navegador casar o escopo
  * com o de quem criou o cookie (ADR-6).
  */
 function apagarCookiesGoogle(): void {

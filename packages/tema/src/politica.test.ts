@@ -12,7 +12,7 @@ describe("POLITICA", () => {
     expect(Object.keys(POLITICA).sort()).toEqual([...IDIOMAS].sort());
   });
 
-  it("aponta cada idioma para a política do site principal nesse idioma", () => {
+  it("aponta cada idioma para a política do domínio-pai nesse idioma", () => {
     expect(POLITICA.pt.href).toBe("https://ryanmorais.com.br/politica-de-privacidade/");
     expect(POLITICA.en.href).toBe("https://ryanmorais.com.br/en/privacy-policy/");
   });
