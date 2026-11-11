@@ -3,13 +3,13 @@
  *
  * Lógica pura, sem DOM e sem rede: cookie, armazenamento local e `gtag` chegam por injeção, e o
  * script de entrada (`scripts/consentimento.ts`) só monta os objetos reais e liga os eventos
- * (ADR-3, RNF-05). A escolha mora num cookie do domínio do site principal, que vale para os três
- * sites; se o cookie não puder ser gravado (`localhost`, cookies bloqueados), recua para o
+ * (ADR-3, RNF-05). A escolha mora num cookie do domínio-pai (`ryanmorais.com.br`), que vale para os
+ * três sites; se o cookie não puder ser gravado (`localhost`, cookies bloqueados), recua para o
  * armazenamento local e, por último, para a memória da página, sem lançar erro (RF-03, ADR-2).
  *
  * A medição segue o Consent Mode: tudo começa negado, aceitar concede só `analytics_storage` e o
  * `gtag.js` só é baixado depois do aceite (RF-01, RF-07, RNF-04, ADR-1). Recusar ou revogar nega
- * `analytics_storage` por `consent update` e remove os cookies `_ga*`, como no site principal (ADR-6).
+ * `analytics_storage` por `consent update` e remove os cookies `_ga*` (ADR-6).
  */
 
 import { DOMINIO_COOKIE } from "./politica";
@@ -47,7 +47,7 @@ export type Gtag = (...args: unknown[]) => void;
 /** Campos do Consent Mode que o código controla. */
 export type EstadoConsentimento = Readonly<Record<string, "granted" | "denied">>;
 
-/** Nome do cookie da escolha; o site principal usa o mesmo (contrato da spec 003). */
+/** Nome do cookie da escolha; o site do domínio-pai usa o mesmo (contrato da spec 003). */
 export const NOME_COOKIE = "cookies-accepted";
 
 /** Validade do cookie, em segundos: 400 dias, o teto que os navegadores aceitam. */

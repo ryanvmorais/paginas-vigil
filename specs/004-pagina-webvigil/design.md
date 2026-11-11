@@ -92,7 +92,7 @@ produto e o título de "O que ele não faz".** Hoje há onze tamanhos entre 11 e
 | Legenda da captura, linha fina do topo, rodapé                                | 13 · 13,5       | 14          |
 | Rótulos em maiúsculas ("Passo 1", "Opcional") e terminal no celular           | 11 · 12,5 · 13  | 12          |
 | Nome do produto no cabeçalho e título de "O que ele não faz"                  | 20 · 22         | 22          |
-| Título da página e das seções                                                 | 30–50 · 26 · 34 | sem mudança |
+| Título da página e das seções                                                 | 30-50 · 26 · 34 | sem mudança |
 
 O código em linha passa de 0,88 para 0,875 do texto ao redor, que dá 14 px no corpo de 16.
 

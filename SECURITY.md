@@ -11,7 +11,7 @@ Só os sites no ar recebem correção de segurança. Eles refletem a branch `mai
 
 ## Como relatar uma vulnerabilidade
 
-Relate problemas de segurança nas Páginas Vigil **em privado**, pelos avisos de segurança do GitHub: abra a aba **Security** do repositório e escolha **Report a vulnerability**. Não abra issue nem pull request público para isso.
+Relate problemas de segurança nas Páginas Vigil **em privado**, pelos avisos de segurança do GitHub: abra a aba **Security and quality** do repositório e escolha **Report a vulnerability**. Não abra issue nem pull request público para isso.
 
 Inclua o necessário para reproduzir: o endereço da página, o navegador, o que você fez, o que esperava e o que aconteceu, e o impacto que você enxerga.
 
