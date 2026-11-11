@@ -41,6 +41,10 @@ env:
   WRANGLER_VERSION: "4.156.0"
   # A mesma versão do lighthouse.yml: uma só para medir o build e o que está no ar.
   LHCI_VERSION: "0.15.1"
+  # Carência de release para o `npx`, em dias: a versão do pacote é fixa, mas a árvore dele é
+  # resolvida na hora, sem lockfile. Uma dependência indireta publicada há menos de 7 dias não
+  # entra. É o mesmo prazo do `minimumReleaseAge` do pnpm-workspace.yaml (um teste confere).
+  npm_config_min_release_age: "7"
 
 jobs:
   publicar:
@@ -115,6 +119,12 @@ jobs:
             echo "atual=false" >> "$GITHUB_OUTPUT"
             echo "::notice::O commit ${COMMIT} não é mais a ponta da main (${ponta}); este deploy foi pulado."
           fi
+
+      - name: Baixar o wrangler
+        if: steps.ponta.outputs.atual == 'true'
+        # Instala antes, num passo sem segredo: os scripts de instalação da árvore do `wrangler` rodam
+        # aqui, longe do token da Cloudflare, e o passo seguinte só reaproveita o cache do `npx`.
+        run: npx --yes wrangler@${{ env.WRANGLER_VERSION }} --version
 
       - name: Publicar na Cloudflare
         if: steps.ponta.outputs.atual == 'true'

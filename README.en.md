@@ -34,7 +34,7 @@ Every site exists in Portuguese and in English: the Portuguese text lives at the
 - **Bilingual, with no automatic redirect.** `/` in Portuguese and `/en/` in English, with real links between the two versions and `x-default` pointing to `/en/`; the browser language decides nothing. Origin: [`002-tema`](specs/002-tema/).
 - **No inline script or style.** The deploy's Content Security Policy does not allow `unsafe-inline`, so every script and every style goes in an external file. Origin: [`001-fundacao`](specs/001-fundacao/).
 - **Measurement only with consent.** Google Analytics 4 runs in Consent Mode, denied by default, and `gtag.js` is only loaded after the visitor accepts. Origin: [`003-medicao`](specs/003-medicao/).
-- **Headers and discovery files generated in the build.** The `_headers` (with the CSP, HSTS and the other headers), `robots.txt` and `sitemap.xml` come out of each site's build, never written by hand, and the deploy checks that the live domain serves them as the build generated them. Origin: [`006-hospedagem`](specs/006-hospedagem/).
+- **Headers and discovery files generated in the build.** The `_headers` (with the CSP, HSTS and the other headers), `robots.txt` and `sitemap.xml` come out of each site's build, never written by hand, and the deploy checks that the live domain serves them as the build generated them. The security contact lives at each site's `/.well-known/security.txt` (RFC 9116), checked the same way. Origin: [`006-hospedagem`](specs/006-hospedagem/).
 
 ## Development
 

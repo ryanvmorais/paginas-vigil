@@ -91,7 +91,8 @@ apps/mailvigil/       # site do MailVigil
   src/componentes/    # (em cada app) Logo.astro, Vitrine.astro (a montagem das seções com o tema) e Erro404.astro
   src/assets/relatorio/ # (em cada app) capturas do relatório por idioma, tamanho e esquema de cor (webvigil só em inglês)
   public/             # (em cada app) a marca, servida na raiz do site: favicon.svg, apple-touch-icon.png (180 px) e
-                      # social-pt.png e social-en.png (1280 x 640, o og:image do layout)
+                      # social-pt.png e social-en.png (1280 x 640, o og:image do layout); e o
+                      # .well-known/security.txt (RFC 9116), com o `Expires` que o teste obriga a renovar
   wrangler.json       # (em cada app) o projeto na Cloudflare: domínio próprio, `dist/` como ativos, 404, sem `workers.dev`
   dist/               # (em cada app) build estático, gerado e fora do git
 .github/workflows/    # ci, codeql, dependency-review, pnpm-audit, lighthouse e deploy (publica e confere o que está no ar)
@@ -103,7 +104,7 @@ scripts/              # verificar-dist.mjs: confere o HTML gerado (sem inline, m
                       # canonical, alternate nem og:*; e a regra 8, os arquivos da hospedagem), rodado no build de cada
                       # site; hospedagem.mjs: gera em dist/ o _headers, o robots.txt, o sitemap.xml e a cópia
                       # en/404.html, antes do verificar-dist; conferir-hospedagem.mjs: confere o domínio no ar
-                      # contra o `dist` (corpo, cabeçalhos, 404, descoberta), rodado pelo deploy; csp.mjs: a
+                      # contra o `dist` (corpo, cabeçalhos, 404, descoberta, security.txt), rodado pelo deploy; csp.mjs: a
                       # política de segurança de conteúdo, fonte única, e medicaoValida, o formato do
                       # identificador (cada .mjs tem o teste ao lado)
 docs/images/          # social preview do repositório (1280 x 640), genérica: não cita nenhuma das ferramentas
@@ -187,6 +188,9 @@ test/                 # testes do repositório: impessoalidade.test.ts (ver "Con
   mesma razão do `@lhci/cli`) e termina com `scripts/conferir-hospedagem.mjs` (o domínio no ar tem os mesmos bytes
   e os cabeçalhos do build) e o Lighthouse de produção (`.github/lighthouse/producao-*.json`). As versões do
   `wrangler` e do `@lhci/cli` ficam em variáveis do workflow e são revistas à mão: o Dependabot não vê `npx`.
+  A árvore de cada um é resolvida na hora, sem lockfile, então `npm_config_min_release_age` (o mesmo prazo do
+  `minimumReleaseAge`, um teste confere) segura dependência indireta recém-publicada, e o `wrangler` é baixado
+  num passo sem segredo, antes do passo que recebe o token.
   `workflow_run` usa o arquivo da `main`, então mexer no workflow só vale depois do merge.
   Logo depois da publicação a borda pode ainda servir a versão anterior (o mesmo tamanho, só muda o hash de
   `_astro/`), então um corpo diferente é conferido de novo a cada 15 s, por até 3 minutos somados; status e
@@ -219,7 +223,8 @@ pnpm 12 (campo `packageManager` do `package.json`); `package.json` e `pnpm-lock.
 As versões compartilhadas moram no `catalog:` de `pnpm-workspace.yaml`.
 
 > Cuidado: `pnpm-workspace.yaml` guarda a configuração do pnpm 12 (o campo `pnpm` do `package.json` é
-> ignorado): `minimumReleaseAge` de uma semana e a exceção aceita do `pnpm audit` (`minimatch`, só em
+> ignorado): `minimumReleaseAge` de uma semana, `trustPolicy: no-downgrade` (recusa versão publicada com
+> menos garantia que as anteriores) e a exceção aceita do `pnpm audit` (`minimatch`, só em
 > desenvolvimento), com o motivo e a condição de saída comentados ali.
 
 > Cuidado: o TypeScript fica no 6.0 de propósito, porque `@astrojs/check` e `typescript-eslint` ainda não

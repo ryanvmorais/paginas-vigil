@@ -32,11 +32,11 @@ O código dos sites e do pacote `tema`. O `tsc` confere os tipos em modo estrito
 
 ### Node 26 e pnpm 12 (workspace)
 
-O Node roda as ferramentas de desenvolvimento. O pnpm instala as dependências e organiza o repositório em três pacotes (`packages/tema`, `apps/webvigil`, `apps/mailvigil`) que se enxergam por `workspace:*`. As versões compartilhadas moram num `catalog:` em `pnpm-workspace.yaml`, e `minimumReleaseAge` faz uma release nova esperar uma semana antes de ser instalada.
+O Node roda as ferramentas de desenvolvimento. O pnpm instala as dependências e organiza o repositório em três pacotes (`packages/tema`, `apps/webvigil`, `apps/mailvigil`) que se enxergam por `workspace:*`. As versões compartilhadas moram num `catalog:` em `pnpm-workspace.yaml`, e `minimumReleaseAge` faz uma release nova esperar uma semana antes de ser instalada. `trustPolicy: no-downgrade` recusa a versão publicada com menos garantia que as anteriores (por exemplo, sem a proveniência que as outras tinham).
 
 **Por que esta:** um repositório só serve os dois sites sem duplicar tema, configuração nem CI. Alternativa descartada: npm workspaces, que não têm catálogo de versões nem a espera por release nova. O pnpm também instala só o que cada pacote declara, o que evita dependência fantasma.
 
-**Estudar:** `pnpm-workspace.yaml` (`packages`, `catalog`, `minimumReleaseAge`), `pnpm --filter`, `workspace:*`, `pnpm install --frozen-lockfile`, o campo `packageManager`.
+**Estudar:** `pnpm-workspace.yaml` (`packages`, `catalog`, `minimumReleaseAge`, `trustPolicy`), `pnpm --filter`, `workspace:*`, `pnpm install --frozen-lockfile`, o campo `packageManager`.
 
 **Docs:** [pnpm: workspaces](https://pnpm.io/pt/workspaces).
 
@@ -114,7 +114,7 @@ O CI. O job `qualidade` roda formatação, lint, tipos, testes e build; o job `s
 
 ### Cloudflare Workers Static Assets e `wrangler`
 
-A hospedagem. Cada site é um projeto próprio na Cloudflare, descrito pelo `apps/<site>/wrangler.json`: o domínio personalizado (`webvigil.ryanmorais.com.br` ou `mailvigil.ryanmorais.com.br`), a pasta `dist/` como ativos, a página 404 do próprio site e o `workers.dev` e a pré-visualização desligados, para o site ter um endereço só. Não há código de servidor: a Cloudflare serve os arquivos como estão. O `wrangler` publica, e entra por `npx` numa versão fixada no `deploy.yml`, nunca como dependência.
+A hospedagem. Cada site é um projeto próprio na Cloudflare, descrito pelo `apps/<site>/wrangler.json`: o domínio personalizado (`webvigil.ryanmorais.com.br` ou `mailvigil.ryanmorais.com.br`), a pasta `dist/` como ativos, a página 404 do próprio site e o `workers.dev` e a pré-visualização desligados, para o site ter um endereço só. Não há código de servidor: a Cloudflare serve os arquivos como estão. O `wrangler` publica, e entra por `npx` numa versão fixada no `deploy.yml`, nunca como dependência. Como a árvore dele é resolvida na hora, sem lockfile, o `npm_config_min_release_age` do workflow aplica a ela a mesma semana de espera do pnpm.
 
 **Por que esta:** serve HTML estático com domínio, certificado e cache sem servidor para cuidar, e dois projetos separados deixam um deploy falhar sem derrubar o outro site. O `wrangler` fora do `package.json` evita que a árvore dele derrube o `pnpm audit`, como a do `@lhci/cli`.
 
@@ -182,7 +182,7 @@ O Dependabot abre PRs de atualização por semana, agrupando minor e patch, com 
 | Consentimento                     | `consentimento.ts` (núcleo puro, testado) e o script do banner ligam o Google Analytics 4 em Consent Mode, negado por padrão: o `gtag.js` só é buscado depois do aceite, e a escolha fica em cookie de domínio.                                                                          |
 | `scripts/csp.mjs`                 | A política de segurança de conteúdo, em um lugar só: o `verificar-dist` confere o HTML do build contra ela e o `_headers` gerado no build a leva ao deploy como cabeçalho.                                                                                                               |
 | `scripts/hospedagem.mjs`          | Gera em `dist/` o `_headers`, o `robots.txt`, o `sitemap.xml` e a cópia `en/404.html`, no modo de medição do build; o endereço vem do `site` do `astro.config.mjs`.                                                                                                                      |
-| `scripts/conferir-hospedagem.mjs` | Depois do deploy, compara o domínio no ar com o `dist`: bytes, cabeçalhos (também na 404), `robots.txt`, `sitemap.xml` e `http://` sem resposta 200; escreve o resumo no run.                                                                                                            |
+| `scripts/conferir-hospedagem.mjs` | Depois do deploy, compara o domínio no ar com o `dist`: bytes, cabeçalhos (também na 404), `robots.txt`, `sitemap.xml`, `security.txt` e `http://` sem resposta 200; escreve o resumo no run.                                                                                            |
 | `scripts/verificar-dist.mjs`      | A guarda do build: roda no `build` de cada site e falha se o HTML gerado tiver script ou estilo inline, marcação de idioma incompleta, medição incoerente, recurso fora da CSP, âncora quebrada, botões com o mesmo destino ou marca (`og:image`, favicon, imagem social) ausente.       |
 | `palavras.ts`                     | Envolve cada palavra de um comando num `span`, para a linha do terminal não quebrar no meio de um hífen (o bloco `Passos`).                                                                                                                                                              |
 | Marca                             | `favicon.svg`, `apple-touch-icon.png` e as imagens sociais (`social-pt.png`, `social-en.png`) de cada site, em `apps/<site>/public`. São montados à mão, não gerados no build: o `verificar-dist` confere que existem e o `test/marca.test.ts` confere dimensões e traçado do logo.      |
