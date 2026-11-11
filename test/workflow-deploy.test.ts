@@ -154,6 +154,23 @@ describe("deploy.yml: execução", () => {
     expect(SEM_COMENTARIOS).not.toMatch(/wrangler@(latest|next)/);
   });
 
+  it("o wrangler é baixado num passo sem segredo, com a mesma versão do que publica", () => {
+    const baixar = passo("Baixar o wrangler");
+    expect(baixar).toContain("npx --yes wrangler@${{ env.WRANGLER_VERSION }} --version");
+    expect(baixar).not.toMatch(/secrets\./);
+  });
+
+  it("o npx tem a mesma carência de release do pnpm, nos dois workflows", () => {
+    const minutos = Number(
+      /^minimumReleaseAge: (\d+)$/m.exec(lerTexto("pnpm-workspace.yaml"))?.[1],
+    );
+    expect(minutos).toBeGreaterThan(0);
+    const dias = String(minutos / (24 * 60));
+    for (const workflow of [SEM_COMENTARIOS, LIGHTHOUSE]) {
+      expect(variavel(workflow, "npm_config_min_release_age")).toBe(dias);
+    }
+  });
+
   it("o Lighthouse de produção usa a mesma versão do lighthouse.yml", () => {
     const versao = variavel(SEM_COMENTARIOS, "LHCI_VERSION");
     expect(versao).toMatch(/^\d+\.\d+\.\d+$/);
@@ -235,7 +252,8 @@ describe("deploy.yml: ordem e ponta da main", () => {
 
   it("gera o site, confere a ponta da main e só então publica, confere e mede", () => {
     expect(indice("Gerar o site")).toBeLessThan(indice("Conferir a ponta da main"));
-    expect(indice("Conferir a ponta da main")).toBeLessThan(indice("Publicar na Cloudflare"));
+    expect(indice("Conferir a ponta da main")).toBeLessThan(indice("Baixar o wrangler"));
+    expect(indice("Baixar o wrangler")).toBeLessThan(indice("Publicar na Cloudflare"));
     expect(indice("Publicar na Cloudflare")).toBeLessThan(indice("Conferir o que está no ar"));
     expect(indice("Conferir o que está no ar")).toBeLessThan(
       indice("Medir o endereço real, no celular"),
@@ -252,8 +270,9 @@ describe("deploy.yml: ordem e ponta da main", () => {
     expect(ponta).toContain('"$ponta" == "$COMMIT"');
   });
 
-  it("publicar, conferir, medir e guardar dependem da ponta da main", () => {
+  it("baixar, publicar, conferir, medir e guardar dependem da ponta da main", () => {
     for (const inicio of [
+      "Baixar o wrangler",
       "Publicar na Cloudflare",
       "Conferir o que está no ar",
       "Medir o endereço real, no celular",
