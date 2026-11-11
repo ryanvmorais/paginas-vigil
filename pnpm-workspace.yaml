@@ -10,6 +10,11 @@ packages:
 # Dependabot: uma versão recém-publicada pode estar quebrada ou comprometida no dia em que sai.
 minimumReleaseAge: 10080
 
+# Recusa a versão publicada com menos garantia que as anteriores do mesmo pacote (por exemplo, sem a
+# proveniência que as outras tinham): é o sinal típico de conta de mantenedor sequestrada, e a
+# carência acima não pega uma publicação maliciosa que fique mais de uma semana no ar.
+trustPolicy: no-downgrade
+
 # Aviso aceito de propósito no `pnpm audit`: o `minimatch` 10.x (negação de serviço por
 # amplificação de globs) vem do ESLint 10 e do `typescript-eslint`, que exigem `^10.2`, e a
 # correção só existe na 11. É dependência de desenvolvimento e só lê os padrões da nossa config,
