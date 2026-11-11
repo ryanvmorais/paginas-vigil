@@ -109,8 +109,11 @@ scripts/              # verificar-dist.mjs: confere o HTML gerado (sem inline, m
                       # identificador (cada .mjs tem o teste ao lado)
 docs/images/          # social preview do repositório (1280 x 640), genérica: não cita nenhuma das ferramentas
 test/                 # testes do repositório: impessoalidade.test.ts (ver "Convenções"), marca.test.ts (o traçado do
-                      # logo igual no cabeçalho e no favicon; dimensões das imagens) e csp.test.ts (a URL do gtag.js
-                      # cabe na CSP com medição e não cabe sem)
+                      # logo igual no cabeçalho e no favicon; dimensões das imagens), csp.test.ts (a URL do gtag.js
+                      # cabe na CSP com medição e não cabe sem), hospedagem.test.ts (o wrangler.json de cada app),
+                      # lighthouse-producao.test.ts (os limites de produção iguais aos do build), terminal.test.ts
+                      # (a saída do terminal não é recortada no celular) e workflow-deploy.test.ts (o que o deploy.yml
+                      # não pode mudar sem querer)
 .claude/              # hooks do Claude Code (ver "Qualidade e automação")
 ```
 
