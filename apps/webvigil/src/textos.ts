@@ -67,7 +67,7 @@ const pt = {
   },
   relatorio: {
     titulo: "O relatório em HTML",
-    lead: "Um arquivo só, que você abre no navegador ou guarda junto do build. Mostra a contagem por severidade, as bibliotecas detectadas (com as vulneráveis marcadas) e, em cada achado, o local, a explicação e a correção sugerida.",
+    lead: "Um arquivo só, que não roda script nem carrega nada de fora: você abre no navegador ou guarda junto do build. Mostra a contagem por severidade, as bibliotecas detectadas (com as vulneráveis marcadas) e, em cada achado, o local, a explicação e a correção sugerida. Nas evidências, o valor dos cookies que o site define sai como <code>***</code>, e o cookie, o cabeçalho ou a senha que você passou ao scan são apagados de onde o site os repetir.",
     legenda:
       "Topo do relatório de um scan ativo do app de teste que acompanha o repositório. O relatório está em inglês.",
     alt: "Relatório HTML do WebVigil: tabela com 4 críticos, 15 altos, 9 médios, 15 baixos e 2 informativos, o primeiro achado (injeção de comando no parâmetro host) e, na versão para tela larga, a tabela de bibliotecas detectadas, com o jQuery 1.7.1 marcado como vulnerável.",
@@ -85,7 +85,7 @@ const pt = {
       "1": {
         titulo: "Modo seguro",
         intro:
-          "É o padrão. Só lê, nunca envia payload de ataque, e por isso pode apontar para produção.",
+          "É o padrão. Só lê, nunca envia payload de ataque, e por isso pode apontar para produção. O scan tem prazo (4 horas por padrão, <code>--max-duration</code>) e, contra um alvo público, não se conecta a endereço interno.",
         itens: {
           "1": {
             titulo: "Cabeçalhos e cookies",
@@ -145,7 +145,7 @@ const pt = {
   limites: {
     titulo: "O que ele não faz",
     texto:
-      "Não encontra falhas cegas (SSRF, injeção de comando e XXE sem resposta visível) nem HTTP request smuggling. Não substitui o teste manual com proxy (use o ZAP) nem a busca por CVEs conhecidos por template (use o Nuclei). Não executa JavaScript: aplicações que montam a página no navegador (SPAs) expõem pouco ao rastreador. Use só em sistemas que você tem autorização para testar.",
+      "Não encontra falhas cegas (SSRF, injeção de comando e XXE sem resposta visível) nem HTTP request smuggling. Não substitui o teste manual com proxy (use o ZAP) nem a busca por CVEs conhecidos por template (use o Nuclei). Não executa JavaScript: aplicações que montam a página no navegador (SPAs) expõem pouco ao rastreador. Por trás de um proxy HTTP definido no ambiente, quem resolve os nomes é o proxy, e o bloqueio de endereço interno fica por conta dele. Use só em sistemas que você tem autorização para testar.",
   },
   final: {
     titulo: "Código aberto, licença Apache-2.0.",
@@ -208,7 +208,7 @@ const en: TextosPagina = {
   },
   relatorio: {
     titulo: "The HTML report",
-    lead: "A single file you open in the browser or keep alongside the build. It shows the count by severity, the detected libraries (with the vulnerable ones marked) and, for each finding, the location, the explanation and the suggested fix.",
+    lead: "A single file that runs no script and loads nothing from elsewhere: you open it in the browser or keep it alongside the build. It shows the count by severity, the detected libraries (with the vulnerable ones marked) and, for each finding, the location, the explanation and the suggested fix. In the evidence, the values of the cookies the site sets show as <code>***</code>, and the cookie, header or password you gave the scan are scrubbed wherever the site echoes them.",
     legenda:
       "Top of the report from an active scan of the test app that ships with the repository.",
     alt: "WebVigil HTML report: table with 4 critical, 15 high, 9 medium, 15 low and 2 info findings, the first finding (command injection in the host parameter) and, in the wide-screen version, the table of detected libraries, with jQuery 1.7.1 marked as vulnerable.",
@@ -226,7 +226,7 @@ const en: TextosPagina = {
       "1": {
         titulo: "Safe mode",
         intro:
-          "The default. It only reads and never sends attack payloads, so it can point at production.",
+          "The default. It only reads and never sends attack payloads, so it can point at production. A scan has a deadline (4 hours by default, <code>--max-duration</code>) and, against a public target, does not connect to an internal address.",
         itens: {
           "1": {
             titulo: "Headers and cookies",
@@ -289,7 +289,7 @@ const en: TextosPagina = {
   limites: {
     titulo: "What it does not do",
     texto:
-      "It does not find blind flaws (SSRF, command injection and XXE with no visible response) or HTTP request smuggling. It does not replace manual testing with a proxy (use ZAP) or the search for known CVEs by template (use Nuclei). It does not run JavaScript: applications that build the page in the browser (SPAs) expose little to the crawler. Use it only on systems you are authorized to test.",
+      "It does not find blind flaws (SSRF, command injection and XXE with no visible response) or HTTP request smuggling. It does not replace manual testing with a proxy (use ZAP) or the search for known CVEs by template (use Nuclei). It does not run JavaScript: applications that build the page in the browser (SPAs) expose little to the crawler. Behind an HTTP proxy set in the environment, the proxy resolves the names, and blocking internal addresses is up to it. Use it only on systems you are authorized to test.",
   },
   final: {
     titulo: "Open source, Apache-2.0 license.",
