@@ -27,7 +27,7 @@ auditConfig:
 # então os dois apps e a raiz nunca divergem.
 catalog:
   "@astrojs/check": ^0.9.12
-  astro: ^7.4.4
+  astro: ^7.4.7
   eslint: ^10.14.0
   eslint-plugin-astro: ^3.2.1
   prettier: ^3.9.10
