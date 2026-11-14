@@ -92,7 +92,7 @@ const pt = {
           "3": {
             titulo: "O que os relatórios não cobrem",
             texto:
-              "Todo veredito diz o que ficou de fora: e-mail que nenhum provedor reporta não aparece.",
+              "Todo veredito diz o que ficou de fora: e-mail que nenhum provedor reporta não aparece. E um PRONTO que depende dos relatórios de uma organização só vem com uma nota dizendo isso.",
           },
         },
       },
@@ -121,7 +121,7 @@ const pt = {
   limites: {
     titulo: "O que ele não faz",
     texto:
-      "Não indexa em Elasticsearch, não serve painel web e não envia e-mail. Lê só os relatórios que você entregar: os de uma pasta ou os que o fetch baixar da sua caixa.",
+      "Não indexa em Elasticsearch, não serve painel web e não envia e-mail. Lê só os relatórios que você entregar: os de uma pasta ou os que o fetch baixar da sua caixa. E confia nos números deles: os relatórios agregados não são assinados, então um arquivo que não veio de um provedor real conta igual aos outros.",
   },
   final: {
     titulo: "Código aberto, licença Apache-2.0.",
@@ -207,7 +207,7 @@ const en: TextosPagina = {
           "3": {
             titulo: "What the reports do not cover",
             texto:
-              "Every verdict says what was left out: mail that no provider reports does not show up.",
+              "Every verdict says what was left out: mail that no provider reports does not show up. A READY that rests on one reporting organization's reports carries a note saying so.",
           },
         },
       },
@@ -236,7 +236,7 @@ const en: TextosPagina = {
   limites: {
     titulo: "What it does not do",
     texto:
-      "It does not index into Elasticsearch, serve a web dashboard or send email. It reads only the reports you give it: those in a folder or those fetch downloads from your mailbox.",
+      "It does not index into Elasticsearch, serve a web dashboard or send email. It reads only the reports you give it: those in a folder or those fetch downloads from your mailbox. And it trusts their numbers: aggregate reports are not signed, so a file that did not come from a real provider counts like the rest.",
   },
   final: {
     titulo: "Open source, Apache-2.0 license.",
