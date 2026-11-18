@@ -384,3 +384,29 @@ Como `docs/` só existe em inglês, o rótulo de "Ler a documentação" em portu
 - **Acessibilidade e desempenho:** axe-core sem violação, Tab e foco do menu, leitor de tela (NVDA) nas páginas
   alteradas, Lighthouse CI nos limites do projeto.
 - **Fatos:** conferência manual em `fatos.md`, com a versão da ferramenta e o resultado de cada comando.
+
+## Adendo (2026-11-18): véu e foco no menu do celular
+
+> Status do adendo: concluído (2026-11-18). O texto acima, inclusive o ADR-1, fica como está; este adendo o
+> complementa sem revertê-lo.
+
+### Visão geral da abordagem do adendo
+
+Aberto, o painel do menu cortava o texto da página só com uma sombra, e o fim dele se confundia com o texto
+que continuava abaixo. O Tab depois do último link seguia para a página com o menu ainda aberto, e o painel
+voltava aberto ao estreitar a tela depois de alargá-la. O painel de cima para baixo e o `<details>` do ADR-1
+continuam; mudam o estado aberto e o fechamento.
+
+### ADR-10 — Véu sob o painel e fechamento pelo foco
+
+- **Decisão:** com o menu aberto, um véu (`--veu`) escurece a página do fim do cabeçalho até o fim da tela,
+  e a página não rola. O véu nasce do `::before` do `<summary>`, então um toque nele fecha o menu sem
+  JavaScript; no alto contraste ele some, e a borda do painel marca o limite. O `menu.ts` passa a fechar o
+  painel quando o foco vai para fora dele (`focusin` no documento) e quando a tela chega a 720 px.
+- **Alternativas:** painel lateral pela direita, da altura da tela, com a página atrás inerte; manter o
+  painel sem véu.
+- **Porquê:** o véu separa o menu da página sem mudar o painel; o `focusin` dispara só quando outro elemento
+  recebe o foco, enquanto um `focusout` fecharia o painel no Safari antes de o clique chegar ao link. O
+  painel lateral ficaria quase vazio com quatro itens e exigiria JavaScript para abrir.
+- **Trade-off:** quem lê com as setas do leitor de tela passa dos links para a página com o menu aberto,
+  porque a leitura não move o foco; o conteúdo atrás do véu continua acessível.
