@@ -227,8 +227,8 @@ As versões compartilhadas moram no `catalog:` de `pnpm-workspace.yaml`.
 
 > Cuidado: `pnpm-workspace.yaml` guarda a configuração do pnpm 12 (o campo `pnpm` do `package.json` é
 > ignorado): `minimumReleaseAge` de uma semana, `trustPolicy: no-downgrade` (recusa versão publicada com
-> menos garantia que as anteriores) e a exceção aceita do `pnpm audit` (`minimatch`, só em
-> desenvolvimento), com o motivo e a condição de saída comentados ali.
+> menos garantia que as anteriores) e as exceções aceitas do `pnpm audit` (`minimatch`, só em
+> desenvolvimento, e `picomatch`, só no build e no `dev`), com o motivo e a condição de saída comentados ali.
 
 > Cuidado: o TypeScript fica no 6.0 de propósito, porque `@astrojs/check` e `typescript-eslint` ainda não
 > aceitam o 7. A subida depende de as duas ferramentas aceitarem o 7 e está registrada numa issue aberta.
