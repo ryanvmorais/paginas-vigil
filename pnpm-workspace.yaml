@@ -15,13 +15,21 @@ minimumReleaseAge: 10080
 # carência acima não pega uma publicação maliciosa que fique mais de uma semana no ar.
 trustPolicy: no-downgrade
 
-# Aviso aceito de propósito no `pnpm audit`: o `minimatch` 10.x (negação de serviço por
-# amplificação de globs) vem do ESLint 10 e do `typescript-eslint`, que exigem `^10.2`, e a
-# correção só existe na 11. É dependência de desenvolvimento e só lê os padrões da nossa config,
-# nunca texto do visitante. Sai daqui quando essas ferramentas passarem a aceitar o `minimatch` 11.
+# Avisos aceitos de propósito no `pnpm audit`, cada um com o motivo e a condição de saída.
+#
+# GHSA-g3hv-75wg-m249: o `minimatch` 10.x (negação de serviço por amplificação de globs) vem do
+# ESLint 10 e do `typescript-eslint`, que exigem `^10.2`, e a correção só existe na 11. É
+# dependência de desenvolvimento e só lê os padrões da nossa config, nunca texto do visitante. Sai
+# daqui quando essas ferramentas passarem a aceitar o `minimatch` 11.
+#
+# GHSA-fc5q-39xc-vjpf: o `picomatch` até a 4.0.7 (negação de serviço por expressão regular, com um
+# glob montado por quem ataca) vem do Astro e das ferramentas de desenvolvimento, e não há versão
+# corrigida. Roda só no build e no `dev`, com os globs da nossa config; o site publicado é HTML
+# estático e nada do visitante chega a ele. Sai daqui quando sair uma versão corrigida.
 auditConfig:
   ignoreGhsas:
     - GHSA-g3hv-75wg-m249
+    - GHSA-fc5q-39xc-vjpf
 
 # Versões compartilhadas pelo workspace: cada pacote escreve `catalog:` e a versão mora só aqui,
 # então os dois apps e a raiz nunca divergem.
