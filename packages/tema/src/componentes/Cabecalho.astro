@@ -4,11 +4,12 @@
  * direita.
  *
  * O logo chega pelo `slot="logo"`. A navegação em linha só aparece a partir de 720 px; abaixo disso
- * entra o menu do celular, um `<details>` com o ícone de três linhas e um painel sob o cabeçalho
- * (RF-06, ADR-1). Os dois só existem se o site passar itens, e só um deles fica na árvore de
- * acessibilidade de cada vez (o outro é `display: none`), para não repetir o defeito dos marcos
- * duplicados. Não há botão do GitHub: o cabeçalho não é fixo e o botão repetia o do topo e o da
- * chamada final (RF-05, decisão 3 da spec 002).
+ * entra o menu do celular, um `<details>` com o ícone de três linhas e um painel sob o cabeçalho,
+ * com um véu sobre a página enquanto está aberto (RF-06, ADR-1 e adendo da spec 004). Os dois só
+ * existem se o site passar itens, e só um deles fica na árvore de acessibilidade de cada vez (o
+ * outro é `display: none`), para não repetir o defeito dos marcos duplicados. Não há botão do
+ * GitHub: o cabeçalho não é fixo e o botão repetia o do topo e o da chamada final (RF-05, decisão 3
+ * da spec 002).
  */
 import { caminhoNoIdioma } from "../caminhos";
 import type { Idioma } from "../idiomas";
@@ -192,11 +193,34 @@ const t = textos[idioma];
     transform: translateY(-5px) rotate(-45deg);
   }
 
+  /* Véu (ADR-1 da spec 004): nasce do próprio `<summary>`, então um toque nele fecha o menu mesmo sem
+   * JavaScript. Ancora-se no cabeçalho como o painel e fica sob ele, que vem depois na marcação; cobre
+   * do fim do cabeçalho até o fim da tela, porque a página não rola com o menu aberto (regra abaixo). */
+  details[open] > .menu-botao::before {
+    content: "";
+    position: absolute;
+    top: 100%;
+    inset-inline: 0;
+    height: 100dvh;
+    background: var(--veu);
+    cursor: default;
+  }
+
   @media (prefers-reduced-motion: no-preference) {
     .traco {
       transition:
         transform 0.2s ease,
         opacity 0.2s ease;
+    }
+
+    details[open] > .menu-botao::before {
+      transition: opacity 0.2s ease;
+    }
+
+    @starting-style {
+      details[open] > .menu-botao::before {
+        opacity: 0;
+      }
     }
   }
 
@@ -232,6 +256,22 @@ const t = textos[idioma];
     }
 
     .menu {
+      display: none;
+    }
+  }
+
+  /* Com o menu aberto a página não rola: o véu continua cobrindo a tela e o painel, junto do cabeçalho.
+   * Só abaixo de 720 px, onde o menu existe. */
+  @media (max-width: 719.98px) {
+    :global(html:has(details[data-menu][open])) {
+      overflow: hidden;
+    }
+  }
+
+  /* No alto contraste o navegador troca o fundo do véu pela cor de fundo do sistema, e o véu viraria
+   * uma película sobre o texto; a borda de baixo do painel marca o limite sozinha. */
+  @media (forced-colors: active) {
+    details[open] > .menu-botao::before {
       display: none;
     }
   }

@@ -1,11 +1,16 @@
 /**
- * @file Acabamento do menu do celular: fecha o painel ao ativar um link, com Esc e ao clicar fora.
+ * @file Acabamento do menu do celular: fecha o painel ao ativar um link, com Esc, ao clicar fora, quando o
+ * foco sai do menu e quando a tela passa a mostrar a navegação em linha.
  *
- * Melhoria progressiva (RF-06, ADR-1): o `Cabecalho.astro` entrega o menu como um `<details>`, que
- * abre e fecha sem JavaScript. Este script só cobre o que o elemento não faz sozinho: o painel
- * ficaria aberto atrás do conteúdo depois de o visitante tocar numa seção, e não fecharia com Esc
- * nem com um toque fora dele. Roda como arquivo externo do Astro, sem inline (RNF-01).
+ * Melhoria progressiva (RF-06, ADR-1 da spec 004): o `Cabecalho.astro` entrega o menu como um `<details>`,
+ * que abre e fecha sem JavaScript, e o véu sobre a página fecha o menu com um toque, também sem script.
+ * Este script só cobre o que o elemento não faz sozinho: o painel ficaria aberto atrás do conteúdo depois
+ * de o visitante tocar numa seção, não fecharia com Esc, seguiria aberto com o foco já na página e
+ * reapareceria aberto ao girar o celular de volta. Roda como arquivo externo do Astro, sem inline (RNF-01).
  */
+
+/** Largura em que o menu dá lugar à navegação em linha; a mesma do `@media` do `Cabecalho.astro`. */
+const NAVEGACAO_EM_LINHA = "(min-width: 720px)";
 
 /**
  * Liga o fechamento de um menu `<details data-menu>`.
@@ -31,6 +36,21 @@ function ligarMenu(menu: HTMLDetailsElement): void {
     if (menu.open && evento.target instanceof Node && !menu.contains(evento.target)) {
       menu.open = false;
     }
+  });
+
+  // Tab depois do último link leva o foco à página: o painel fecha para não seguir aberto sobre ela. O
+  // `focusin` só dispara quando algo recebe o foco; um `focusout` também dispararia no Safari, que não
+  // foca o link no clique, e fecharia o painel antes de o clique chegar ao link.
+  document.addEventListener("focusin", (evento) => {
+    if (menu.open && evento.target instanceof Node && !menu.contains(evento.target)) {
+      menu.open = false;
+    }
+  });
+
+  // Acima de 720 px o menu some com `display: none`, mas o `<details>` continuaria aberto e voltaria
+  // aberto ao estreitar a tela de novo (girar o celular e voltar).
+  window.matchMedia(NAVEGACAO_EM_LINHA).addEventListener("change", (consulta) => {
+    if (consulta.matches) menu.open = false;
   });
 }
 
