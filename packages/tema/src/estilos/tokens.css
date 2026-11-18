@@ -55,6 +55,10 @@
   /* Sombra do painel do menu do celular, mais leve que a do banner porque cobre só a borda do conteúdo. */
   --sombra-menu: 0 12px 24px rgba(15, 23, 42, 0.14);
 
+  /* Véu sob o painel do menu do celular: escurece a página para o painel não se confundir com o texto
+   * que continua abaixo dele (ADR-1 da spec 004). */
+  --veu: rgba(15, 23, 42, 0.5);
+
   /* Tipografia. `Sora` e `JetBrains Mono` vêm de `fontes.css`, cada uma com a reserva de métrica
    * parecida logo depois, para a troca de fonte não deslocar o layout. */
   --font-body: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -102,6 +106,7 @@
 
     --sombra-banner: 0 10px 30px rgba(0, 0, 0, 0.55);
     --sombra-menu: 0 12px 24px rgba(0, 0, 0, 0.5);
+    --veu: rgba(0, 0, 0, 0.6);
   }
 }
 
