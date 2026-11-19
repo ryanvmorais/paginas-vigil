@@ -78,9 +78,9 @@ describe("marca do layout", () => {
   });
 });
 
-describe("social preview do repositório", () => {
-  it("tem 1280 x 640 e menos de 1 MB", () => {
-    const caminho = ["docs", "images", "paginas-vigil-static-sites-social-preview.png"];
+describe("capa dos READMEs e social preview do repositório", () => {
+  it.each(["pt", "en"])("a versão %s tem 1280 x 640 e menos de 1 MB", (idioma) => {
+    const caminho = ["docs", "images", `paginas-vigil-astro-static-sites-${idioma}.png`];
     const { largura, altura } = dimensoesPng(ler(...caminho));
     expect({ largura, altura }).toEqual({ largura: 1280, altura: 640 });
     expect(statSync(join(RAIZ, ...caminho)).size).toBeLessThan(LIMITE_IMAGEM_SOCIAL);
