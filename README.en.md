@@ -4,7 +4,7 @@
 
 **See the sites:** [webvigil.ryanmorais.com.br/en/](https://webvigil.ryanmorais.com.br/en/) · [mailvigil.ryanmorais.com.br/en/](https://mailvigil.ryanmorais.com.br/en/)
 
-![Páginas Vigil: static presentation sites for the tools, built with Astro](docs/images/paginas-vigil-static-sites-social-preview.png)
+![Páginas Vigil: the top of the WebVigil and MailVigil sites, in English, in browser windows](docs/images/paginas-vigil-astro-static-sites-en.png)
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-6.0-3178C6?logo=typescript&logoColor=white)
 ![Astro](https://img.shields.io/badge/Astro-7-BC52EE?logo=astro&logoColor=white)

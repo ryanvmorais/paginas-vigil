@@ -4,7 +4,7 @@
 
 **Veja os sites:** [webvigil.ryanmorais.com.br](https://webvigil.ryanmorais.com.br) · [mailvigil.ryanmorais.com.br](https://mailvigil.ryanmorais.com.br)
 
-![Páginas Vigil: sites estáticos de apresentação das ferramentas, feitos em Astro](docs/images/paginas-vigil-static-sites-social-preview.png)
+![Páginas Vigil: o topo dos sites do WebVigil e do MailVigil, em português, em janelas de navegador](docs/images/paginas-vigil-astro-static-sites-pt.png)
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-6.0-3178C6?logo=typescript&logoColor=white)
 ![Astro](https://img.shields.io/badge/Astro-7-BC52EE?logo=astro&logoColor=white)
