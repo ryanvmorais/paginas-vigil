@@ -107,7 +107,7 @@ scripts/              # verificar-dist.mjs: confere o HTML gerado (sem inline, m
                       # contra o `dist` (corpo, cabeçalhos, 404, descoberta, security.txt), rodado pelo deploy; csp.mjs: a
                       # política de segurança de conteúdo, fonte única, e medicaoValida, o formato do
                       # identificador (cada .mjs tem o teste ao lado)
-docs/images/          # social preview do repositório (1280 x 640), genérica: não cita nenhuma das ferramentas
+docs/images/          # capa dos READMEs, uma por idioma (o topo dos sites no ar, 1280 x 640); a versão pt é a social preview
 test/                 # testes do repositório: impessoalidade.test.ts (ver "Convenções"), marca.test.ts (o traçado do
                       # logo igual no cabeçalho e no favicon; dimensões das imagens), csp.test.ts (a URL do gtag.js
                       # cabe na CSP com medição e não cabe sem), hospedagem.test.ts (o wrangler.json de cada app),
