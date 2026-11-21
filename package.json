@@ -20,7 +20,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@types/node": "^26.6.5",
+    "@types/node": "^26.6.6",
     "eslint": "catalog:",
     "eslint-plugin-astro": "catalog:",
     "globals": "^17.14.0",
