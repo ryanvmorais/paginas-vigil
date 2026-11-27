@@ -6,9 +6,11 @@
  * sitemap traz as duas páginas com o trio de `hreflang`; e a escrita em disco usa uma pasta temporária.
  */
 
+import { spawnSync } from "node:child_process";
 import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { afterEach, describe, expect, it } from "vitest";
 
@@ -46,6 +48,13 @@ describe.each([false, true])("montarCabecalhos (medicao: %s)", (medicao) => {
     ]) {
       expect(texto).toContain(`  ${nome}`);
     }
+  });
+
+  it("desliga no Permissions-Policy cada recurso, um por um", () => {
+    // A lista escrita aqui, na ordem do código: tirar um recurso de lá precisa derrubar este teste.
+    expect(linhas).toContain(
+      "  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), bluetooth=(), serial=(), accelerometer=(), gyroscope=(), magnetometer=(), interest-cohort=()",
+    );
   });
 
   it("usa HSTS só com max-age, sem includeSubDomains nem preload", () => {
@@ -180,5 +189,65 @@ describe("gerarHospedagem", () => {
     const pasta = await pastaTemporaria();
     const escritos = await gerarHospedagem({ pasta, site: SITE, medicao: false });
     expect(escritos).not.toContain("en/404.html");
+  });
+});
+
+// A linha de comando é o que o `build` de cada site roda: ela lê o `site` do `astro.config.mjs` da pasta
+// atual e escolhe o modo de medição pelo ambiente do processo. É ela que decide a CSP do `_headers`.
+describe("linha de comando", () => {
+  const SCRIPT = fileURLToPath(new URL("./hospedagem.mjs", import.meta.url));
+  const pastas = [];
+  afterEach(async () => {
+    await Promise.all(pastas.splice(0).map((p) => rm(p, { recursive: true, force: true })));
+  });
+
+  /** Um app de mentira: só o `astro.config.mjs` com o `site` dado (ou sem `site`). */
+  const app = async (site) => {
+    const pasta = await mkdtemp(join(tmpdir(), "hospedagem-cli-"));
+    pastas.push(pasta);
+    const config = site === undefined ? "{}" : `{ site: ${JSON.stringify(site)} }`;
+    await writeFile(join(pasta, "astro.config.mjs"), `export default ${config};\n`);
+    return pasta;
+  };
+
+  /** Roda o script na pasta do app, com o identificador dado no ambiente (ou sem ele). */
+  const rodar = (pasta, argumentos, id) => {
+    const ambiente = { ...process.env };
+    delete ambiente.PUBLIC_GA_MEASUREMENT_ID;
+    if (id !== undefined) ambiente.PUBLIC_GA_MEASUREMENT_ID = id;
+    return spawnSync(process.execPath, [SCRIPT, ...argumentos], {
+      cwd: pasta,
+      env: ambiente,
+      encoding: "utf8",
+    });
+  };
+
+  it.each([
+    ["sem identificador", undefined, false],
+    ["com identificador fora do formato", "G-abc1234567", false],
+    ["com identificador válido", "G-ABC1234567", true],
+  ])("%s, escreve o _headers do modo certo", async (_caso, id, medicao) => {
+    const pasta = await app(SITE);
+    const saida = rodar(pasta, ["dist"], id);
+    expect(saida.status, saida.stderr).toBe(0);
+    expect(await readFile(join(pasta, "dist", "_headers"), "utf8")).toBe(
+      montarCabecalhos({ medicao }),
+    );
+    expect(await readFile(join(pasta, "dist", "robots.txt"), "utf8")).toBe(montarRobots(SITE));
+    expect(saida.stdout).toContain(medicao ? "(com medição)" : "(sem medição)");
+  });
+
+  it("sai com 1 quando o astro.config.mjs não define site", async () => {
+    const pasta = await app(undefined);
+    const saida = rodar(pasta, ["dist"]);
+    expect(saida.status).toBe(1);
+    expect(saida.stderr).toContain("não define `site`");
+  });
+
+  it("sai com 2 sem a pasta do build", async () => {
+    const pasta = await app(SITE);
+    const saida = rodar(pasta, []);
+    expect(saida.status).toBe(2);
+    expect(saida.stderr).toContain("Uso:");
   });
 });

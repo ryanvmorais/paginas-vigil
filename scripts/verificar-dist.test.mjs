@@ -4,9 +4,11 @@
  * Usam HTML montado aqui mesmo, sem tocar o disco do build (spec 002, seção Testes).
  */
 
+import { spawnSync } from "node:child_process";
 import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { afterEach, describe, expect, it } from "vitest";
 
@@ -136,9 +138,51 @@ describe("verificarHtml: marcação de idioma (RF-03)", () => {
 
   it("vê o hreflang de um link do corpo e passa a exigir a marcação da cabeça", () => {
     const html = pagina({ corpo: '<a href="/en/" hreflang="en">EN</a>' });
-    expect(verificarHtml(html).length).toBeGreaterThan(0);
+    expect(verificarHtml(html)).toEqual(FALTA_TODA_A_CABECA);
   });
+
+  it("exige o lang no próprio <html>, não em outra tag", () => {
+    const html = pagina({ lang: "", cabeca: CABECA_BILINGUE, corpo: '<div lang="pt-BR"></div>' });
+    expect(verificarHtml(html)).toEqual(["falta lang no <html>"]);
+  });
+
+  it.each([
+    ["com href vazio", '<link rel="canonical" href="">'],
+    ["sem href", '<link rel="canonical">'],
+    ["num <a> em vez de <link>", '<a rel="canonical" href="https://exemplo.test/">x</a>'],
+  ])("não aceita como canonical o declarado %s", (_caso, canonical) => {
+    const cabeca = CABECA_BILINGUE.replace(/<link rel="canonical"[^>]*>/, canonical);
+    expect(verificarHtml(pagina({ cabeca }))).toEqual(['falta <link rel="canonical">']);
+  });
+
+  it.each(["og:locale", "og:image"])(
+    "recusa %s com content vazio ou sem content",
+    (propriedade) => {
+      for (const meta of [
+        `<meta property="${propriedade}" content="">`,
+        `<meta property="${propriedade}">`,
+      ]) {
+        const cabeca = CABECA_BILINGUE.replace(
+          new RegExp(`<meta property="${propriedade}"[^>]*>`),
+          meta,
+        );
+        expect(verificarHtml(pagina({ cabeca })), meta).toEqual([
+          `falta <meta property="${propriedade}">`,
+        ]);
+      }
+    },
+  );
 });
+
+// O que `verificarHtml` acusa numa página com `hreflang` e nenhuma marcação de idioma na cabeça.
+const FALTA_TODA_A_CABECA = [
+  'falta <link rel="canonical">',
+  'falta <link rel="alternate" hreflang="pt-BR">',
+  'falta <link rel="alternate" hreflang="en">',
+  'falta <link rel="alternate" hreflang="x-default">',
+  'falta <meta property="og:locale">',
+  'falta <meta property="og:image">',
+];
 
 describe("verificarHtml: página noindex (404)", () => {
   const NOINDEX = '<meta name="robots" content="noindex">';
@@ -167,7 +211,17 @@ describe("verificarHtml: página noindex (404)", () => {
 
   it("não trata como noindex um meta robots que permite indexar", () => {
     const html = pagina({ cabeca: '<meta name="robots" content="index, follow">', corpo: SELETOR });
-    expect(verificarHtml(html).length).toBeGreaterThan(0);
+    expect(verificarHtml(html)).toEqual(FALTA_TODA_A_CABECA);
+  });
+
+  it("só o meta de nome robots decide: outro meta com noindex no conteúdo não conta", () => {
+    for (const meta of [
+      '<meta name="description" content="noindex">',
+      '<meta property="og:description" content="noindex">',
+    ]) {
+      const html = pagina({ cabeca: meta, corpo: SELETOR });
+      expect(verificarHtml(html), meta).toEqual(FALTA_TODA_A_CABECA);
+    }
   });
 
   it("continua conferindo as outras regras (sem inline)", () => {
@@ -319,6 +373,15 @@ describe("verificarHtml: coerência do modo de medição (RF-06)", () => {
     }
   });
 
+  it("só um <script> conta como a peça do script, não outra tag com o mesmo nome de arquivo", () => {
+    const html = pagina({
+      corpo: `${BANNER}${CONTROLE}<img src="/_astro/consentimento.png" alt="">`,
+    });
+    expect(verificarHtml(html)).toEqual([
+      "modo de medição incoerente: tem banner, controle, falta script (as três peças vêm juntas ou nenhuma)",
+    ]);
+  });
+
   it("não confunde o nome do script de consentimento com os outros scripts", () => {
     const html = pagina({
       cabeca: '<script type="module" src="/_astro/Comando.astro_astro_type_script.X.js"></script>',
@@ -361,6 +424,7 @@ describe("verificarHtml: compatibilidade com a CSP (RF-09)", () => {
       '<link rel="modulepreload" href="https://cdn.exemplo.test/a.js">',
       '<link rel="icon" href="https://cdn.exemplo.test/a.ico">',
       '<link rel="shortcut icon" href="https://cdn.exemplo.test/a.ico">',
+      '<link rel="apple-touch-icon" href="https://cdn.exemplo.test/a.png">',
       '<img src="https://cdn.exemplo.test/a.png" alt="">',
       '<img src="/a.png" srcset="/a.png 1x, https://cdn.exemplo.test/a@2x.png 2x" alt="">',
       '<picture><source srcset="https://cdn.exemplo.test/a.webp"><img src="/a.png" alt=""></picture>',
@@ -371,6 +435,48 @@ describe("verificarHtml: compatibilidade com a CSP (RF-09)", () => {
       ]);
     }
   });
+
+  it("confere a URL com aspas simples e sem aspas, como com aspas duplas", () => {
+    for (const tag of [
+      "<script src='https://cdn.exemplo.test/a.js'></script>",
+      "<script src=https://cdn.exemplo.test/a.js></script>",
+      "<link rel=stylesheet href=https://cdn.exemplo.test/a.css>",
+      "<img src='https://cdn.exemplo.test/a.png' alt=''>",
+    ]) {
+      expect(verificarHtml(pagina({ corpo: tag })), tag).toEqual([
+        expect.stringContaining("cdn.exemplo.test"),
+      ]);
+    }
+  });
+
+  it("nomeia no problema a tag, a diretiva e a URL", () => {
+    const casos = [
+      [
+        '<script src="https://cdn.exemplo.test/a.js"></script>',
+        "<script src> fora da CSP (script-src): https://cdn.exemplo.test/a.js",
+      ],
+      [
+        '<link rel="stylesheet" href="https://cdn.exemplo.test/a.css">',
+        '<link rel="stylesheet"> fora da CSP (style-src): https://cdn.exemplo.test/a.css',
+      ],
+      [
+        '<img src="https://cdn.exemplo.test/a.png" alt="">',
+        "<img> fora da CSP (img-src): https://cdn.exemplo.test/a.png",
+      ],
+    ];
+    for (const [tag, problema] of casos) {
+      expect(verificarHtml(pagina({ corpo: tag }))).toEqual([problema]);
+    }
+  });
+
+  // Cada `as` do preload tem a diretiva própria; o que não está na tabela cai em default-src ('none').
+  it.each(["style", "script", "font", "image"])(
+    "aceita o preload do próprio site com as=%s",
+    (as) => {
+      const html = pagina({ cabeca: `<link rel="preload" as="${as}" href="/_astro/a">` });
+      expect(verificarHtml(html)).toEqual([]);
+    },
+  );
 
   it("aceita recurso do próprio site, inclusive os ícones da marca", () => {
     const html = pagina({
@@ -596,14 +702,18 @@ describe("verificarHospedagem: regra 8 (RF-02, RF-03, RF-07)", () => {
     const problemas = verificarHospedagem(
       build({ cabecalhos: montarCabecalhos({ medicao: true }) }),
     );
-    expect(problemas).toEqual([expect.stringContaining("a CSP difere")]);
+    expect(problemas).toEqual([
+      "_headers: a CSP difere da política sem medição que o HTML da página inicial pede",
+    ]);
   });
 
   it("recusa a CSP de outro modo: _headers sem medição num HTML com medição", () => {
     const problemas = verificarHospedagem(
       build({ paginas: { "index.html": inicialComMedicao() } }),
     );
-    expect(problemas).toEqual([expect.stringContaining("a CSP difere")]);
+    expect(problemas).toEqual([
+      "_headers: a CSP difere da política com medição que o HTML da página inicial pede",
+    ]);
   });
 
   it("recusa mais de uma linha de CSP", () => {
@@ -621,13 +731,20 @@ describe("verificarHospedagem: regra 8 (RF-02, RF-03, RF-07)", () => {
     expect(problemas).toContainEqual(expect.stringContaining("unsafe-"));
   });
 
-  it("recusa o _headers sem um cabeçalho de segurança", () => {
+  // Um caso por cabeçalho obrigatório, na lista escrita aqui (a mesma ordem do código).
+  it.each([
+    "Strict-Transport-Security",
+    "X-Content-Type-Options",
+    "Referrer-Policy",
+    "Permissions-Policy",
+  ])("recusa o _headers sem %s", (nome) => {
     const cabecalhos = build()
       .cabecalhos.split("\n")
-      .filter((linha) => !linha.includes("Referrer-Policy"))
+      .filter((linha) => !linha.includes(`${nome}:`))
       .join("\n");
+    expect(cabecalhos).not.toBe(build().cabecalhos);
     expect(verificarHospedagem(build({ cabecalhos }))).toEqual([
-      expect.stringContaining("Referrer-Policy"),
+      `_headers sem o cabeçalho ${nome}`,
     ]);
   });
 
@@ -646,7 +763,19 @@ describe("verificarHospedagem: regra 8 (RF-02, RF-03, RF-07)", () => {
       /<url>\s*<loc>[^<]*\/en\/<\/loc>[\s\S]*?<\/url>/,
       "",
     );
-    expect(verificarHospedagem(build({ sitemap }))).toEqual([expect.stringContaining("sem a URL")]);
+    expect(verificarHospedagem(build({ sitemap }))).toEqual([`sitemap.xml sem a URL ${SITE}/en/`]);
+  });
+
+  it("recusa o sitemap com uma alternativa hreflang a menos do que a página declara", () => {
+    const sitemap = montarSitemap(SITE).replaceAll(
+      `    <xhtml:link rel="alternate" hreflang="x-default" href="${SITE}/en/"/>\n`,
+      "",
+    );
+    expect(sitemap).not.toContain("x-default");
+    expect(verificarHospedagem(build({ sitemap }))).toEqual([
+      `sitemap.xml: as alternativas hreflang de ${SITE}/ divergem das que a página declara`,
+      `sitemap.xml: as alternativas hreflang de ${SITE}/en/ divergem das que a página declara`,
+    ]);
   });
 
   it("recusa o sitemap com hreflang diferente do que a página declara", () => {
@@ -666,6 +795,14 @@ describe("verificarHospedagem: regra 8 (RF-02, RF-03, RF-07)", () => {
     const outro = montarRobots("https://outro.test");
     expect(verificarHospedagem(build({ robots: outro }))).toEqual([
       expect.stringContaining(`${SITE}/sitemap.xml`),
+    ]);
+  });
+
+  it.each(["User-agent: *", "Allow: /"])("recusa o robots.txt sem a linha %s", (linha) => {
+    const robots = montarRobots(SITE).replace(`${linha}\n`, "");
+    expect(robots).not.toBe(montarRobots(SITE));
+    expect(verificarHospedagem(build({ robots }))).toEqual([
+      "robots.txt sem `User-agent: *` e `Allow: /`",
     ]);
   });
 
@@ -717,5 +854,132 @@ describe("verificarHospedagemPasta", () => {
       ]),
     );
     expect(problemas).not.toContain("falta _headers");
+  });
+
+  it("lê do disco cada arquivo da hospedagem: o build completo não tem problema", async () => {
+    const pasta = await mkdtemp(join(tmpdir(), "verificar-hospedagem-"));
+    pastas.push(pasta);
+    await escreverBuild(pasta);
+    expect(await verificarHospedagemPasta(pasta)).toEqual([]);
+  });
+});
+
+// Um build coerente no disco, sem medição: as quatro páginas, a imagem social e os arquivos da
+// hospedagem. `trocas` substitui o conteúdo de um arquivo (`undefined` deixa de escrevê-lo).
+const SITE_BUILD = "https://exemplo.test";
+const NOINDEX_BUILD = '<meta name="robots" content="noindex">';
+const inicialBuild = (proprio) =>
+  pagina({
+    cabeca:
+      `<link rel="canonical" href="${proprio}">` +
+      `<link rel="alternate" hreflang="pt-BR" href="${SITE_BUILD}/">` +
+      `<link rel="alternate" hreflang="en" href="${SITE_BUILD}/en/">` +
+      `<link rel="alternate" hreflang="x-default" href="${SITE_BUILD}/en/">` +
+      '<meta property="og:locale" content="pt_BR">' +
+      `<meta property="og:image" content="${SITE_BUILD}/social-pt.png">`,
+  });
+const escreverBuild = async (pasta, trocas = {}) => {
+  const arquivos = {
+    "index.html": inicialBuild(`${SITE_BUILD}/`),
+    "en/index.html": inicialBuild(`${SITE_BUILD}/en/`),
+    "404.html": pagina({ cabeca: NOINDEX_BUILD }),
+    "en/404.html": pagina({ cabeca: NOINDEX_BUILD }),
+    "social-pt.png": "x",
+    _headers: montarCabecalhos({ medicao: false }),
+    "robots.txt": montarRobots(SITE_BUILD),
+    "sitemap.xml": montarSitemap(SITE_BUILD),
+    ...trocas,
+  };
+  for (const [nome, conteudo] of Object.entries(arquivos)) {
+    if (conteudo === undefined) continue;
+    await mkdir(join(pasta, nome, ".."), { recursive: true });
+    await writeFile(join(pasta, nome), conteudo);
+  }
+};
+
+describe("verificarPasta: as páginas do build", () => {
+  const pastas = [];
+  afterEach(async () => {
+    await Promise.all(pastas.splice(0).map((p) => rm(p, { recursive: true, force: true })));
+  });
+  const pastaTemporaria = async () => {
+    const pasta = await mkdtemp(join(tmpdir(), "verificar-pasta-"));
+    pastas.push(pasta);
+    return pasta;
+  };
+
+  it("confere também as páginas das subpastas, como en/index.html", async () => {
+    const pasta = await pastaTemporaria();
+    const comScript = inicialBuild(`${SITE_BUILD}/en/`).replace(
+      "</body>",
+      "<script>x()</script></body>",
+    );
+    await escreverBuild(pasta, { "en/index.html": comScript });
+    expect(await verificarPasta(pasta)).toEqual([
+      { arquivo: join(pasta, "en/index.html"), problemas: ["<script> sem src (código inline)"] },
+    ]);
+  });
+
+  it("acusa o build sem nenhum .html", async () => {
+    const pasta = await pastaTemporaria();
+    await writeFile(join(pasta, "_headers"), "x");
+    expect(await verificarPasta(pasta)).toEqual([
+      { arquivo: pasta, problemas: ["nenhum arquivo .html encontrado"] },
+    ]);
+  });
+});
+
+// A linha de comando é o que o `build` de cada site roda: o código de saída é o que barra o build.
+describe("linha de comando", () => {
+  const SCRIPT = fileURLToPath(new URL("./verificar-dist.mjs", import.meta.url));
+  const pastas = [];
+  afterEach(async () => {
+    await Promise.all(pastas.splice(0).map((p) => rm(p, { recursive: true, force: true })));
+  });
+  const rodar = (argumentos) =>
+    spawnSync(process.execPath, [SCRIPT, ...argumentos], { encoding: "utf8" });
+  const pastaTemporaria = async () => {
+    const pasta = await mkdtemp(join(tmpdir(), "verificar-cli-"));
+    pastas.push(pasta);
+    return pasta;
+  };
+
+  it("sai com 0 no build coerente", async () => {
+    const pasta = await pastaTemporaria();
+    await escreverBuild(pasta);
+    const saida = rodar([pasta]);
+    expect(saida.status, saida.stderr).toBe(0);
+    expect(saida.stdout).toContain(`verificar-dist: ${pasta} sem problemas.`);
+    expect(saida.stderr).toBe("");
+  });
+
+  it("sai com 1 e lista arquivo e problema quando uma página tem problema", async () => {
+    const pasta = await pastaTemporaria();
+    // A página continua bilíngue e coerente com o sitemap: o único problema do build é o <style>.
+    const comEstilo = inicialBuild(`${SITE_BUILD}/en/`).replace(
+      "</head>",
+      "<style>a{}</style></head>",
+    );
+    await escreverBuild(pasta, { "en/index.html": comEstilo });
+    const saida = rodar([pasta]);
+    expect(saida.status).toBe(1);
+    expect(saida.stderr).toBe(
+      `${join(pasta, "en/index.html")}: <style> (estilo inline)\n` +
+        "verificar-dist: 1 arquivo(s) com problema.\n",
+    );
+  });
+
+  it("sai com 1 quando só a hospedagem tem problema (regra 8)", async () => {
+    const pasta = await pastaTemporaria();
+    await escreverBuild(pasta, { "robots.txt": undefined });
+    const saida = rodar([pasta]);
+    expect(saida.status).toBe(1);
+    expect(saida.stderr).toContain(`${pasta}: falta robots.txt`);
+  });
+
+  it("sai com 2 sem a pasta do build", () => {
+    const saida = rodar([]);
+    expect(saida.status).toBe(2);
+    expect(saida.stderr).toContain("Uso:");
   });
 });

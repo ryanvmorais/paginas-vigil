@@ -29,16 +29,22 @@ describe("politicaCsp: com medição", () => {
     expect(diretivas["script-src"]).toEqual(["'self'", "https://www.googletagmanager.com"]);
   });
 
-  it("libera para imagem e conexão só hosts do Google Analytics nomeados", () => {
-    const externas = [...diretivas["img-src"], ...diretivas["connect-src"]].filter((fonte) =>
-      fonte.startsWith("https://"),
-    );
-    expect(externas.length).toBeGreaterThan(0);
-    for (const fonte of externas) {
-      expect(fonte).toMatch(
-        /^https:\/\/(\*\.)?(google-analytics\.com|analytics\.google\.com|googletagmanager\.com)$/,
-      );
-    }
+  // As listas exatas (a da documentação de CSP estrita do Google): um host a menos quebra a medição
+  // em silêncio, e um a mais abre a página para quem não precisa.
+  it("libera para imagem só 'self' e os hosts do Google Analytics nomeados", () => {
+    expect(diretivas["img-src"]).toEqual([
+      "'self'",
+      "https://*.google-analytics.com",
+      "https://*.googletagmanager.com",
+    ]);
+  });
+
+  it("libera para conexão só os hosts do Google Analytics nomeados", () => {
+    expect(diretivas["connect-src"]).toEqual([
+      "https://*.google-analytics.com",
+      "https://*.analytics.google.com",
+      "https://*.googletagmanager.com",
+    ]);
   });
 
   it("mantém estilo e fonte só do próprio site", () => {
@@ -122,6 +128,21 @@ describe("urlPermitida", () => {
     expect(urlPermitida(comMedicao, "script-src", gtag)).toBe(true);
     expect(urlPermitida(comMedicao, "script-src", "https://cdn.exemplo.test/a.js")).toBe(false);
     expect(urlPermitida(semMedicao, "script-src", gtag)).toBe(false);
+  });
+
+  it("casa o host sem curinga por inteiro, não pelo fim do nome", () => {
+    // `xww.googletagmanager.com` termina como `www.googletagmanager.com` menos a primeira letra:
+    // só a comparação exata o recusa.
+    expect(urlPermitida(comMedicao, "script-src", "https://xww.googletagmanager.com/a.js")).toBe(
+      false,
+    );
+    expect(urlPermitida(comMedicao, "script-src", "https://googletagmanager.com/a.js")).toBe(false);
+  });
+
+  it("trata //host como https, e aceita assim o host nomeado", () => {
+    expect(
+      urlPermitida(comMedicao, "script-src", "//www.googletagmanager.com/gtag/js?id=G-ABC1234567"),
+    ).toBe(true);
   });
 
   it("aceita subdomínio coberto por curinga de host, mas não o domínio sozinho nem um parecido", () => {
