@@ -40,7 +40,7 @@ env:
   # Dependabot não vê `npx`: a revisão desta versão é manual.
   WRANGLER_VERSION: "4.156.0"
   # A mesma versão do lighthouse.yml: uma só para medir o build e o que está no ar.
-  LHCI_VERSION: "0.15.1"
+  LHCI_VERSION: "0.16.1"
   # Carência de release para o `npx`, em dias: a versão do pacote é fixa, mas a árvore dele é
   # resolvida na hora, sem lockfile. Uma dependência indireta publicada há menos de 7 dias não
   # entra. É o mesmo prazo do `minimumReleaseAge` do pnpm-workspace.yaml (um teste confere).
