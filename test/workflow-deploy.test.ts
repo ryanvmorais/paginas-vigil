@@ -60,19 +60,18 @@ describe("deploy.yml: quem dispara", () => {
     expect(lerTexto(".github/workflows/ci.yml")).toMatch(/^name: CI$/m);
   });
 
-  it("o job só roda com o CI verde, vindo de push e do próprio repositório", () => {
+  // A condição inteira, termo a termo: trocar um `&&` por `||` deixaria publicar um CI vermelho,
+  // um PR ou um fork, e cada termo sozinho continuaria presente no texto.
+  it("o job só roda com o CI verde, vindo de push e do próprio repositório, ou à mão na main", () => {
     const condicao = /^ {4}if: >-\n((?: {6}.*\n)+)/m.exec(SEM_COMENTARIOS)?.[1] ?? "";
-    expect(condicao).toContain("github.event.workflow_run.conclusion == 'success'");
-    expect(condicao).toContain("github.event.workflow_run.event == 'push'");
-    expect(condicao).toContain(
-      "github.event.workflow_run.head_repository.full_name == github.repository",
-    );
-  });
-
-  it("o disparo manual só vale na main", () => {
-    expect(SEM_COMENTARIOS).toContain(
-      "github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'",
-    );
+    expect(condicao.split("\n").map((linha) => linha.trim())).toEqual([
+      "(github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||",
+      "(github.event_name == 'workflow_run' &&",
+      "github.event.workflow_run.conclusion == 'success' &&",
+      "github.event.workflow_run.event == 'push' &&",
+      "github.event.workflow_run.head_repository.full_name == github.repository)",
+      "",
+    ]);
   });
 });
 
@@ -88,13 +87,16 @@ describe("deploy.yml: permissões e segredos", () => {
   });
 
   it("os segredos da Cloudflare entram só no passo que publica", () => {
-    const usos = SEM_COMENTARIOS.match(/\$\{\{ secrets\.[A-Z_]+ \}\}/g) ?? [];
-    expect(usos.sort()).toEqual([
-      "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}",
-      "${{ secrets.CLOUDFLARE_API_TOKEN }}",
-    ]);
+    // Toda forma de citar um segredo: com ou sem espaço, em qualquer caixa (o GitHub não distingue)
+    // e com colchete. Só as duas linhas do passo que publica podem aparecer.
+    const QUALQUER_SEGREDO = /secrets\s*(?:\.|\[)/gi;
+    expect(
+      "${{secrets.X}} ${{ SECRETS.x }} ${{ secrets['X'] }}".match(QUALQUER_SEGREDO),
+    ).toHaveLength(3);
+    expect(SEM_COMENTARIOS.match(QUALQUER_SEGREDO)).toHaveLength(2);
     const publicar = passo("Publicar na Cloudflare");
-    for (const uso of usos) expect(publicar).toContain(uso);
+    expect(publicar).toContain("CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}");
+    expect(publicar).toContain("CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}");
   });
 
   it("o identificador de medição vem da variável do ambiente, nunca de um valor escrito", () => {
@@ -248,49 +250,64 @@ describe("deploy.yml: identificador de medição", () => {
 
 describe("deploy.yml: ordem e ponta da main", () => {
   const ordem = passos.map((texto) => texto.split("\n")[0]);
-  const indice = (inicio: string) => ordem.findIndex((nome) => nome.startsWith(inicio));
 
   it("gera o site, confere a ponta da main e só então publica, confere e mede", () => {
-    expect(indice("Gerar o site")).toBeLessThan(indice("Conferir a ponta da main"));
-    expect(indice("Conferir a ponta da main")).toBeLessThan(indice("Baixar o wrangler"));
-    expect(indice("Baixar o wrangler")).toBeLessThan(indice("Publicar na Cloudflare"));
-    expect(indice("Publicar na Cloudflare")).toBeLessThan(indice("Conferir o que está no ar"));
-    expect(indice("Conferir o que está no ar")).toBeLessThan(
-      indice("Medir o endereço real, no celular"),
-    );
-    expect(indice("Medir o endereço real, no desktop")).toBeLessThan(
-      indice("Guardar os relatórios"),
-    );
-  });
-
-  it("compara o commit com a ponta de refs/heads/main", () => {
-    const ponta = passo("Conferir a ponta da main");
-    expect(ponta).toContain("id: ponta");
-    expect(ponta).toContain("refs/heads/main");
-    expect(ponta).toContain('"$ponta" == "$COMMIT"');
-  });
-
-  it("baixar, publicar, conferir, medir e guardar dependem da ponta da main", () => {
-    for (const inicio of [
+    expect(ordem).toEqual([
+      "Conferir o identificador de medição",
+      "Baixar o repositório",
+      "Instalar o pnpm",
+      "Instalar o Node",
+      "Instalar as dependências",
+      "Gerar o site",
+      "Conferir a ponta da main",
       "Baixar o wrangler",
       "Publicar na Cloudflare",
       "Conferir o que está no ar",
       "Medir o endereço real, no celular",
       "Medir o endereço real, no desktop",
       "Guardar os relatórios",
-    ]) {
-      expect(passo(inicio), inicio).toContain("if: steps.ponta.outputs.atual == 'true'");
+    ]);
+  });
+
+  it("compara o commit com a ponta de refs/heads/main e só marca atual quando são iguais", () => {
+    const ponta = passo("Conferir a ponta da main");
+    expect(ponta).toContain("id: ponta");
+    expect(ponta).toContain(
+      'ponta=$(git ls-remote "https://github.com/${GITHUB_REPOSITORY}.git" refs/heads/main | cut -f1)',
+    );
+    const desvio = /if \[\[ "\$ponta" == "\$COMMIT" \]\]; then\n\s+(.+)\n\s+else\n\s+(.+)\n/.exec(
+      ponta,
+    );
+    expect(desvio?.[1]).toBe('echo "atual=true" >> "$GITHUB_OUTPUT"');
+    expect(desvio?.[2]).toBe('echo "atual=false" >> "$GITHUB_OUTPUT"');
+  });
+
+  // A condição de cada passo inteira: um `|| true` ou um termo a mais no fim também passaria por um
+  // `toContain` do começo dela.
+  it("baixar, publicar, conferir, medir e guardar dependem da ponta da main", () => {
+    const condicoes = {
+      "Baixar o wrangler": "steps.ponta.outputs.atual == 'true'",
+      "Publicar na Cloudflare": "steps.ponta.outputs.atual == 'true'",
+      "Conferir o que está no ar": "steps.ponta.outputs.atual == 'true'",
+      // A medição e os relatórios rodam mesmo se a conferência falhou, menos se cancelado.
+      "Medir o endereço real, no celular": "steps.ponta.outputs.atual == 'true' && !cancelled()",
+      "Medir o endereço real, no desktop": "steps.ponta.outputs.atual == 'true' && !cancelled()",
+      "Guardar os relatórios": "steps.ponta.outputs.atual == 'true' && !cancelled()",
+    };
+    for (const [inicio, condicao] of Object.entries(condicoes)) {
+      expect(/^ {8}if: (.*)$/m.exec(passo(inicio))?.[1], inicio).toBe(condicao);
     }
   });
 
-  it("a medição e os relatórios rodam mesmo se um passo anterior falhou, menos se cancelado", () => {
-    for (const inicio of [
-      "Medir o endereço real, no celular",
-      "Medir o endereço real, no desktop",
-      "Guardar os relatórios",
-    ]) {
-      expect(passo(inicio), inicio).toContain("&& !cancelled()");
-    }
+  // Um passo que falha precisa falhar o job: nem o job nem um passo engolem o erro.
+  it("nenhum passo segue em frente depois de falhar", () => {
+    const ENGOLE = /continue-on-error|\|\|\s*true\b/;
+    expect("continue-on-error: true").toMatch(ENGOLE);
+    expect("node x.mjs || true").toMatch(ENGOLE);
+    expect(SEM_COMENTARIOS).not.toMatch(ENGOLE);
+    expect(/^ {8}run: (.*)$/m.exec(passo("Conferir o que está no ar"))?.[1]).toBe(
+      "node scripts/conferir-hospedagem.mjs ${{ matrix.site }}",
+    );
   });
 
   it("o build do site usa a variável do ambiente do job, sem valor próprio", () => {
