@@ -187,7 +187,23 @@ describe("conferirHospedagem", () => {
   it("aprova um site servido como o dist, sem esperar", async () => {
     const { linhas, esperar } = await conferir();
     expect(reprovadas(linhas)).toEqual([]);
-    expect(linhas.length).toBeGreaterThanOrEqual(14);
+    // Cada verificação, na ordem da tabela: uma a menos ou repetida muda a lista.
+    expect(linhas.map(({ nome }) => nome)).toEqual([
+      "O domínio responde",
+      "GET /",
+      "GET /en/",
+      "404 em português",
+      "404 em inglês",
+      "Arquivo .js de /_astro/",
+      "Arquivo .css de /_astro/",
+      "Arquivo .woff2 de /_astro/",
+      "GET /favicon.svg",
+      "GET /robots.txt",
+      "GET /sitemap.xml",
+      "GET /.well-known/security.txt",
+      "GET /_headers não é servido",
+      "http:// não serve a página",
+    ]);
     expect(esperar).not.toHaveBeenCalled();
   });
 
@@ -274,6 +290,21 @@ describe("conferirHospedagem", () => {
     expect(reprovadas(linhas)).toEqual(["http:// não serve a página"]);
   });
 
+  it.each([301, 302, 307, 308])(
+    "aprova o http:// que redireciona com %i para https",
+    async (status) => {
+      const { linhas } = await conferir({
+        ajustes: {
+          "http:/": () => ({ status, corpo: null, headers: { location: `${ENDERECO}/` } }),
+        },
+      });
+      expect(reprovadas(linhas)).toEqual([]);
+      expect(linhas.find(({ nome }) => nome.startsWith("http://"))?.detalhe).toBe(
+        `${status} para ${ENDERECO}/`,
+      );
+    },
+  );
+
   it("aprova o http:// com conexão recusada, porque o https abriu", async () => {
     const { linhas } = await conferir({ ajustes: { "http:/": () => new Error("ECONNREFUSED") } });
     expect(reprovadas(linhas)).toEqual([]);
@@ -310,6 +341,38 @@ describe("conferirHospedagem", () => {
     });
     expect(reprovadas(linhas)).toEqual(["GET /favicon.svg"]);
   });
+
+  it("reprova o favicon sem Cache-Control, que não obriga a revalidar", async () => {
+    const { linhas } = await conferir({
+      ajustes: {
+        "/favicon.svg": ({ headers, ...resto }) => {
+          const semCache = { ...headers };
+          delete semCache["cache-control"];
+          return { ...resto, headers: semCache };
+        },
+      },
+    });
+    expect(reprovadas(linhas)).toEqual(["GET /favicon.svg"]);
+    expect(linhas.find(({ nome }) => nome === "GET /favicon.svg")?.detalhe).toBe(
+      "Cache-Control não obriga a revalidar (ausente)",
+    );
+  });
+
+  // Cada forma de obrigar a revalidar vale sozinha: a lista escrita aqui é a do código.
+  it.each(["max-age=0", "no-cache", "must-revalidate"])(
+    "aprova o favicon com Cache-Control só com %s",
+    async (cache) => {
+      const { linhas } = await conferir({
+        ajustes: {
+          "/favicon.svg": (certa) => ({
+            ...certa,
+            headers: { ...certa.headers, "cache-control": `public, ${cache}` },
+          }),
+        },
+      });
+      expect(reprovadas(linhas)).toEqual([]);
+    },
+  );
 
   it("reprova o robots.txt alterado", async () => {
     const { linhas } = await conferir({
@@ -351,6 +414,14 @@ describe("conferirHospedagem", () => {
     await rm(join(pasta, "_astro", "fonte.abc123.woff2"));
     const { linhas } = await conferir();
     expect(reprovadas(linhas)).toEqual(["Arquivo .woff2 de /_astro/"]);
+  });
+
+  it("reprova, numa linha só, o dist sem a pasta _astro, sem lançar exceção", async () => {
+    await rm(join(pasta, "_astro"), { recursive: true });
+    const { linhas } = await conferir();
+    expect(reprovadas(linhas)).toEqual(["Arquivos de /_astro/"]);
+    expect(linhas.find(({ nome }) => nome === "Arquivos de /_astro/")?.detalhe).toMatch(/ENOENT/);
+    expect(linhas.at(-1)?.nome).toBe("http:// não serve a página");
   });
 
   it("transforma erro de rede em linha reprovada, sem lançar exceção", async () => {
