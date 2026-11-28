@@ -146,15 +146,17 @@ describe("gravarEscolha", () => {
     expect(cookie.valor).toBe("false");
   });
 
-  it("cai para o armazenamento local quando o cookie não confirma na leitura", () => {
+  it("cai para o armazenamento local quando o cookie não confirma na leitura e esquece a escolha da memória", () => {
     const cookie = criarArmazem(undefined, { ignoraGravacao: true });
     const local = criarArmazem();
+    const memoria: Memoria = { escolha: "recusada" };
 
-    const onde = gravarEscolha({ cookie, local }, {}, "aceita");
+    const onde = gravarEscolha({ cookie, local }, memoria, "aceita");
 
     expect(onde).toBe("local");
     expect(local.valor).toBe("true");
-    expect(lerEscolha({ cookie, local }, {})).toBe("aceita");
+    expect(memoria.escolha).toBeUndefined();
+    expect(lerEscolha({ cookie, local }, memoria)).toBe("aceita");
   });
 
   it("apaga o valor antigo do cookie que não aceita a gravação, para ele não vencer a escolha nova", () => {
@@ -212,16 +214,15 @@ describe("cookie da escolha", () => {
   });
 
   it("não marca Secure fora de HTTPS", () => {
-    expect(montarCookie("false", false)).not.toContain("Secure");
-    expect(montarCookie("false", false)).toContain("cookies-accepted=false;");
+    expect(montarCookie("false", false)).toBe(
+      "cookies-accepted=false; Domain=.ryanmorais.com.br; Path=/; Max-Age=34560000; SameSite=Lax",
+    );
   });
 
   it("monta o cookie de remoção com validade zero e o mesmo escopo", () => {
-    const texto = montarCookie("", true, 0);
-
-    expect(texto).toContain("Max-Age=0");
-    expect(texto).toContain("Domain=.ryanmorais.com.br");
-    expect(texto).toContain("Path=/");
+    expect(montarCookie("", true, 0)).toBe(
+      "cookies-accepted=; Domain=.ryanmorais.com.br; Path=/; Max-Age=0; SameSite=Lax; Secure",
+    );
   });
 
   it("lê o valor do cookie da escolha no meio de outros cookies", () => {

@@ -24,6 +24,7 @@
     "eslint": "catalog:",
     "eslint-plugin-astro": "catalog:",
     "globals": "^17.14.0",
+    "happy-dom": "^21.0.4",
     "prettier": "catalog:",
     "prettier-plugin-astro": "catalog:",
     "typescript": "catalog:",

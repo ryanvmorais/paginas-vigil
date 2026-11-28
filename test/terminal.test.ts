@@ -14,7 +14,19 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
+import { saidaTerminal as saidaMailvigil } from "../apps/mailvigil/src/terminais";
+import { saidaTerminal as saidaWebvigil } from "../apps/webvigil/src/terminais";
+import { IDIOMAS } from "../packages/tema/src/idiomas";
+
 const RAIZ = join(import.meta.dirname, "..");
+
+const TERMINAL_CSS = readFileSync(
+  join(RAIZ, "packages", "tema", "src", "estilos", "terminal.css"),
+  "utf8",
+);
+
+/** As classes `t-*` que o `terminal.css` define. */
+const CLASSES_DE_COR = [...TERMINAL_CSS.matchAll(/\.(t-[a-z]+)\b/g)].map((achado) => achado[1]);
 const TERMINAL = readFileSync(
   join(RAIZ, "packages", "tema", "src", "componentes", "Terminal.astro"),
   "utf8",
@@ -35,12 +47,38 @@ describe("terminal", () => {
     expect(regra).toMatch(/min-width:\s*100%\s*;/);
   });
 
+  it.each([
+    ["webvigil", saidaWebvigil],
+    ["mailvigil", saidaMailvigil],
+  ])("monta a saída do %s só com as tags e as cores do terminal.css", (_app, saidas) => {
+    for (const idioma of IDIOMAS) {
+      const saida = saidas[idioma];
+      const tags = [...saida.matchAll(/<\/?([a-z]+)([^>]*)>/g)];
+      expect(tags.length).toBeGreaterThan(0);
+
+      // `set:html` põe o texto como está: só `<b>`, `<i>` e `<span class="t-…">`, sem outro atributo.
+      const abertas: string[] = [];
+      for (const [tag, nome = "", atributos = ""] of tags) {
+        expect(["b", "i", "span"], tag).toContain(nome);
+        if (tag.startsWith("</")) {
+          expect(abertas.pop(), `${tag} fecha a última aberta`).toBe(nome);
+          continue;
+        }
+        abertas.push(nome);
+        if (nome !== "span") {
+          expect(atributos, tag).toBe("");
+          continue;
+        }
+        const classes = /^ class="([^"]+)"$/.exec(atributos)?.[1]?.split(" ") ?? [];
+        expect(classes.length, tag).toBeGreaterThan(0);
+        for (const classe of classes) expect(CLASSES_DE_COR, tag).toContain(classe);
+      }
+      expect(abertas, `tags sem fechar na saída em ${idioma}`).toEqual([]);
+    }
+  });
+
   it("revela a saída por `clip-path`, a animação que a caixa larga não pode deixar recortar", () => {
     // Se a animação deixar de usar `clip-path`, a regra acima pode ser revista.
-    const css = readFileSync(
-      join(RAIZ, "packages", "tema", "src", "estilos", "terminal.css"),
-      "utf8",
-    );
-    expect(css).toMatch(/clip-path:\s*inset\(0\)/);
+    expect(TERMINAL_CSS).toMatch(/clip-path:\s*inset\(0\)/);
   });
 });

@@ -43,8 +43,9 @@ describe("palavrasEmHtml", () => {
 
   it("escapa o que o HTML trata de modo especial", () => {
     const html = palavrasEmHtml('echo "<a&b>"');
-    expect(html).toContain("&lt;a&amp;b&gt;");
-    expect(html).not.toContain("<a");
+    expect(html).toBe(
+      '<span class="palavra">echo</span> <span class="palavra">&quot;&lt;a&amp;b&gt;&quot;</span>',
+    );
     expect(textoDe(html)).toBe('echo "<a&b>"');
   });
 
