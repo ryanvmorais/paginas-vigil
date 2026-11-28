@@ -17,7 +17,9 @@ As Páginas Vigil são construídas com spec-driven development. Cada funcionali
 
 1. **A lógica tem teste unitário** (Vitest), chamando a função com entradas montadas, nunca pela página inteira.
 2. **Texto e dado de teste são sintéticos**, montados no próprio teste.
-3. **O portão de qualidade é a última tarefa de cada etapa**, com o resultado real registrado: `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test` e `pnpm build`.
+3. **Todo teste novo ou mudado é visto falhando uma vez** antes do commit: sabote a linha que ele guarda (inverta a condição, troque o valor, tire a guarda), confira o vermelho e desfaça a sabotagem. O PR diz o que foi sabotado e o resultado. Um teste negativo ("não acontece X") leva um controle positivo, a mesma asserção diante de uma entrada em que X acontece.
+4. **Os scripts de navegador** (`packages/tema/src/scripts/`) têm teste da cola com o DOM, no happy-dom ligado só no próprio arquivo de teste, e um teste de contrato confere que o componente `.astro` ainda traz os ganchos (`data-*`) que o script procura.
+5. **O portão de qualidade é a última tarefa de cada etapa**, com o resultado real registrado: `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test` e `pnpm build`.
 
 ## Fluxo
 

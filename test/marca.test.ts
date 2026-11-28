@@ -28,6 +28,9 @@ const dimensoesPng = (conteudo: Buffer) => ({
   altura: conteudo.readUInt32BE(20),
 });
 
+/** Máscara ou recorte num SVG: o favicon recorta o traçado com `evenodd`, sem um nem outro. */
+const MASCARA_OU_RECORTE = /<(mask|clipPath)\b/;
+
 /** Valor do atributo `d` de todo `<path>` de um trecho de SVG ou `.astro`. */
 const tracados = (fonte: string) =>
   [...fonte.matchAll(/<path\b[^>]*?\sd="([^"]+)"/g)].map((achado) => achado[1]);
@@ -43,7 +46,7 @@ describe.each(APPS)("marca do %s", (app) => {
 
   it("monta o favicon com evenodd e sem máscara nem recorte", () => {
     expect(favicon).toContain('fill-rule="evenodd"');
-    expect(favicon).not.toMatch(/<(mask|clipPath)\b/);
+    expect(favicon).not.toMatch(MASCARA_OU_RECORTE);
   });
 
   it("troca a cor do favicon pelo tema do sistema", () => {
@@ -60,6 +63,16 @@ describe.each(APPS)("marca do %s", (app) => {
     const { largura, altura } = dimensoesPng(ler(...caminho));
     expect({ largura, altura }).toEqual({ largura: 1280, altura: 640 });
     expect(statSync(join(RAIZ, ...caminho)).size).toBeLessThan(LIMITE_IMAGEM_SOCIAL);
+  });
+});
+
+describe("padrão de máscara e recorte", () => {
+  it.each(['<mask id="m">', '<clipPath id="r">', "<mask>"])("acusa %s", (trecho) => {
+    expect(trecho).toMatch(MASCARA_OU_RECORTE);
+  });
+
+  it.each(['<path d="M0 0"/>', "<masked>", "<clipPathX>"])("não acusa %s", (trecho) => {
+    expect(trecho).not.toMatch(MASCARA_OU_RECORTE);
   });
 });
 

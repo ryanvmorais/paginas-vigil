@@ -8,7 +8,7 @@
  */
 
 import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
@@ -27,19 +27,19 @@ const ESTE_TESTE = "test/impessoalidade.test.ts";
 const EXTENSOES_BINARIAS = /\.(woff2?|png|jpe?g|webp|ico)$/i;
 const LOCKFILE = "pnpm-lock.yaml";
 
+// Fora de um clone (um tarball, por exemplo) não há `.git`, e o teste não tem o que conferir. Dentro
+// de um clone, um `git ls-files` que falha derruba o teste com o erro, em vez de virar um `skip`
+// silencioso que não confere nada.
+const semGit = !existsSync(`${RAIZ}.git`);
+
 /**
- * Lista os arquivos versionados. Fora de um clone (um tarball, por exemplo) não há `git`, e o
- * teste não tem o que conferir.
+ * Lista os arquivos versionados.
  *
- * @returns Os caminhos relativos à raiz, ou `null` sem repositório git.
+ * @returns Os caminhos relativos à raiz.
  */
-const listarVersionados = (): string[] | null => {
-  try {
-    const saida = execFileSync("git", ["ls-files", "-z"], { cwd: RAIZ, encoding: "utf8" });
-    return saida.split("\0").filter(Boolean);
-  } catch {
-    return null;
-  }
+const listarVersionados = (): string[] => {
+  const saida = execFileSync("git", ["ls-files", "-z"], { cwd: RAIZ, encoding: "utf8" });
+  return saida.split("\0").filter(Boolean);
 };
 
 /**
@@ -66,12 +66,11 @@ const procurar = (arquivos: string[], padrao: RegExp): string[] => {
   return achados;
 };
 
-const versionados = listarVersionados();
-const semGit = versionados === null;
+const versionados = semGit ? [] : listarVersionados();
 
 // Todo arquivo versionado com texto a conferir, menos este teste.
 const comTexto = (): string[] =>
-  (versionados ?? []).filter(
+  versionados.filter(
     (arquivo) =>
       arquivo !== ESTE_TESTE && arquivo !== LOCKFILE && !EXTENSOES_BINARIAS.test(arquivo),
   );
@@ -83,12 +82,45 @@ const comTexto = (): string[] =>
 // Autoria e licença são metadados: o nome fica.
 const PODEM_CITAR_O_NOME = new Set(["LICENSE", "package.json"]);
 
+const NOME_DO_MANTENEDOR = /\bRyan\b/;
+
+describe("impessoalidade: os arquivos conferidos", () => {
+  it.skipIf(semGit)(
+    "são os versionados com texto, sem este teste, o lockfile e os binários",
+    () => {
+      const alvos = comTexto();
+
+      expect(alvos).toEqual(
+        expect.arrayContaining([
+          "CLAUDE.md",
+          "README.md",
+          "LICENSE",
+          "packages/tema/src/scripts/consentimento.ts",
+          "apps/webvigil/src/textos.ts",
+        ]),
+      );
+      expect(alvos).not.toContain(ESTE_TESTE);
+      expect(alvos).not.toContain(LOCKFILE);
+      expect(versionados).toContain("apps/webvigil/public/apple-touch-icon.png");
+      expect(alvos.filter((arquivo) => EXTENSOES_BINARIAS.test(arquivo))).toEqual([]);
+    },
+  );
+
+  it.skipIf(semGit)("são procurados no texto inteiro, com a linha onde o trecho começa", () => {
+    // Controle positivo do `procurar`: um trecho que existe, quebrado em duas linhas.
+    expect(procurar(["LICENSE"], /Apache License\s+Version 2\.0/)).toEqual([
+      "LICENSE:1 (Apache License Version 2.0)",
+    ]);
+    expect(procurar(["LICENSE"], /1\. Definitions\./)).toEqual(["LICENSE:7 (1. Definitions.)"]);
+  });
+});
+
 describe("impessoalidade: o nome do mantenedor", () => {
   it.skipIf(semGit)("só aparece nos arquivos de autoria e licença", () => {
     const alvos = comTexto().filter((arquivo) => !PODEM_CITAR_O_NOME.has(arquivo));
 
     // Cite o papel ("o mantenedor") em vez do nome, ou tire o trecho do repositório.
-    expect(procurar(alvos, /\bRyan\b/)).toEqual([]);
+    expect(procurar(alvos, NOME_DO_MANTENEDOR)).toEqual([]);
   });
 });
 
@@ -163,5 +195,95 @@ describe("impessoalidade: ferramentas e rotina pessoais", () => {
 
     // Diga o fato e o motivo da escolha, sem "no modelo do ..." nem a história de outro projeto.
     expect(procurar(alvos, OUTRO_PROJETO)).toEqual([]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// OS PADRÕES ACUSAM O QUE DIZEM PROIBIR
+// ---------------------------------------------------------------------------
+
+// Os testes acima pedem zero ocorrências, o que um padrão que nunca casa também dá. Cada palavra de
+// cada padrão tem aqui um caso que ele acusa, na ordem e na grafia do padrão, e um quase-acerto que
+// ele deixa passar. Uma palavra tirada do padrão derruba o caso dela.
+const ACUSA: [string, RegExp, string[]][] = [
+  ["o nome do mantenedor", NOME_DO_MANTENEDOR, ["por Ryan."]],
+  [
+    "os comandos pessoais",
+    COMANDOS_PESSOAIS,
+    [
+      "rode /spec antes",
+      "rode /idioma antes",
+      "rode /estilo-arquivos antes",
+      "rode /fechar-sessao antes",
+      "rode /atualizar-docs antes",
+      "rode /atualizar-dependencias antes",
+      "rode /atualizar-ferramentas antes",
+      "rode /auditoria-testes antes",
+      "rode /enxugar-memoria antes",
+      "rode /revisar-dependabot antes",
+      "rode /limpar-branches antes",
+      "rode /nova-interface antes",
+      "rode /novo-projeto antes",
+      "rode /preparar-release antes",
+      "rode /qualidade-python antes",
+      "rode /stack antes",
+      "(/spec)",
+    ],
+  ],
+  [
+    "os caminhos pessoais",
+    CAMINHOS_PESSOAIS,
+    ["em orientacoes-pessoais/", "em ~/.claude/skills", "em C:\\Users\\x", "em c:/Users/x"],
+  ],
+  [
+    "o fluxo pessoal",
+    FLUXO_PESSOAL,
+    [
+      "com a autorização do mantenedor",
+      "sem autorizar o mantenedor",
+      "avisar o mantenedor",
+      "avisado mantenedor",
+      "depois de avisar",
+      "Escrito para: alguém",
+    ],
+  ],
+  [
+    "a pendência interna",
+    PENDENCIA_INTERNA,
+    ["**Pendente:**", "**Pendência:**", "**Depois do deploy:**", "**Só depois do deploy:**"],
+  ],
+  ["a referência privada", REFERENCIA_PRIVADA, ["no guia de operação", "num Artifact"]],
+  [
+    "o outro projeto",
+    OUTRO_PROJETO,
+    ["o DMARC Fácil", "o DMARC Facil", "o dmarc-facil", "o site irmão", "o Site Irmão"],
+  ],
+];
+
+const DEIXA_PASSAR: [string, RegExp, string[]][] = [
+  ["o nome do mantenedor", NOME_DO_MANTENEDOR, ["Ryanair", "ryan"]],
+  [
+    "os comandos pessoais",
+    COMANDOS_PESSOAIS,
+    ["docs/stack.md", "../specs/", "a/spec", "/stacks", "/spec-x", "/auditoria-"],
+  ],
+  ["os caminhos pessoais", CAMINHOS_PESSOAIS, ["orientacoes pessoais", "~/claude", "C:Users\\x"]],
+  ["o fluxo pessoal", FLUXO_PESSOAL, ["a autorização. O mantenedor", "avisar a equipe"]],
+  ["a pendência interna", PENDENCIA_INTERNA, ["Pendente:", "**Pendentes:**"]],
+  ["a referência privada", REFERENCIA_PRIVADA, ["Artifacts", "guia de instalação"]],
+  ["o outro projeto", OUTRO_PROJETO, ["DMARC", "site do irmão"]],
+];
+
+describe("impessoalidade: os padrões", () => {
+  describe.each(ACUSA)("de %s", (_nome, padrao, casos) => {
+    it.each(casos)("acusam %j", (caso) => {
+      expect(caso).toMatch(padrao);
+    });
+  });
+
+  describe.each(DEIXA_PASSAR)("de %s", (_nome, padrao, casos) => {
+    it.each(casos)("deixam passar %j", (caso) => {
+      expect(caso).not.toMatch(padrao);
+    });
   });
 });

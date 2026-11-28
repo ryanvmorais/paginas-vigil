@@ -37,6 +37,14 @@ describe("caminhoNoIdioma", () => {
     expect(caminhoNoIdioma("/x", "pt")).toBe("/x/");
   });
 
+  it("acrescenta a barra inicial que falta, e o caminho vazio vira a raiz", () => {
+    expect(caminhoNoIdioma("x", "en")).toBe("/en/x/");
+    expect(caminhoNoIdioma("x/", "pt")).toBe("/x/");
+    expect(caminhoNoIdioma("en/x", "pt")).toBe("/x/");
+    expect(caminhoNoIdioma("", "pt")).toBe("/");
+    expect(caminhoNoIdioma("", "en")).toBe("/en/");
+  });
+
   it("trata /en sem barra como a raiz em inglês", () => {
     expect(caminhoNoIdioma("/en", "pt")).toBe("/");
     expect(caminhoNoIdioma("/en", "en")).toBe("/en/");
