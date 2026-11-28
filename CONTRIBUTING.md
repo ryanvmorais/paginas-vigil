@@ -14,6 +14,8 @@ Como instalar e ativar o hook de pre-commit está na seção [Desenvolvimento do
 
 Rode o portão de qualidade inteiro (formatação, lint, tipos, testes e build, listados na seção [Desenvolvimento do README](README.md#desenvolvimento)) e confira que ele está verde. O CI roda esta mesma sequência, e o hook de pre-commit roda as quatro primeiras etapas.
 
+Todo teste novo ou mudado é visto falhando uma vez antes do commit: sabote a linha que ele guarda, confira que ele fica vermelho e desfaça a sabotagem. O PR diz o que foi sabotado e o resultado. As regras de teste do projeto estão em [Como uma spec é testada](specs/README.md#como-uma-spec-é-testada).
+
 ## Convenções
 
 - **Idioma:** código, comentários, mensagens de commit e documentação são em português; o texto que o visitante lê segue o idioma da página (português ou inglês).

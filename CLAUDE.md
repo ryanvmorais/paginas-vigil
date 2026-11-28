@@ -78,7 +78,8 @@ packages/tema/        # tema e utilidades compartilhados pelos dois sites
                       # Consentimento, FiguraRelatorio, Grupos, Limites, NaoEncontrada (a 404), Passos, Rodape, Secao,
                       # SeletorIdioma, Terminal, Topo
   src/scripts/        # copiar.ts (botão de copiar), menu.ts (fecha o menu do celular) e consentimento.ts (banner,
-                      # cookie e gtag.js), empacotados pelo Astro em arquivo externo
+                      # cookie e gtag.js), empacotados pelo Astro em arquivo externo; o teste ao lado roda no
+                      # DOM do happy-dom (`@vitest-environment` no arquivo) e confere os ganchos `data-*` do .astro
   src/estilos/        # fontes.css, tokens.css, base.css e terminal.css: estilos globais; os três primeiros
                       # vêm pelo layout e o terminal.css pelo Terminal.astro. A escala tipográfica são os
                       # cinco tokens --fs-* de tokens.css: texto novo usa um deles (os títulos têm tamanho próprio)
@@ -112,7 +113,7 @@ test/                 # testes do repositório: impessoalidade.test.ts (ver "Con
                       # logo igual no cabeçalho e no favicon; dimensões das imagens), csp.test.ts (a URL do gtag.js
                       # cabe na CSP com medição e não cabe sem), hospedagem.test.ts (o wrangler.json de cada app),
                       # lighthouse-producao.test.ts (os limites de produção iguais aos do build), terminal.test.ts
-                      # (a saída do terminal não é recortada no celular) e workflow-deploy.test.ts (o que o deploy.yml
+                      # (a saída não é recortada no celular e usa só as tags e cores do terminal.css) e workflow-deploy.test.ts (o que o deploy.yml
                       # não pode mudar sem querer)
 .claude/              # hooks do Claude Code (ver "Qualidade e automação")
 ```

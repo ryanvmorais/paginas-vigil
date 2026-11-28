@@ -78,6 +78,16 @@ O executor de testes. Roda os arquivos `*.test.ts` com a sintaxe do Jest (`descr
 
 **Docs:** [Vitest](https://vitest.dev/).
 
+### happy-dom 21
+
+Um DOM simulado em Node, usado só pelos testes dos scripts de navegador do `tema` (banner de consentimento, menu do celular e botão de copiar). Cada um desses arquivos de teste o liga no cabeçalho (`@vitest-environment happy-dom`); o resto da suíte roda em Node puro. A opção `disableJavaScriptFileLoading` faz o `<script>` externo que o banner insere nunca ser baixado, então nenhum teste vai à rede.
+
+**Por que esta:** os scripts são uma cola fina sobre o DOM (cliques, foco, `document.cookie`, `localStorage`), e o que eles decidem, como o botão Fechar valer como recusa, só se confere com um DOM. O happy-dom sobe mais depressa que o jsdom e cobre o que esses scripts usam. Limite conhecido: ele não apaga um cookie com `Max-Age=0`, então os testes conferem as remoções pelo texto atribuído a `document.cookie`.
+
+**Estudar:** ambiente por arquivo no Vitest (`@vitest-environment`, `@vitest-environment-options`), `vi.resetModules` com `import()` dinâmico para rodar de novo um script que age no carregamento, timers falsos (`vi.useFakeTimers`) e `vi.stubGlobal`.
+
+**Docs:** [happy-dom](https://github.com/capricorn86/happy-dom/wiki) · [ambiente de teste do Vitest](https://vitest.dev/guide/environment).
+
 ### ESLint 10 e `typescript-eslint`
 
 O lint: acha erros prováveis (variável sem uso, comparação suspeita) e problemas de acessibilidade nos arquivos `.astro`, com o `eslint-plugin-astro`. A configuração é um arquivo só, `eslint.config.mjs`.
